@@ -1,6 +1,7 @@
 import { useSelector, useDispatch } from "react-redux"
 import { RootState } from "./app/store"
 import { decrement, increment } from "./slices/counterSlice"
+import { Button } from "@nextui-org/react"
 
 export default function App() {
   const count = useSelector((state: RootState) => state.counter.value)
@@ -8,14 +9,14 @@ export default function App() {
 
   return (
     <div>
-      <div>
-        <button aria-label="Increment value" onClick={() => dispatch(increment())}>
+      <div className="flex items-center gap-2.5">
+        <Button color="primary" aria-label="Increment value" onClick={() => dispatch(increment())}>
           Increment
-        </button>
-        <span>{count}</span>
-        <button aria-label="Decrement value" onClick={() => dispatch(decrement())}>
+        </Button>
+        <div>{count}</div>
+        <Button color="primary" aria-label="Decrement value" onClick={() => dispatch(decrement())}>
           Decrement
-        </button>
+        </Button>
       </div>
     </div>
   )
