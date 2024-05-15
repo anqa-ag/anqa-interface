@@ -96,4 +96,5 @@ select {
 *::before,
 *::after {
   font-family: "Inter", sans-serif;
+  color: #ffffff;
 }
