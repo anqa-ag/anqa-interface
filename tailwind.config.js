@@ -1,5 +1,5 @@
 // tailwind.config.js
-import { nextui } from "@nextui-org/react"
+import { colors, nextui } from "@nextui-org/react"
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -17,6 +17,7 @@ export default {
       themes: {
         dark: {
           colors: {
+            black: "#101010",
             background: "#101010",
             foreground: "#FFFFFF",
             primary: "#0079BF",
