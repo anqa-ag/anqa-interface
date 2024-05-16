@@ -22,6 +22,7 @@ module.exports = {
   rules: {
     "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
     "tailwindcss/classnames-order": ["off"],
+    "tailwindcss/enforces-shorthand": ["off"],
   },
   settings: {
     react: {

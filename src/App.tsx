@@ -17,15 +17,15 @@ export default function App() {
 */}
           <header className="flex h-[84px] content-center items-center justify-between px-[60px]">
             <div>
-              <Button isIconOnly variant="light" className="h-[44px] w-[44px]">
-                <Image width={44} src="/favicon.svg" />
+              <Button isIconOnly variant="light" className="h-[48px] w-[48px]">
+                <Image width={60} src="/favicon.png" />
               </Button>
             </div>
             <div className="flex gap-4">
-              <Button variant="light" className="text-primaryHover px-4 text-base font-medium">
+              <Button variant="light" className="px-4 text-base font-medium text-primaryHover">
                 Trade
               </Button>
-              <Button variant="light" className="text-disable px-4 text-base font-medium">
+              <Button variant="light" className="px-4 text-base font-medium text-disable">
                 Bridge (soon)
               </Button>
             </div>
@@ -46,13 +46,13 @@ export default function App() {
                 <div className="flex gap-3">
                   <Button
                     color="primary"
-                    className="bg-primaryHover h-8 min-w-min gap-1 rounded p-2 font-normal text-black"
+                    className="h-8 min-w-min gap-1 rounded bg-primaryHover p-2 font-normal text-black"
                     endContent={<Swap />}
                   >
                     Swap
                   </Button>
                 </div>
-                <Button isIconOnly variant="light" className="h-8 w-8 min-w-min">
+                <Button isIconOnly variant="light" className="h-2 w-2 min-w-min">
                   <Setting />
                 </Button>
               </div>
