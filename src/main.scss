@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -72,7 +72,7 @@ select {
 }
 
 /* Remove all animations, transitions and smooth scroll for people that prefer not to see them */
-@media (prefers-reduced-motion: reduce) {
+/* @media (prefers-reduced-motion: reduce) {
   html:focus-within {
     scroll-behavior: auto;
   }
@@ -85,11 +85,24 @@ select {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
+} */
 
 /* Create a root stacking context */
 #__next {
   isolation: isolate;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 /* Customize */
@@ -98,4 +111,36 @@ select {
 *::before,
 *::after {
   font-family: "Inter", sans-serif;
+}
+
+.anqa-hover-primary-all:hover,
+.anqa-hover-primary-all:focus {
+  border-color: #0079bf;
+  color: #0079bf;
+  fill: #0079bf;
+  transition: all;
+  transition-duration: 250ms;
+  * {
+    transition: all;
+    transition-duration: 250ms;
+    border-color: #0079bf;
+    color: #0079bf;
+    fill: #0079bf;
+  }
+}
+
+.anqa-hover-white-all:hover,
+.anqa-hover-white-all:focus {
+  border-color: #ffffff;
+  color: #ffffff;
+  fill: #ffffff;
+  transition: all;
+  transition-duration: 250ms;
+  * {
+    transition: all;
+    transition-duration: 250ms;
+    border-color: #ffffff;
+    color: #ffffff;
+    fill: #ffffff;
+  }
 }

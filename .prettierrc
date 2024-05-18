@@ -5,5 +5,13 @@
     "semi": false,
     "plugins": [
         "prettier-plugin-tailwindcss"
+    ],
+    "overrides": [
+        {
+            "files": "Icons.tsx",
+            "options": {
+                "printWidth": 100000
+            }
+        }
     ]
 }

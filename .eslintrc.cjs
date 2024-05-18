@@ -10,7 +10,7 @@ module.exports = {
     "plugin:react/jsx-runtime",
     "plugin:tailwindcss/recommended",
   ],
-  ignorePatterns: ["dist", ".eslintrc.cjs"],
+  ignorePatterns: ["dist", ".eslintrc.cjs", "tailwind.config.js", "postcss.config.js"],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaVersion: "latest",
@@ -23,6 +23,9 @@ module.exports = {
     "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
     "tailwindcss/classnames-order": ["off"],
     "tailwindcss/enforces-shorthand": ["off"],
+    "tailwindcss/no-custom-classname": [1, {
+      cssFiles: ["src/main.scss"]
+    }],
   },
   settings: {
     react: {

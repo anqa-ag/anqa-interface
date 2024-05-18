@@ -1,5 +1,5 @@
 // tailwind.config.js
-import { colors, nextui } from "@nextui-org/react"
+import { nextui } from "@nextui-org/react"
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -23,6 +23,8 @@ export default {
             primary: "#0079BF",
             primaryHover: "#0CA0EB",
             disable: "#3C4043",
+            buttonSecondary: "#9AA0A6",
+            buttonDisabled: "#282A2D",
           },
         },
       },
