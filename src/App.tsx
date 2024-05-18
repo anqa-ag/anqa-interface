@@ -1,7 +1,8 @@
 import { Button, Image, Spacer } from "@nextui-org/react"
-import { ArrowFilledDownIcon, SettingIcon, SwapIcon, WalletIcon } from "./components/Icons"
-import { BodyB2, BodyB3, TitleT1, TitleT2 } from "./components/Texts"
 import { useState } from "react"
+import { CountdownCircleTimer } from "react-countdown-circle-timer"
+import { ArrowFilledDownIcon, SettingIcon, SwapIcon, WalletIcon } from "./components/Icons"
+import { BodyB2, BodyB3, TitleT2 } from "./components/Texts"
 
 const NumberInput = () => {
   return (
@@ -90,6 +91,11 @@ export default function App() {
     }, 1000)
   }
 
+  const [isMoreInfo, setIsMoreInfo] = useState(false)
+  const onToggleMoreInfo = () => {
+    setIsMoreInfo((prev) => !prev)
+  }
+
   return (
     <main className="bg-background text-foreground dark">
       <div className="h-lvh w-lvw overflow-hidden">
@@ -175,18 +181,57 @@ export default function App() {
 
               <Spacer y={3} />
 
-              <Button color="primary" className="h-[48px] rounded" isLoading={isSwapping} onClick={onSwap}>
+              <Button color="primary" className="h-[52px] rounded" isLoading={isSwapping} onClick={onSwap}>
                 <TitleT2>Swap</TitleT2>
               </Button>
 
               <Spacer y={4} />
 
-              <div className="rounded-lg border-1 border-buttonSecondary p-3">
+              <div className="flex flex-col gap-2 rounded-lg border-1 border-buttonSecondary p-3">
                 <div className="flex justify-between">
-                  <div className="flex items-center">
+                  <div className="flex items-center gap-2">
                     <BodyB2>1 USDC = 0.11650797 APT</BodyB2>
+                    <CountdownCircleTimer
+                      isPlaying
+                      duration={10}
+                      colors={["#0079BF", "#0079BF"]}
+                      colorsTime={[0, 0]}
+                      onComplete={() => ({ shouldRepeat: true, delay: 0 })}
+                      isSmoothColorTransition={false}
+                      trailColor="#101010"
+                      size={16}
+                      strokeWidth={2}
+                    >
+                      {({ remainingTime }) => <div className="text-[8px] text-buttonSecondary">{remainingTime}</div>}
+                    </CountdownCircleTimer>
+                  </div>
+                  <div className="flex cursor-pointer items-center gap-1 select-none" tabIndex={0} onClick={onToggleMoreInfo}>
+                    <BodyB2 className="anqa-hover-white-all text-buttonSecondary">
+                      {isMoreInfo ? "Less Info" : "More info"}
+                    </BodyB2>
+                    <ArrowFilledDownIcon
+                      size={24}
+                      className={`ml-auto ${isMoreInfo ? "rotate-180" : ""}`}
+                      color="#9AA0A6"
+                    />
                   </div>
                 </div>
+                {isMoreInfo && (
+                  <>
+                    <div className="flex justify-between">
+                      <BodyB2 className="text-buttonSecondary">Price Impact</BodyB2>
+                      <BodyB2>~0.2574%</BodyB2>
+                    </div>
+                    <div className="flex justify-between">
+                      <BodyB2 className="text-buttonSecondary">Minimum Receive</BodyB2>
+                      <BodyB2>1.157999822 APT</BodyB2>
+                    </div>
+                    <div className="flex justify-between">
+                      <BodyB2 className="text-buttonSecondary">Max Transaction Fee</BodyB2>
+                      <BodyB2>0.000305 APT</BodyB2>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
