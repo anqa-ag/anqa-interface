@@ -1,6 +1,7 @@
 import { Button, Image, Spacer } from "@nextui-org/react"
 import { ArrowFilledDownIcon, SettingIcon, SwapIcon, WalletIcon } from "./components/Icons"
 import { BodyB2, BodyB3, TitleT1, TitleT2 } from "./components/Texts"
+import { useState } from "react"
 
 const NumberInput = () => {
   return (
@@ -18,6 +19,7 @@ const NumberInput = () => {
           className="w-full bg-transparent text-[28px] font-semibold outline-none placeholder:text-buttonSecondary"
           defaultValue="10"
           placeholder="0.00"
+          inputMode="decimal"
         />
         <div
           className="flex h-[42px] cursor-pointer items-center gap-1 rounded-full border-2 border-buttonDisabled p-2 transition hover:border-buttonSecondary"
@@ -56,6 +58,7 @@ const NumberInput2 = () => {
           className="w-full bg-transparent text-[28px] font-semibold outline-none placeholder:text-buttonSecondary"
           defaultValue="1.16507965"
           placeholder="0.00"
+          inputMode="decimal"
         />
         <div
           className="flex h-[42px] cursor-pointer items-center gap-1 rounded-full border-2 border-buttonDisabled p-2 transition hover:border-buttonSecondary"
@@ -79,18 +82,26 @@ const NumberInput2 = () => {
 }
 
 export default function App() {
+  const [isSwapping, setIsSwapping] = useState(false)
+  const onSwap = () => {
+    setIsSwapping(true)
+    setTimeout(() => {
+      setIsSwapping(false)
+    }, 1000)
+  }
+
   return (
     <main className="bg-background text-foreground dark">
       <div className="h-lvh w-lvw overflow-hidden">
         <div className="absolute h-lvh w-lvw bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
         <div className="isolate">
           {/*
-###############################################################################
-#
-#                                                                        HEADER
-#
-###############################################################################
-*/}
+          ###############################################################################
+          #
+          #                                                                        HEADER
+          #
+          ###############################################################################
+          */}
           <header className="flex h-[84px] content-center items-center justify-between px-[60px]">
             <div className="flex-1">
               <Button isIconOnly variant="light" className="h-[48px] w-[48px]">
@@ -98,11 +109,16 @@ export default function App() {
               </Button>
             </div>
             <div className="flex gap-4">
-              <Button variant="light" className="px-4">
-                <TitleT1 className="text-primaryHover">Trade</TitleT1>
+              <Button variant="light" className="rounded border-1 border-primaryHover px-4">
+                <TitleT2 className="text-primaryHover">Trade</TitleT2>
               </Button>
-              <Button variant="light" className="px-4" disabled>
-                <TitleT1 className="text-disable">Bridge (soon)</TitleT1>
+              <Button variant="light" className="gap-1 rounded px-4" disabled>
+                <TitleT2 className="text-disable">Bridge</TitleT2>
+                <BodyB3 className="rounded border-1 border-primary px-1 align-bottom text-primary">soon</BodyB3>
+              </Button>
+              <Button variant="light" className="gap-1 rounded px-4" disabled>
+                <TitleT2 className="text-disable">Cross-chain</TitleT2>
+                <BodyB3 className="rounded border-1 border-primary px-1 align-bottom text-primary">soon</BodyB3>
               </Button>
             </div>
             <div className="flex-1 text-end">
@@ -112,12 +128,12 @@ export default function App() {
             </div>
           </header>
           {/*
-###############################################################################
-#
-#                                                                          MAIN
-#
-###############################################################################
-*/}
+          ###############################################################################
+          #
+          #                                                                          MAIN
+          #
+          ###############################################################################
+          */}
           <div className="mt-[60px] w-full">
             <div className="mx-auto flex max-w-[420px] flex-col">
               <div className="flex justify-between">
@@ -159,19 +175,29 @@ export default function App() {
 
               <Spacer y={3} />
 
-              <Button color="primary" className="h-[44px] rounded">
+              <Button color="primary" className="h-[48px] rounded" isLoading={isSwapping} onClick={onSwap}>
                 <TitleT2>Swap</TitleT2>
               </Button>
+
+              <Spacer y={4} />
+
+              <div className="rounded-lg border-1 border-buttonSecondary p-3">
+                <div className="flex justify-between">
+                  <div className="flex items-center">
+                    <BodyB2>1 USDC = 0.11650797 APT</BodyB2>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           {/*
-###############################################################################
-#
-#                                                                        FOOTER
-#
-###############################################################################
-*/}
+          ###############################################################################
+          #
+          #                                                                        FOOTER
+          #
+          ###############################################################################
+          */}
         </div>
       </div>
     </main>
