@@ -57,17 +57,17 @@ export default function App() {
 
   const tooltipPriceImpactRef = useRef(null)
   useClickAway(tooltipPriceImpactRef, () => {
-    setTooltipPriceImpact(false)
+    !isDesktop && setTooltipPriceImpact(false)
   })
 
   const tooltipMinimumReceiveRef = useRef(null)
   useClickAway(tooltipMinimumReceiveRef, () => {
-    setTooltipMinimumReceive(false)
+    !isDesktop && setTooltipMinimumReceive(false)
   })
 
   const tooltipMaxTxFeeRef = useRef(null)
   useClickAway(tooltipMaxTxFeeRef, () => {
-    setTooltipMaxTxFee(false)
+    !isDesktop && setTooltipMaxTxFee(false)
   })
 
   return (
