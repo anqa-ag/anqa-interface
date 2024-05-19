@@ -1,11 +1,11 @@
 import { Button, Image, Link, Spacer, Tooltip } from "@nextui-org/react"
 import { useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
-import { AnqaIcon, ArrowFilledDownIcon, SettingIcon, SwapIcon } from "./components/Icons"
-import { BodyB2, BodyB3, TitleT2 } from "./components/Texts"
 import { Chart1, Chart2 } from "./components/Chart"
+import { AnqaIcon, ArrowFilledDownIcon, SettingIcon, SwapIcon } from "./components/Icons"
 import { NumberInput, NumberInput2 } from "./components/NumberInput"
-import { useIsLg, useIsMd, useIsSm } from "./hooks/useMedia"
+import { BodyB2, BodyB3, TitleT2 } from "./components/Texts"
+import { useIsSm } from "./hooks/useMedia"
 
 function Menu() {
   return (
@@ -35,8 +35,6 @@ export default function App() {
     setIsMoreInfo((prev) => !prev)
   }
 
-  const isLg = useIsLg()
-  const isMd = useIsMd()
   const isSm = useIsSm()
 
   return (
