@@ -334,7 +334,7 @@ export default function App() {
                       className="min-h-[20px] min-w-[20px]"
                       src="https://s2.coinmarketcap.com/static/img/coins/64x64/21794.png"
                     />
-                    <TitleT2 className="whitespace-nowrap">APTzzz</TitleT2>
+                    <TitleT2 className="whitespace-nowrap">APT</TitleT2>
                   </div>
                   <Link
                     isBlock
