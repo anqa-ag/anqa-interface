@@ -34,39 +34,24 @@ export default function useWalletProvider() {
 
       if (connectedWallet) return
       setIsConnecting(true)
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      await window.martian.connect()
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+      const response: ConnectResponse = await provider.connect()
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      const _network: Network = await provider.network()
+      setNetwork(_network)
+      setConnectedWallet(response.address)
     } finally {
       setIsConnecting(false)
     }
   }
 
-  useEffect(() => {
-    const fn = async () => {
-      if (!provider) return
-
-      if (isConnecting) return
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      const isConnected = await provider.isConnected()
-      if (!isConnected) return
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      const account: MartianAccount = await provider.account()
-      if (account && Object.keys(account).length === 0) setConnectedWallet(undefined)
-      else setConnectedWallet(account.address)
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      const _network: Network = await provider.network()
-      setNetwork(_network)
-    }
-    void fn()
-  }, [isConnecting])
-
+  // Effect network change.
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
     provider.onNetworkChange((name: any) => setNetwork(name))
   }, [])
 
+  // Effect account change.
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
     provider.onAccountChange((wallet: string) => setConnectedWallet(wallet))
