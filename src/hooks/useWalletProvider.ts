@@ -47,12 +47,16 @@ export default function useWalletProvider() {
 
   // Effect network change.
   useEffect(() => {
+    if (!provider) return
+
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
     provider.onNetworkChange((name: any) => setNetwork(name))
   }, [])
 
   // Effect account change.
   useEffect(() => {
+    if (!provider) return
+
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
     provider.onAccountChange((wallet: string) => setConnectedWallet(wallet))
   }, [])
