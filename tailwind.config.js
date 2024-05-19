@@ -25,6 +25,8 @@ export default {
             disable: "#3C4043",
             buttonSecondary: "#9AA0A6",
             buttonDisabled: "#282A2D",
+            buttonRed: "#F44646",
+            buttonGreen: "#18CF6A",
           },
         },
       },
