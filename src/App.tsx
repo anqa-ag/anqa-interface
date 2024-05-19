@@ -1,10 +1,25 @@
-import { Button, Image, Link, Spacer } from "@nextui-org/react"
+import { Button, Image, Link, Spacer, Tooltip } from "@nextui-org/react"
 import { useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
-import { ArrowFilledDownIcon, SettingIcon, SwapIcon } from "./components/Icons"
+import { AnqaIcon, ArrowFilledDownIcon, SettingIcon, SwapIcon } from "./components/Icons"
 import { BodyB2, BodyB3, TitleT2 } from "./components/Texts"
 import { Chart1, Chart2 } from "./components/Chart"
 import { NumberInput, NumberInput2 } from "./components/NumberInput"
+import { useIsLg, useIsMd, useIsSm } from "./hooks/useMedia"
+
+function Menu() {
+  return (
+    <div className="flex items-center gap-4 md:justify-center md:gap-2">
+      <Button variant="light" className="min-w-0 rounded border-1 border-primaryHover px-4">
+        <TitleT2 className="text-primaryHover">Trade</TitleT2>
+      </Button>
+      <Button variant="light" className="gap-1 rounded px-4" disabled>
+        <TitleT2 className="text-disable">Bridge</TitleT2>
+        <BodyB3 className="rounded border-1 border-primary px-1 align-bottom text-primary">soon</BodyB3>
+      </Button>
+    </div>
+  )
+}
 
 export default function App() {
   const [isSwapping, setIsSwapping] = useState(false)
@@ -20,10 +35,14 @@ export default function App() {
     setIsMoreInfo((prev) => !prev)
   }
 
+  const isLg = useIsLg()
+  const isMd = useIsMd()
+  const isSm = useIsSm()
+
   return (
     <main className="bg-background text-foreground dark">
-      <div className="h-lvh w-lvw overflow-hidden">
-        <div className="absolute h-lvh w-lvw bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
+      <div className="h-full w-lvw">
+        <div className="fixed top-0 h-full w-lvw bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
         <div className="isolate">
           {/*
           ###############################################################################
@@ -32,30 +51,24 @@ export default function App() {
           #
           ###############################################################################
           */}
-          <header className="flex h-[84px] content-center items-center justify-between px-[60px]">
-            <div className="flex-1">
-              <Button isIconOnly variant="light" className="h-[48px] w-[48px]">
-                <Image width={60} src="/favicon.png" />
+          <header className="flex h-[84px] items-center justify-between px-[60px] md:justify-center md:px-[16px] lg:px-[30px]">
+            <div className="flex flex-1">
+              <Button isIconOnly variant="light" className="h-[40px] w-[40px]">
+                <AnqaIcon size={40} />
               </Button>
             </div>
-            <div className="flex gap-4">
-              <Button variant="light" className="rounded border-1 border-primaryHover px-4">
-                <TitleT2 className="text-primaryHover">Trade</TitleT2>
-              </Button>
-              <Button variant="light" className="gap-1 rounded px-4" disabled>
-                <TitleT2 className="text-disable">Bridge</TitleT2>
-                <BodyB3 className="rounded border-1 border-primary px-1 align-bottom text-primary">soon</BodyB3>
-              </Button>
-              <Button variant="light" className="gap-1 rounded px-4" disabled>
-                <TitleT2 className="text-disable">Cross-chain</TitleT2>
-                <BodyB3 className="rounded border-1 border-primary px-1 align-bottom text-primary">soon</BodyB3>
-              </Button>
-            </div>
-            <div className="flex-1 text-end">
-              <Button color="primary" className="rounded">
-                <TitleT2>Connect Wallet</TitleT2>
-              </Button>
-            </div>
+            {isSm ? (
+              <Menu />
+            ) : (
+              <>
+                <Menu />
+                <div className="flex-1 text-end">
+                  <Button color="primary" className="rounded">
+                    <TitleT2>Connect Wallet</TitleT2>
+                  </Button>
+                </div>
+              </>
+            )}
           </header>
           {/*
           ###############################################################################
@@ -64,7 +77,7 @@ export default function App() {
           #
           ###############################################################################
           */}
-          <div className="mt-[60px] w-full">
+          <div className="mt-[60px] w-full p-4 sm:mt-0">
             <div className="mx-auto flex max-w-[420px] flex-col">
               <div className="flex justify-between">
                 <div className="flex gap-3">
@@ -98,8 +111,12 @@ export default function App() {
               <Spacer y={3} />
 
               <div className="anqa-hover-primary-all flex cursor-pointer items-center gap-3" tabIndex={0}>
-                <BodyB2 className="rounded border-1 border-primary p-2 text-primary">2 splits & 3 hops</BodyB2>
-                <BodyB3 className="text-buttonSecondary">via Pancakeswap, Cellana, Liquidswap</BodyB3>
+                <BodyB2 className="whitespace-nowrap rounded border-1 border-primary p-2 text-primary">
+                  2 splits & 3 hops
+                </BodyB2>
+                <BodyB3 className="overflow-hidden text-ellipsis whitespace-nowrap text-buttonSecondary">
+                  via Pancakeswap, Cellana, Liquidswap
+                </BodyB3>
                 <ArrowFilledDownIcon size={24} className="ml-auto -rotate-90" color="#9AA0A6" />
               </div>
 
@@ -114,7 +131,7 @@ export default function App() {
               <div className="flex flex-col gap-2 rounded-lg border-1 border-buttonSecondary p-3">
                 <div className="flex justify-between">
                   <div className="flex items-center gap-2">
-                    <BodyB2>1 USDC = 0.11650797 APT</BodyB2>
+                    <BodyB2 className="whitespace-nowrap">1 USDC = 0.11650797 APT</BodyB2>
                     <CountdownCircleTimer
                       isPlaying
                       duration={10}
@@ -134,7 +151,9 @@ export default function App() {
                     tabIndex={0}
                     onClick={onToggleMoreInfo}
                   >
-                    <BodyB2 className=" text-buttonSecondary">{isMoreInfo ? "Less Info" : "More info"}</BodyB2>
+                    <BodyB2 className=" text-buttonSecondary">
+                      {isMoreInfo ? (isSm ? "Less" : "Less Info") : isSm ? "More" : "More info"}
+                    </BodyB2>
                     <ArrowFilledDownIcon
                       size={24}
                       className={`ml-auto ${isMoreInfo ? "rotate-180" : ""}`}
@@ -145,15 +164,46 @@ export default function App() {
                 {isMoreInfo && (
                   <>
                     <div className="flex justify-between">
-                      <BodyB2 className="text-buttonSecondary">Price Impact</BodyB2>
+                      <Tooltip
+                        content="I am a tooltip I am a tooltip I am a tooltip I am a tooltip"
+                        closeDelay={0}
+                        showArrow
+                        placement="right"
+                      >
+                        <BodyB2
+                          className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
+                          tabIndex={0}
+                        >
+                          Price Impact
+                        </BodyB2>
+                      </Tooltip>
                       <BodyB2>~0.2574%</BodyB2>
                     </div>
                     <div className="flex justify-between">
-                      <BodyB2 className="text-buttonSecondary">Minimum Receive</BodyB2>
+                      <Tooltip
+                        content="I am a tooltip I am a tooltip I am a tooltip"
+                        closeDelay={0}
+                        showArrow
+                        placement="right"
+                      >
+                        <BodyB2
+                          className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
+                          tabIndex={0}
+                        >
+                          Minimum Receive
+                        </BodyB2>
+                      </Tooltip>
                       <BodyB2>1.157999822 APT</BodyB2>
                     </div>
                     <div className="flex justify-between">
-                      <BodyB2 className="text-buttonSecondary">Max Transaction Fee</BodyB2>
+                      <Tooltip content="I am a tooltip I am a tooltip" closeDelay={0} showArrow placement="right">
+                        <BodyB2
+                          className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
+                          tabIndex={0}
+                        >
+                          Max Transaction Fee
+                        </BodyB2>
+                      </Tooltip>
                       <BodyB2>0.000305 APT</BodyB2>
                     </div>
                   </>
@@ -162,7 +212,7 @@ export default function App() {
 
               <Spacer y={4} />
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
                     <Image
@@ -188,7 +238,7 @@ export default function App() {
 
               <Spacer y={4} />
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
                     <Image
@@ -221,6 +271,26 @@ export default function App() {
           #
           ###############################################################################
           */}
+          <footer className="fixed bottom-0 flex h-[84px] w-full content-center items-center justify-between px-[60px] md:px-[16px] lg:px-[30px] md:static">
+            <BodyB2 className="text-buttonSecondary">© Anqa 2024</BodyB2>
+            <div className="flex items-center gap-5 md:gap-0">
+              <Link isBlock href="#" color="primary" className="text-buttonSecondary" size="sm">
+                <BodyB2>Term & Condition</BodyB2>
+              </Link>
+              {isSm ? (
+                <div />
+              ) : (
+                <>
+                  <Link isBlock href="#" color="primary" className="text-buttonSecondary" size="sm">
+                    <BodyB2>Privacy Policy</BodyB2>
+                  </Link>
+                  <Link isBlock href="#" color="primary" className="text-buttonSecondary" size="sm">
+                    <BodyB2>Cookies</BodyB2>
+                  </Link>
+                </>
+              )}
+            </div>
+          </footer>
         </div>
       </div>
     </main>
