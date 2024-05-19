@@ -7,6 +7,7 @@ import { NumberInput, NumberInput2 } from "./components/NumberInput"
 import { BodyB2, BodyB3, TitleT2 } from "./components/Texts"
 import { useIsSm } from "./hooks/useMedia"
 import useWalletProvider, { Network } from "./hooks/useWalletProvider"
+import { isDesktop } from "react-device-detect"
 
 function Menu() {
   return (
@@ -40,6 +41,10 @@ export default function App() {
 
   const { onConnect, isConnecting, connectedWallet, network } = useWalletProvider()
   const isMainnet = network === Network.Mainnet
+
+  const [tooltipPriceImpact, setTooltipPriceImpact] = useState(false)
+  const [tooltipMinimumReceive, setTooltipMinimumReceive] = useState(false)
+  const [tooltipMaxTxFee, setTooltipMaxTxFee] = useState(false)
 
   return (
     <main className="h-full bg-background text-foreground dark">
@@ -199,10 +204,14 @@ export default function App() {
                         closeDelay={0}
                         showArrow
                         placement="right"
+                        isOpen={tooltipPriceImpact}
                       >
                         <BodyB2
                           className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
                           tabIndex={0}
+                          onMouseEnter={() => isDesktop && setTooltipPriceImpact(true)}
+                          onMouseLeave={() => isDesktop && setTooltipPriceImpact(false)}
+                          onClick={() => !isDesktop && setTooltipPriceImpact((prev) => !prev)}
                         >
                           Price Impact
                         </BodyB2>
@@ -215,10 +224,14 @@ export default function App() {
                         closeDelay={0}
                         showArrow
                         placement="right"
+                        isOpen={tooltipMinimumReceive}
                       >
                         <BodyB2
                           className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
                           tabIndex={0}
+                          onMouseEnter={() => isDesktop && setTooltipMinimumReceive(true)}
+                          onMouseLeave={() => isDesktop && setTooltipMinimumReceive(false)}
+                          onClick={() => !isDesktop && setTooltipMinimumReceive((prev) => !prev)}
                         >
                           Minimum Receive
                         </BodyB2>
@@ -226,10 +239,19 @@ export default function App() {
                       <BodyB2>1.157999822 APT</BodyB2>
                     </div>
                     <div className="flex justify-between">
-                      <Tooltip content="I am a tooltip I am a tooltip" closeDelay={0} showArrow placement="right">
+                      <Tooltip
+                        content="I am a tooltip I am a tooltip"
+                        closeDelay={0}
+                        showArrow
+                        placement="right"
+                        isOpen={tooltipMaxTxFee}
+                      >
                         <BodyB2
                           className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
                           tabIndex={0}
+                          onMouseEnter={() => isDesktop && setTooltipMaxTxFee(true)}
+                          onMouseLeave={() => isDesktop && setTooltipMaxTxFee(false)}
+                          onClick={() => !isDesktop && setTooltipMaxTxFee((prev) => !prev)}
                         >
                           Max Transaction Fee
                         </BodyB2>
