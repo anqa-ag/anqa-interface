@@ -6,6 +6,7 @@ import { AnqaIcon, ArrowFilledDownIcon, SettingIcon, SwapIcon } from "./componen
 import { NumberInput, NumberInput2 } from "./components/NumberInput"
 import { BodyB2, BodyB3, TitleT2 } from "./components/Texts"
 import { useIsSm } from "./hooks/useMedia"
+import useWalletProvider, { Network } from "./hooks/useWalletProvider"
 
 function Menu() {
   return (
@@ -37,6 +38,9 @@ export default function App() {
 
   const isSm = useIsSm()
 
+  const { onConnect, isConnecting, connectedWallet, network } = useWalletProvider()
+  const isMainnet = network === Network.Mainnet
+
   return (
     <main className="h-full bg-background text-foreground dark">
       <div className="h-full w-lvw">
@@ -49,7 +53,7 @@ export default function App() {
           #
           ###############################################################################
           */}
-          <header className="flex h-[84px] items-center justify-between px-[60px] md:justify-center md:px-[16px] lg:px-[30px]">
+          <header className="flex h-[84px] items-center justify-between px-[60px] lg:px-[30px] md:justify-center md:px-[16px]">
             <div className="flex flex-1">
               <Button isIconOnly variant="light" className="h-[40px] w-[40px]">
                 <AnqaIcon size={40} />
@@ -61,8 +65,36 @@ export default function App() {
               <>
                 <Menu />
                 <div className="flex-1 text-end">
-                  <Button color="primary" className="rounded">
-                    <TitleT2>Connect Wallet</TitleT2>
+                  <Button
+                    color="primary"
+                    className={
+                      "rounded" +
+                      " " +
+                      (connectedWallet
+                        ? "border-buttonSecondary bg-background text-buttonSecondary"
+                        : "border-primary bg-primary text-white")
+                    }
+                    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                    onClick={onConnect}
+                    isLoading={isConnecting}
+                    variant={connectedWallet ? "bordered" : "solid"}
+                    disabled={!!connectedWallet}
+                  >
+                    {connectedWallet && isMainnet && (
+                      <Image
+                        width={20}
+                        src="https://docs.martianwallet.xyz/~gitbook/image?url=https%3A%2F%2F3606291109-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FXillBNDwQOz0oPJ4OtRH%252Ficon%252FwxJ2nQfvB7av7RD11Zff%252FGroup%252048096217.png%3Falt%3Dmedia%26token%3D58ddee77-237e-4561-b712-1a2f0170c601&width=32&dpr=1&quality=100&sign=e2a4694961775d617093cded8bc23ca571cd6b8981292cda0ebaf6f2901e329d"
+                      />
+                    )}
+                    {connectedWallet ? (
+                      isMainnet ? (
+                        <TitleT2>{connectedWallet.slice(0, 4) + "..." + connectedWallet.slice(-4)}</TitleT2>
+                      ) : (
+                        <TitleT2>Wrong Network ({network})</TitleT2>
+                      )
+                    ) : (
+                      <TitleT2>Connect Wallet</TitleT2>
+                    )}
                   </Button>
                 </div>
               </>
@@ -285,7 +317,7 @@ export default function App() {
           #
           ###############################################################################
           */}
-          <footer className="fixed bottom-0 flex h-[84px] w-full content-center items-center justify-between px-[60px] md:static md:px-[16px] lg:px-[30px]">
+          <footer className="fixed bottom-0 flex h-[84px] w-full content-center items-center justify-between px-[60px] lg:px-[30px] md:static md:px-[16px]">
             <BodyB2 className="text-buttonSecondary">© Anqa 2024</BodyB2>
             <div className="flex items-center gap-5 md:gap-0">
               <Link
