@@ -38,10 +38,10 @@ export default function App() {
   const isSm = useIsSm()
 
   return (
-    <main className="bg-background text-foreground dark">
+    <main className="h-full bg-background text-foreground dark">
       <div className="h-full w-lvw">
         <div className="fixed top-0 h-full w-lvw bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
-        <div className="isolate">
+        <div className="isolate min-h-lvh">
           {/*
           ###############################################################################
           #
@@ -221,7 +221,15 @@ export default function App() {
                     />
                     <TitleT2 className="whitespace-nowrap">USDC</TitleT2>
                   </div>
-                  <Link isBlock showAnchorIcon href="#" color="primary" className="p-0 text-buttonSecondary" size="sm">
+                  <Link
+                    isBlock
+                    showAnchorIcon
+                    href="#"
+                    color="primary"
+                    className="p-0 text-buttonSecondary"
+                    size="sm"
+                    isExternal
+                  >
                     <BodyB3 className="text-buttonSecondary">0x48b...abb612</BodyB3>
                   </Link>
                 </div>
@@ -247,7 +255,15 @@ export default function App() {
                     />
                     <TitleT2 className="whitespace-nowrap">APT</TitleT2>
                   </div>
-                  <Link isBlock showAnchorIcon href="#" color="primary" className="p-0 text-buttonSecondary" size="sm">
+                  <Link
+                    isBlock
+                    showAnchorIcon
+                    href="#"
+                    color="primary"
+                    className="p-0 text-buttonSecondary"
+                    size="sm"
+                    isExternal
+                  >
                     <BodyB3 className="text-buttonSecondary">0x97f...3bf84c</BodyB3>
                   </Link>
                 </div>
@@ -269,20 +285,44 @@ export default function App() {
           #
           ###############################################################################
           */}
-          <footer className="fixed bottom-0 flex h-[84px] w-full content-center items-center justify-between px-[60px] md:px-[16px] lg:px-[30px] md:static">
+          <footer className="fixed bottom-0 flex h-[84px] w-full content-center items-center justify-between px-[60px] md:static md:px-[16px] lg:px-[30px]">
             <BodyB2 className="text-buttonSecondary">© Anqa 2024</BodyB2>
             <div className="flex items-center gap-5 md:gap-0">
-              <Link isBlock href="#" color="primary" className="text-buttonSecondary" size="sm">
+              <Link
+                isBlock
+                href="#"
+                color="primary"
+                className="text-buttonSecondary"
+                size="sm"
+                isExternal
+                showAnchorIcon
+              >
                 <BodyB2>Term & Condition</BodyB2>
               </Link>
               {isSm ? (
                 <div />
               ) : (
                 <>
-                  <Link isBlock href="#" color="primary" className="text-buttonSecondary" size="sm">
+                  <Link
+                    isBlock
+                    href="#"
+                    color="primary"
+                    className="text-buttonSecondary"
+                    size="sm"
+                    isExternal
+                    showAnchorIcon
+                  >
                     <BodyB2>Privacy Policy</BodyB2>
                   </Link>
-                  <Link isBlock href="#" color="primary" className="text-buttonSecondary" size="sm">
+                  <Link
+                    isBlock
+                    href="#"
+                    color="primary"
+                    className="text-buttonSecondary"
+                    size="sm"
+                    isExternal
+                    showAnchorIcon
+                  >
                     <BodyB2>Cookies</BodyB2>
                   </Link>
                 </>
