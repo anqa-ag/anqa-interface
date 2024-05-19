@@ -1,4 +1,5 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
+import { useClickAway } from "react-use"
 
 export default function useTooltip() {
   const [{ tooltipPriceImpact, tooltipMinimumReceive, tooltipMaxTxFee }, _setTooltip] = useState({

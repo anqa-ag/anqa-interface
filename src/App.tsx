@@ -1,5 +1,5 @@
 import { Button, Image, Link, Spacer, Tooltip } from "@nextui-org/react"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
 import { Chart1, Chart2 } from "./components/Chart"
 import { AnqaIcon, ArrowFilledDownIcon, SettingIcon, SwapIcon } from "./components/Icons"
@@ -9,6 +9,7 @@ import { useIsSm } from "./hooks/useMedia"
 import useWalletProvider, { Network } from "./hooks/useWalletProvider"
 import { isDesktop } from "react-device-detect"
 import useTooltip from "./hooks/useTooltip"
+import { useClickAway } from "react-use"
 
 function Menu() {
   return (
@@ -46,11 +47,28 @@ export default function App() {
   const {
     tooltipPriceImpact,
     setTooltipPriceImpact,
+
     tooltipMinimumReceive,
     setTooltipMinimumReceive,
+
     tooltipMaxTxFee,
     setTooltipMaxTxFee,
   } = useTooltip()
+
+  const tooltipPriceImpactRef = useRef(null)
+  useClickAway(tooltipPriceImpactRef, () => {
+    setTooltipPriceImpact(false)
+  })
+
+  const tooltipMinimumReceiveRef = useRef(null)
+  useClickAway(tooltipMinimumReceiveRef, () => {
+    setTooltipMinimumReceive(false)
+  })
+
+  const tooltipMaxTxFeeRef = useRef(null)
+  useClickAway(tooltipMaxTxFeeRef, () => {
+    setTooltipMaxTxFee(false)
+  })
 
   return (
     <main className="h-full bg-background text-foreground dark">
@@ -218,6 +236,7 @@ export default function App() {
                           onMouseEnter={() => isDesktop && setTooltipPriceImpact(true)}
                           onMouseLeave={() => isDesktop && setTooltipPriceImpact(false)}
                           onClick={() => !isDesktop && setTooltipPriceImpact(!tooltipPriceImpact)}
+                          ref={tooltipPriceImpactRef}
                         >
                           Price Impact
                         </BodyB2>
@@ -238,6 +257,7 @@ export default function App() {
                           onMouseEnter={() => isDesktop && setTooltipMinimumReceive(true)}
                           onMouseLeave={() => isDesktop && setTooltipMinimumReceive(false)}
                           onClick={() => !isDesktop && setTooltipMinimumReceive(!tooltipMinimumReceive)}
+                          ref={tooltipMinimumReceiveRef}
                         >
                           Minimum Receive
                         </BodyB2>
@@ -258,6 +278,7 @@ export default function App() {
                           onMouseEnter={() => isDesktop && setTooltipMaxTxFee(true)}
                           onMouseLeave={() => isDesktop && setTooltipMaxTxFee(false)}
                           onClick={() => !isDesktop && setTooltipMaxTxFee(!tooltipMaxTxFee)}
+                          ref={tooltipMaxTxFeeRef}
                         >
                           Max Transaction Fee
                         </BodyB2>
