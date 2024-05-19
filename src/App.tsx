@@ -8,6 +8,7 @@ import { BodyB2, BodyB3, TitleT2 } from "./components/Texts"
 import { useIsSm } from "./hooks/useMedia"
 import useWalletProvider, { Network } from "./hooks/useWalletProvider"
 import { isDesktop } from "react-device-detect"
+import useTooltip from "./hooks/useTooltip"
 
 function Menu() {
   return (
@@ -42,9 +43,14 @@ export default function App() {
   const { onConnect, isConnecting, connectedWallet, network } = useWalletProvider()
   const isMainnet = network === Network.Mainnet
 
-  const [tooltipPriceImpact, setTooltipPriceImpact] = useState(false)
-  const [tooltipMinimumReceive, setTooltipMinimumReceive] = useState(false)
-  const [tooltipMaxTxFee, setTooltipMaxTxFee] = useState(false)
+  const {
+    tooltipPriceImpact,
+    setTooltipPriceImpact,
+    tooltipMinimumReceive,
+    setTooltipMinimumReceive,
+    tooltipMaxTxFee,
+    setTooltipMaxTxFee,
+  } = useTooltip()
 
   return (
     <main className="h-full bg-background text-foreground dark">
@@ -211,7 +217,7 @@ export default function App() {
                           tabIndex={0}
                           onMouseEnter={() => isDesktop && setTooltipPriceImpact(true)}
                           onMouseLeave={() => isDesktop && setTooltipPriceImpact(false)}
-                          onClick={() => !isDesktop && setTooltipPriceImpact((prev) => !prev)}
+                          onClick={() => !isDesktop && setTooltipPriceImpact(!tooltipPriceImpact)}
                         >
                           Price Impact
                         </BodyB2>
@@ -231,7 +237,7 @@ export default function App() {
                           tabIndex={0}
                           onMouseEnter={() => isDesktop && setTooltipMinimumReceive(true)}
                           onMouseLeave={() => isDesktop && setTooltipMinimumReceive(false)}
-                          onClick={() => !isDesktop && setTooltipMinimumReceive((prev) => !prev)}
+                          onClick={() => !isDesktop && setTooltipMinimumReceive(!tooltipMinimumReceive)}
                         >
                           Minimum Receive
                         </BodyB2>
@@ -251,7 +257,7 @@ export default function App() {
                           tabIndex={0}
                           onMouseEnter={() => isDesktop && setTooltipMaxTxFee(true)}
                           onMouseLeave={() => isDesktop && setTooltipMaxTxFee(false)}
-                          onClick={() => !isDesktop && setTooltipMaxTxFee((prev) => !prev)}
+                          onClick={() => !isDesktop && setTooltipMaxTxFee(!tooltipMaxTxFee)}
                         >
                           Max Transaction Fee
                         </BodyB2>
