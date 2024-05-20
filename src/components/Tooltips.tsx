@@ -8,7 +8,7 @@ export default function Tooltips() {
         content="Lorem Ipsum is simply dummy text of the printing and typesetting industry."
         variant="light"
         place="right"
-        className="!max-w-[min(420px,80%)] !px-2 !py-1"
+        className="!max-w-[min(420px,80%)] !px-2 !py-1 !text-sm"
         opacity={1}
       />
       <ReactTooltip
@@ -16,7 +16,7 @@ export default function Tooltips() {
         content="Lorem Ipsum is simply dummy text of the printing and typesetting industry."
         variant="light"
         place="right"
-        className="!max-w-[min(420px,80%)] !px-2 !py-1"
+        className="!max-w-[min(420px,80%)] !px-2 !py-1 !text-sm"
         opacity={1}
       />
       <ReactTooltip
@@ -24,7 +24,7 @@ export default function Tooltips() {
         content="Lorem Ipsum is simply dummy text of the printing and typesetting industry."
         variant="light"
         place="right"
-        className="!max-w-[min(420px,80%)] !px-2 !py-1"
+        className="!max-w-[min(420px,80%)] !px-2 !py-1 !text-sm"
         opacity={1}
       />
     </>
