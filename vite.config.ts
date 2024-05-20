@@ -13,7 +13,7 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       manifest: {
-        name: "Anqa - Best Aggregator On Aptos",
+        name: "Anqa",
         short_name: "Anqa",
         icons: [
           {
