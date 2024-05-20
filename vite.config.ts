@@ -17,8 +17,8 @@ export default defineConfig({
         short_name: "Anqa",
         icons: [
           {
-            src: "favicon-dark.png",
-            sizes: "512x512",
+            src: "favicon.png",
+            sizes: "64x64 32x32 24x24 16x16 192x192 512x512",
             type: "image/png",
           },
         ],
