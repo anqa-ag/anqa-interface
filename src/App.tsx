@@ -44,10 +44,10 @@ export default function App() {
 
   return (
     <>
-      <main className="h-full bg-background text-foreground dark">
+      <div className="h-full bg-background text-foreground dark">
         <div className="h-full w-lvw">
           <div className="fixed top-0 h-full w-lvw bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
-          <div className="isolate min-h-lvh">
+          <div className="isolate flex min-h-lvh flex-col">
             {/*
           ###############################################################################
           #
@@ -109,7 +109,7 @@ export default function App() {
           #
           ###############################################################################
           */}
-            <div className="mt-[60px] w-full p-4 sm:mt-0">
+            <main className="mt-[60px] w-full p-4 sm:mt-0">
               <div className="mx-auto flex max-w-[420px] flex-col">
                 <div className="flex justify-between">
                   <div className="flex gap-3">
@@ -297,7 +297,7 @@ export default function App() {
                   </div>
                 </div>
               </div>
-            </div>
+            </main>
 
             {/*
           ###############################################################################
@@ -306,53 +306,55 @@ export default function App() {
           #
           ###############################################################################
           */}
-            <footer className="fixed bottom-0 flex h-[84px] w-full content-center items-center justify-between px-[60px] lg:px-[30px] md:static md:px-[16px]">
-              <BodyB2 className="text-buttonSecondary">© Anqa 2024</BodyB2>
-              <div className="flex items-center gap-5 md:gap-0">
-                <Link
-                  isBlock
-                  href="#"
-                  color="primary"
-                  className="text-buttonSecondary"
-                  size="sm"
-                  isExternal
-                  showAnchorIcon
-                >
-                  <BodyB2>Term & Condition</BodyB2>
-                </Link>
-                {isSm ? (
-                  <div />
-                ) : (
-                  <>
-                    <Link
-                      isBlock
-                      href="#"
-                      color="primary"
-                      className="text-buttonSecondary"
-                      size="sm"
-                      isExternal
-                      showAnchorIcon
-                    >
-                      <BodyB2>Privacy Policy</BodyB2>
-                    </Link>
-                    <Link
-                      isBlock
-                      href="#"
-                      color="primary"
-                      className="text-buttonSecondary"
-                      size="sm"
-                      isExternal
-                      showAnchorIcon
-                    >
-                      <BodyB2>Cookies</BodyB2>
-                    </Link>
-                  </>
-                )}
+            <footer className="flex w-full flex-1 items-end">
+              <div className="flex h-[84px] w-full content-center items-center justify-between px-[60px] lg:px-[30px] md:static md:px-[16px]">
+                <BodyB2 className="text-buttonSecondary">© Anqa 2024</BodyB2>
+                <div className="flex items-center gap-5 md:gap-0">
+                  <Link
+                    isBlock
+                    href="#"
+                    color="primary"
+                    className="text-buttonSecondary"
+                    size="sm"
+                    isExternal
+                    showAnchorIcon
+                  >
+                    <BodyB2>Term & Condition</BodyB2>
+                  </Link>
+                  {isSm ? (
+                    <div />
+                  ) : (
+                    <>
+                      <Link
+                        isBlock
+                        href="#"
+                        color="primary"
+                        className="text-buttonSecondary"
+                        size="sm"
+                        isExternal
+                        showAnchorIcon
+                      >
+                        <BodyB2>Privacy Policy</BodyB2>
+                      </Link>
+                      <Link
+                        isBlock
+                        href="#"
+                        color="primary"
+                        className="text-buttonSecondary"
+                        size="sm"
+                        isExternal
+                        showAnchorIcon
+                      >
+                        <BodyB2>Cookies</BodyB2>
+                      </Link>
+                    </>
+                  )}
+                </div>
               </div>
             </footer>
           </div>
         </div>
-      </main>
+      </div>
       <Tooltips />
     </>
   )
