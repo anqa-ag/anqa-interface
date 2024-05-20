@@ -22,38 +22,42 @@ const data2: any = JSON.parse(
 
 export function Chart1() {
   return (
-    <ResponsiveContainer width="100%" height={20}>
-      {/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */}
-      <LineChart data={data1} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-        <defs>
-          <linearGradient id="colorUv" x1="0%" y1="0" x2="100%" y2="0">
-            <stop offset="0%" stopColor="#92FE9D" />
-            <stop offset="100%" stopColor="#2575FC" />
-            <stop offset="100%" stopColor="#00C9FF" />
-          </linearGradient>
-        </defs>
-        <Line type="monotone" dataKey="price" dot={false} activeDot={false} stroke="url(#colorUv)" />
-        <YAxis dataKey="price" tickCount={1} domain={[0.98, 1.02]} hide />
-      </LineChart>
-    </ResponsiveContainer>
+    <>
+      <ResponsiveContainer width="100%" height={20}>
+        {/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */}
+        <LineChart data={data1} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+          <defs>
+            <linearGradient id="colorUv" x1="0%" y1="0" x2="100%" y2="0">
+              <stop offset="0%" stopColor="#92FE9D" />
+              <stop offset="100%" stopColor="#2575FC" />
+              <stop offset="100%" stopColor="#00C9FF" />
+            </linearGradient>
+          </defs>
+          <Line type="monotone" dataKey="price" dot={false} activeDot={false} stroke="url(#colorUv)" />
+          <YAxis dataKey="price" tickCount={1} domain={[0.98, 1.02]} hide />
+        </LineChart>
+      </ResponsiveContainer>
+    </>
   )
 }
 
 export function Chart2() {
   return (
-    <ResponsiveContainer width="100%" height={20}>
-      {/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */}
-      <LineChart data={data2} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-        <defs>
-          <linearGradient id="colorUv" x1="0%" y1="0" x2="100%" y2="0">
-            <stop offset="0%" stopColor="#92FE9D" />
-            <stop offset="100%" stopColor="#2575FC" />
-            <stop offset="100%" stopColor="#00C9FF" />
-          </linearGradient>
-        </defs>
-        <Line type="monotone" dataKey="price" dot={false} activeDot={false} stroke="url(#colorUv)" />
-        <YAxis dataKey="price" tickCount={1} domain={[140, 145]} hide />
-      </LineChart>
-    </ResponsiveContainer>
+    <>
+      <ResponsiveContainer width="100%" height={20}>
+        {/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */}
+        <LineChart data={data2} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+          <defs>
+            <linearGradient id="colorUv" x1="0%" y1="0" x2="100%" y2="0">
+              <stop offset="0%" stopColor="#92FE9D" />
+              <stop offset="100%" stopColor="#2575FC" />
+              <stop offset="100%" stopColor="#00C9FF" />
+            </linearGradient>
+          </defs>
+          <Line type="monotone" dataKey="price" dot={false} activeDot={false} stroke="url(#colorUv)" />
+          <YAxis dataKey="price" tickCount={1} domain={[140, 145]} hide />
+        </LineChart>
+      </ResponsiveContainer>
+    </>
   )
 }
