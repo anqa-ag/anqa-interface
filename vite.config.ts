@@ -23,8 +23,8 @@ export default defineConfig({
           },
         ],
         start_url: ".",
-        theme_color: "#0079BF",
-        background_color: "#101010",
+        theme_color: "#FFFF00", // yellow
+        background_color: "#FF0000", // red
         display: "standalone",
       },
     }),

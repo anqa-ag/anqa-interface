@@ -11,6 +11,22 @@ import { isDesktop } from "react-device-detect"
 import useTooltip from "./hooks/useTooltip"
 import { useClickAway } from "react-use"
 
+// BUG: CLICK KHÔNG TẮT ĐƯỢC TOOLTIP Ở TRÊN MOBILE
+// BUG: CLICK KHÔNG TẮT ĐƯỢC TOOLTIP Ở TRÊN MOBILE
+// BUG: CLICK KHÔNG TẮT ĐƯỢC TOOLTIP Ở TRÊN MOBILE
+// BUG: CLICK KHÔNG TẮT ĐƯỢC TOOLTIP Ở TRÊN MOBILE
+// BUG: CLICK KHÔNG TẮT ĐƯỢC TOOLTIP Ở TRÊN MOBILE
+// BUG: CLICK KHÔNG TẮT ĐƯỢC TOOLTIP Ở TRÊN MOBILE
+// BUG: CLICK KHÔNG TẮT ĐƯỢC TOOLTIP Ở TRÊN MOBILE
+// BUG: CLICK KHÔNG TẮT ĐƯỢC TOOLTIP Ở TRÊN MOBILE
+// BUG: CLICK KHÔNG TẮT ĐƯỢC TOOLTIP Ở TRÊN MOBILE
+// BUG: CLICK KHÔNG TẮT ĐƯỢC TOOLTIP Ở TRÊN MOBILE
+// BUG: CLICK KHÔNG TẮT ĐƯỢC TOOLTIP Ở TRÊN MOBILE
+// BUG: CLICK KHÔNG TẮT ĐƯỢC TOOLTIP Ở TRÊN MOBILE
+// BUG: CLICK KHÔNG TẮT ĐƯỢC TOOLTIP Ở TRÊN MOBILE
+// BUG: CLICK KHÔNG TẮT ĐƯỢC TOOLTIP Ở TRÊN MOBILE
+// BUG: CLICK KHÔNG TẮT ĐƯỢC TOOLTIP Ở TRÊN MOBILE
+
 function Menu() {
   return (
     <div className="flex items-center gap-4 md:justify-center md:gap-2">
