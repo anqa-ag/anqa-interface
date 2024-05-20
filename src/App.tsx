@@ -319,7 +319,7 @@ export default function App() {
                     isExternal
                     showAnchorIcon
                   >
-                    <BodyB2 className="text-red-500">Term & Conditionz</BodyB2>
+                    <BodyB2>Term & Condition</BodyB2>
                   </Link>
                   {isSm ? (
                     <div />
