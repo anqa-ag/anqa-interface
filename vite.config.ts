@@ -17,14 +17,14 @@ export default defineConfig({
         short_name: "Anqa",
         icons: [
           {
-            src: "favicon.png",
+            src: "favicon-dark.png",
             sizes: "64x64 32x32 24x24 16x16 192x192 512x512",
             type: "image/png",
           },
         ],
         start_url: ".",
-        theme_color: "#FFFF00", // yellow
-        background_color: "#FF0000", // red
+        theme_color: "#0079BF",
+        background_color: "#101010",
         display: "standalone",
       },
     }),
