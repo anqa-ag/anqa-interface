@@ -57,13 +57,13 @@ function WalletUpdater() {
 }
 
 export default function App() {
-  const [isSwapping, setIsSwapping] = useState(false)
-  const onSwap = () => {
-    setIsSwapping(true)
-    setTimeout(() => {
-      setIsSwapping(false)
-    }, 1000)
-  }
+  const [isSwapping] = useState(false)
+  // const onSwap = () => {
+  //   setIsSwapping(true)
+  //   setTimeout(() => {
+  //     setIsSwapping(false)
+  //   }, 1000)
+  // }
 
   const [isMoreInfo, setIsMoreInfo] = useState(false)
   const onToggleMoreInfo = () => {
@@ -218,8 +218,13 @@ export default function App() {
 
                 <Spacer y={3} />
 
-                <Button color="primary" className="h-[52px] rounded" isLoading={isSwapping} onPress={onSwap}>
-                  <TitleT2>Swap</TitleT2>
+                <Button
+                  color="primary"
+                  className="h-[52px] rounded"
+                  isLoading={isSwapping}
+                  onPress={connectedWallet ? onDisconnect : onOpenModalConnectWallet}
+                >
+                  <TitleT2>{connectedWallet ? "Disconnect" : "Connect"}</TitleT2>
                 </Button>
 
                 <Spacer y={4} />
