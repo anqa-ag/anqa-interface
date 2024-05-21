@@ -2,6 +2,7 @@ import { useCallback } from "react"
 import { useAppDispatch } from "."
 import { petra } from "../../../global"
 import { connect, disconnect } from "../slices/wallet"
+import { isMobile } from "react-device-detect"
 
 export default function usePetra() {
   const dispatch = useAppDispatch()
@@ -9,6 +10,9 @@ export default function usePetra() {
   const onConnect = useCallback(async () => {
     if (!petra) {
       window.open("https://petra.app", "_blank")
+      if (isMobile) {
+        window.open("https://petra.app/api/v1/connect?data=connect_data")
+      }
       return
     }
 
