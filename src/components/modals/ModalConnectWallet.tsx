@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks"
 import { setProvider } from "../../redux/slices/wallet"
 import usePetra from "../../redux/hooks/usePetra"
 import { martian, petra } from "../../../global.ts"
+import { isDesktop } from "react-device-detect"
 
 export default function ModalConnectWallet({
   isOpen,
@@ -93,25 +94,29 @@ export default function ModalConnectWallet({
                 </div>
 
                 {/* MARTIAN */}
-                <div className="flex w-full flex-col gap-1">
-                  <Button
-                    className="flex w-full items-center justify-between rounded bg-background px-4 py-3"
-                    onPress={onConnect("Martian")}
-                    isLoading={isMartian && isConnecting}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Image width={20} src="/images/martian.jpeg" />
-                      <TitleT2>Martian</TitleT2>
+                {isDesktop && (
+                  <>
+                    <div className="flex w-full flex-col gap-1">
+                      <Button
+                        className="flex w-full items-center justify-between rounded bg-background px-4 py-3"
+                        onPress={onConnect("Martian")}
+                        isLoading={isMartian && isConnecting}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Image width={20} src="/images/martian.jpeg" />
+                          <TitleT2>Martian</TitleT2>
+                        </div>
+                        {martian && (
+                          <div className="flex items-center gap-2">
+                            <div className="h-[6.67px] w-[6.67px] rounded-full bg-buttonGreen"></div>
+                            <TitleT4>Detected</TitleT4>
+                          </div>
+                        )}
+                      </Button>
+                      {isMartian && error && <BodyB2 className="text-buttonRed">{error}</BodyB2>}
                     </div>
-                    {martian && (
-                      <div className="flex items-center gap-2">
-                        <div className="h-[6.67px] w-[6.67px] rounded-full bg-buttonGreen"></div>
-                        <TitleT4>Detected</TitleT4>
-                      </div>
-                    )}
-                  </Button>
-                  {isMartian && error && <BodyB2 className="text-buttonRed">{error}</BodyB2>}
-                </div>
+                  </>
+                )}
               </div>
             </>
           )}
