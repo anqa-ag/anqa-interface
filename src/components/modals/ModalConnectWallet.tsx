@@ -5,6 +5,8 @@ import { BodyB2, TitleT1, TitleT2, TitleT4 } from "../Texts"
 import { useState } from "react"
 import { useAppDispatch, useAppSelector } from "../../redux/hooks"
 import { setProvider } from "../../redux/slices/wallet"
+import usePetra from "../../redux/hooks/usePetra"
+import { martian, petra } from "../../../global.ts"
 
 export default function ModalConnectWallet({
   isOpen,
@@ -23,21 +25,27 @@ export default function ModalConnectWallet({
 
   const [isConnecting, setIsConnecting] = useState(false)
   const [error, setError] = useState<string>()
+
   const { onConnect: onConnectMartian } = useMartian()
+  const { onConnect: onConnectPetra } = usePetra()
 
   const onConnect = (wantedProvider: "Martian" | "Petra") => async () => {
     dispatch(setProvider(wantedProvider))
 
     setIsConnecting(true)
     try {
+      let ok: boolean | undefined
       switch (wantedProvider) {
         case "Martian":
-          await onConnectMartian()
+          ok = await onConnectMartian()
+          break
+        case "Petra":
+          ok = await onConnectPetra()
       }
-      onClose()
+      if (ok) onClose()
     } catch (err) {
       console.error(err)
-      setError(err as string)
+      setError((err as Error).toString())
     } finally {
       setIsConnecting(false)
     }
@@ -74,10 +82,12 @@ export default function ModalConnectWallet({
                       <Image width={20} src="/images/petra.svg" />
                       <TitleT2>Petra</TitleT2>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="h-[6.67px] w-[6.67px] rounded-full bg-buttonGreen"></div>
-                      <TitleT4>Detected</TitleT4>
-                    </div>
+                    {petra && (
+                      <div className="flex items-center gap-2">
+                        <div className="h-[6.67px] w-[6.67px] rounded-full bg-buttonGreen"></div>
+                        <TitleT4>Detected</TitleT4>
+                      </div>
+                    )}
                   </Button>
                   {isPetra && error && <BodyB2 className="text-buttonRed">{error}</BodyB2>}
                 </div>
@@ -93,10 +103,12 @@ export default function ModalConnectWallet({
                       <Image width={20} src="/images/martian.jpeg" />
                       <TitleT2>Martian</TitleT2>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="h-[6.67px] w-[6.67px] rounded-full bg-buttonGreen"></div>
-                      <TitleT4>Detected</TitleT4>
-                    </div>
+                    {martian && (
+                      <div className="flex items-center gap-2">
+                        <div className="h-[6.67px] w-[6.67px] rounded-full bg-buttonGreen"></div>
+                        <TitleT4>Detected</TitleT4>
+                      </div>
+                    )}
                   </Button>
                   {isMartian && error && <BodyB2 className="text-buttonRed">{error}</BodyB2>}
                 </div>

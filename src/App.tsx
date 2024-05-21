@@ -1,7 +1,7 @@
 import { Button, Image, Link, Spacer, useDisclosure } from "@nextui-org/react"
 import { useEffect, useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
-import { INetwork, martian } from "../global"
+import { INetwork, IPetraConnectResponse, martian, petra } from "../global"
 import { Chart1, Chart2 } from "./components/Chart"
 import { AnqaIcon, ArrowFilledDownIcon, SettingIcon, SwapIcon } from "./components/Icons"
 import { NumberInput, NumberInput2 } from "./components/NumberInput"
@@ -12,6 +12,7 @@ import { useIsSm } from "./hooks/useMedia"
 import { useAppDispatch, useAppSelector } from "./redux/hooks"
 import { updateNetwork, updateWalletAddress } from "./redux/slices/wallet"
 import useMartian from "./redux/hooks/useMartian"
+import usePetra from "./redux/hooks/usePetra"
 
 function Menu() {
   return (
@@ -27,20 +28,30 @@ function Menu() {
   )
 }
 
-function MartianUpdater() {
+function WalletUpdater() {
   const dispatch = useAppDispatch()
 
-  // Effect network change.
+  const { onConnect: onConnectPetra } = usePetra()
+
   useEffect(() => {
     if (!martian) return
     martian.onNetworkChange((network: INetwork) => dispatch(updateNetwork(network)))
-  }, [dispatch])
-
-  // Effect account change.
-  useEffect(() => {
-    if (!martian) return
     martian.onAccountChange((walletAddress: string) => dispatch(updateWalletAddress(walletAddress)))
   }, [dispatch])
+
+  useEffect(() => {
+    if (!petra) return
+    petra.onNetworkChange((network: INetwork) => dispatch(updateNetwork(network)))
+    petra.onAccountChange((response: IPetraConnectResponse) => {
+      // WARN: Why it's render 8 times in here for each switching?!
+      // console.log("response.address", response.address)
+
+      // If the new account has already connected to your app then the newAccount will be returned
+      if (response) {
+        dispatch(updateWalletAddress(response.address))
+      } else void onConnectPetra() // Otherwise you will need to ask to connect to the new account
+    })
+  }, [dispatch, onConnectPetra])
 
   return null
 }
@@ -74,16 +85,20 @@ export default function App() {
 
   const provider = useAppSelector((state) => state.wallet.provider)
   const { onDisconnect: onDisconnectMartian } = useMartian()
+  const { onDisconnect: onDisconnectPetra } = usePetra()
   const onDisconnect = async () => {
     switch (provider) {
       case "Martian":
         await onDisconnectMartian()
+        break
+      case "Petra":
+        await onDisconnectPetra()
     }
   }
 
   return (
     <>
-      <MartianUpdater />
+      <WalletUpdater />
       <div className="h-full bg-background text-foreground dark">
         <div className="h-full w-screen">
           <div className="fixed top-0 h-full w-screen bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
@@ -121,7 +136,18 @@ export default function App() {
                       variant={connectedWallet ? "bordered" : "solid"}
                       disabled={!!connectedWallet}
                     >
-                      {connectedWallet && isMainnet && <Image width={20} src="/images/martian.jpeg" />}
+                      {connectedWallet && isMainnet && (
+                        <Image
+                          width={20}
+                          src={
+                            provider === "Martian"
+                              ? "/images/martian.jpeg"
+                              : provider === "Petra"
+                                ? "/images/petra.svg"
+                                : undefined
+                          }
+                        />
+                      )}
                       {connectedWallet ? (
                         isMainnet ? (
                           <TitleT2>{connectedWallet.slice(0, 4) + "..." + connectedWallet.slice(-4)}</TitleT2>

@@ -36,6 +36,7 @@ export const walletSlice = createSlice({
       state.network = action.payload
     },
     disconnect: (state) => {
+      state.provider = undefined
       state.walletAddress = undefined
       state.network = undefined
     },
