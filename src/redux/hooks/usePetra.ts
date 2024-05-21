@@ -12,7 +12,15 @@ export default function usePetra() {
       if (isDesktop) {
         window.open("https://petra.app", "_blank")
       } else {
-        window.open("https://petra.app/api/v1/connect?data=ewogICJhcHBJbmZvIjogewogICAgImRvbWFpbiI6ICJhbnFhLWludGVyZmFjZS52ZXJjZWwuYXBwIgogIH0sCiAgInJlZGlyZWN0TGluayI6ICJodHRwczovL2FucWEtaW50ZXJmYWNlLnZlcmNlbC5hcHAiLAogICJkYXBwRW5jcnlwdGlvblB1YmxpY0tleSI6ICIiCn0=")
+        // https://petra.app/docs/mobile-deeplinks#dappencryptionpublickey
+        // {
+        //   "appInfo": {
+        //     "domain": "anqa-interface.vercel.app"
+        //   },
+        //   "redirectLink": "https://anqa-interface.vercel.app",
+        //   "dappEncryptionPublicKey": "MCowBQYDK2VuAyEAwSqcUx+QSUYXFB9X7qVQjYjvxq8K3/jid6iZfH/XNSQ="
+        // }
+        window.open("https://petra.app/api/v1/connect?data=ewogICJhcHBJbmZvIjogewogICAgImRvbWFpbiI6ICJhbnFhLWludGVyZmFjZS52ZXJjZWwuYXBwIgogIH0sCiAgInJlZGlyZWN0TGluayI6ICJodHRwczovL2FucWEtaW50ZXJmYWNlLnZlcmNlbC5hcHAiLAogICJkYXBwRW5jcnlwdGlvblB1YmxpY0tleSI6ICJNQ293QlFZREsyVnVBeUVBd1NxY1V4K1FTVVlYRkI5WDdxVlFqWWp2eHE4SzMvamlkNmlaZkgvWE5TUT0iCn0=")
       }
       return
     }
