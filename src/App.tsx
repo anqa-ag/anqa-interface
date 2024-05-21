@@ -32,7 +32,7 @@ export default function App() {
     }, 1000)
   }
 
-  const [isMoreInfo, setIsMoreInfo] = useState(true)
+  const [isMoreInfo, setIsMoreInfo] = useState(false)
   const onToggleMoreInfo = () => {
     setIsMoreInfo((prev) => !prev)
   }
@@ -195,7 +195,7 @@ export default function App() {
                   </div>
                   {isMoreInfo && (
                     <>
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-center">
                         <BodyB2
                           className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
                           tabIndex={0}
@@ -205,7 +205,7 @@ export default function App() {
                         </BodyB2>
                         <BodyB2>~0.2574%</BodyB2>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-center">
                         <BodyB2
                           className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
                           tabIndex={0}
@@ -215,15 +215,17 @@ export default function App() {
                         </BodyB2>
                         <BodyB2>1.157999822 APT</BodyB2>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-center">
                         <BodyB2
                           className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
                           tabIndex={0}
-                          data-tooltip-id="tooltip-max-tx-fee"
+                          data-tooltip-id="tooltip-estimated-gas-fee"
                         >
-                          Max Transaction Fee
+                          Estimated gas fee
                         </BodyB2>
-                        <BodyB2>0.000305 APT</BodyB2>
+                        <BodyB2 className="border-b-1 border-dashed border-white" data-tooltip-id="tooltip-estimated-gas-fee-value" data-tooltip-content="0.00028123 APT">
+                          $0.042
+                        </BodyB2>
                       </div>
                     </>
                   )}
