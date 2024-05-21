@@ -224,7 +224,7 @@ export default function App() {
                   isLoading={isSwapping}
                   onPress={connectedWallet ? onDisconnect : onOpenModalConnectWallet}
                 >
-                  <TitleT2>{connectedWallet ? "Disconnect" : "Connect 023234"}</TitleT2>
+                  <TitleT2>{connectedWallet ? "Disconnect" : "Connect"}</TitleT2>
                 </Button>
 
                 <Spacer y={4} />

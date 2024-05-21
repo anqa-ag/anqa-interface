@@ -12,16 +12,6 @@ export default function usePetra() {
       if (isDesktop) {
         window.open("https://petra.app", "_blank")
       } else {
-        // https://petra.app/docs/mobile-deeplinks#dappencryptionpublickey
-        // Pubkey = MCowBQYDK2VuAyEAwSqcUx+QSUYXFB9X7qVQjYjvxq8K3/jid6iZfH/XNSQ=
-        // Pubkey in hex = 4d436f77425159444b325675417945417753716355782b515355595846423958377156516a596a767871384b332f6a696436695a66482f584e53513d
-        // {
-        //   "appInfo": {
-        //     "domain": "anqa-interface.vercel.app"
-        //   },
-        //   "redirectLink": "https://anqa-interface.vercel.app",
-        //   "dappEncryptionPublicKey": "4d436f77425159444b325675417945417753716355782b515355595846423958377156516a596a767871384b332f6a696436695a66482f584e53513d"
-        // }
         window.open("https://petra.app/explore?link=https://anqa-interface.vercel.app")
       }
       return
