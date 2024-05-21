@@ -12,7 +12,7 @@ export default function usePetra() {
       if (isDesktop) {
         window.open("https://petra.app", "_blank")
       } else {
-        window.open("https://petra.app/api/v1/connect?data=connect_data")
+        window.open("https://petra.app/api/v1/connect?data=ewogICJhcHBJbmZvIjogewogICAgImRvbWFpbiI6ICJhbnFhLWludGVyZmFjZS52ZXJjZWwuYXBwIgogIH0sCiAgInJlZGlyZWN0TGluayI6ICJodHRwczovL2FucWEtaW50ZXJmYWNlLnZlcmNlbC5hcHAiLAogICJkYXBwRW5jcnlwdGlvblB1YmxpY0tleSI6ICIiCn0=")
       }
       return
     }
