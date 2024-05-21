@@ -1,13 +1,17 @@
-import { Button, Image, Link, Spacer } from "@nextui-org/react"
-import { useState } from "react"
+import { Button, Image, Link, Spacer, useDisclosure } from "@nextui-org/react"
+import { useEffect, useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
+import { INetwork, martian } from "../global"
 import { Chart1, Chart2 } from "./components/Chart"
 import { AnqaIcon, ArrowFilledDownIcon, SettingIcon, SwapIcon } from "./components/Icons"
 import { NumberInput, NumberInput2 } from "./components/NumberInput"
 import { BodyB2, BodyB3, TitleT2 } from "./components/Texts"
-import { useIsSm } from "./hooks/useMedia"
-import useWalletProvider, { Network } from "./hooks/useWalletProvider"
 import Tooltips from "./components/Tooltips"
+import ModalConnectWallet from "./components/modals/ModalConnectWallet"
+import { useIsSm } from "./hooks/useMedia"
+import { useAppDispatch, useAppSelector } from "./redux/hooks"
+import { updateNetwork, updateWalletAddress } from "./redux/slices/wallet"
+import useMartian from "./redux/hooks/useMartian"
 
 function Menu() {
   return (
@@ -21,6 +25,24 @@ function Menu() {
       </Button>
     </div>
   )
+}
+
+function MartianUpdater() {
+  const dispatch = useAppDispatch()
+
+  // Effect network change.
+  useEffect(() => {
+    if (!martian) return
+    martian.onNetworkChange((network: INetwork) => dispatch(updateNetwork(network)))
+  }, [dispatch])
+
+  // Effect account change.
+  useEffect(() => {
+    if (!martian) return
+    martian.onAccountChange((walletAddress: string) => dispatch(updateWalletAddress(walletAddress)))
+  }, [dispatch])
+
+  return null
 }
 
 export default function App() {
@@ -39,15 +61,33 @@ export default function App() {
 
   const isSm = useIsSm()
 
-  const { onConnect, isConnecting, connectedWallet, network } = useWalletProvider()
-  const isMainnet = network === Network.Mainnet
+  const connectedWallet = useAppSelector((state) => state.wallet.walletAddress)
+  const network = useAppSelector((state) => state.wallet.network)
+  const isMainnet = network === INetwork.Mainnet
+
+  const {
+    isOpen: isOpenModalConnectWallet,
+    onOpen: onOpenModalConnectWallet,
+    onClose: onCloseModalConnectWallet,
+    onOpenChange: onOpenChangeModalConnectWallet,
+  } = useDisclosure()
+
+  const provider = useAppSelector((state) => state.wallet.provider)
+  const { onDisconnect: onDisconnectMartian } = useMartian()
+  const onDisconnect = async () => {
+    switch (provider) {
+      case "Martian":
+        await onDisconnectMartian()
+    }
+  }
 
   return (
     <>
+      <MartianUpdater />
       <div className="h-full bg-background text-foreground dark">
-        <div className="h-full w-lvw">
-          <div className="fixed top-0 h-full w-lvw bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
-          <div className="isolate flex min-h-lvh flex-col">
+        <div className="h-full w-screen">
+          <div className="fixed top-0 h-full w-screen bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
+          <div className="isolate flex min-h-screen flex-col">
             {/*
           ###############################################################################
           #
@@ -76,18 +116,12 @@ export default function App() {
                           ? "border-buttonSecondary bg-background text-buttonSecondary"
                           : "border-primary bg-primary text-white")
                       }
-                      // eslint-disable-next-line @typescript-eslint/no-misused-promises
-                      onClick={onConnect}
-                      isLoading={isConnecting}
+                      onPress={connectedWallet ? onDisconnect : onOpenModalConnectWallet}
+                      isLoading={isOpenModalConnectWallet}
                       variant={connectedWallet ? "bordered" : "solid"}
                       disabled={!!connectedWallet}
                     >
-                      {connectedWallet && isMainnet && (
-                        <Image
-                          width={20}
-                          src="https://docs.martianwallet.xyz/~gitbook/image?url=https%3A%2F%2F3606291109-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FXillBNDwQOz0oPJ4OtRH%252Ficon%252FwxJ2nQfvB7av7RD11Zff%252FGroup%252048096217.png%3Falt%3Dmedia%26token%3D58ddee77-237e-4561-b712-1a2f0170c601&width=32&dpr=1&quality=100&sign=e2a4694961775d617093cded8bc23ca571cd6b8981292cda0ebaf6f2901e329d"
-                        />
-                      )}
+                      {connectedWallet && isMainnet && <Image width={20} src="/images/martian.jpeg" />}
                       {connectedWallet ? (
                         isMainnet ? (
                           <TitleT2>{connectedWallet.slice(0, 4) + "..." + connectedWallet.slice(-4)}</TitleT2>
@@ -142,7 +176,11 @@ export default function App() {
 
                 <Spacer y={3} />
 
-                <div className="anqa-hover-primary-all flex cursor-pointer items-center gap-3" tabIndex={0}>
+                <Button
+                  className="anqa-hover-primary-all flex h-fit min-h-fit cursor-pointer items-center gap-3 rounded-none bg-transparent p-0 data-[hover]:bg-transparent"
+                  disableAnimation
+                  disableRipple
+                >
                   <BodyB2 className="whitespace-nowrap rounded border-1 border-primary p-2 text-primary">
                     2 splits & 3 hops
                   </BodyB2>
@@ -150,11 +188,11 @@ export default function App() {
                     via Pancakeswap, Cellana, Liquidswap
                   </BodyB3>
                   <ArrowFilledDownIcon size={24} className="ml-auto -rotate-90" color="#9AA0A6" />
-                </div>
+                </Button>
 
                 <Spacer y={3} />
 
-                <Button color="primary" className="h-[52px] rounded" isLoading={isSwapping} onClick={onSwap}>
+                <Button color="primary" className="h-[52px] rounded" isLoading={isSwapping} onPress={onSwap}>
                   <TitleT2>Swap</TitleT2>
                 </Button>
 
@@ -178,24 +216,28 @@ export default function App() {
                         {({ remainingTime }) => <div className="text-[8px] text-buttonSecondary">{remainingTime}</div>}
                       </CountdownCircleTimer>
                     </div>
-                    <div
-                      className="anqa-hover-white-all flex cursor-pointer select-none items-center gap-1"
-                      tabIndex={0}
-                      onClick={onToggleMoreInfo}
+                    <Button
+                      variant="light"
+                      className="anqa-hover-white-all h-fit w-fit min-w-fit gap-0 p-0 data-[hover]:bg-transparent"
+                      disableRipple
+                      disableAnimation
+                      onPress={onToggleMoreInfo}
+                      endContent={
+                        <ArrowFilledDownIcon
+                          size={24}
+                          className={`${isMoreInfo ? "rotate-180" : ""}`}
+                          color="#9AA0A6"
+                        />
+                      }
                     >
-                      <BodyB2 className=" text-buttonSecondary">
+                      <BodyB2 className="pl-1.5 text-buttonSecondary">
                         {isMoreInfo ? (isSm ? "Less" : "Less Info") : isSm ? "More" : "More info"}
                       </BodyB2>
-                      <ArrowFilledDownIcon
-                        size={24}
-                        className={`ml-auto ${isMoreInfo ? "rotate-180" : ""}`}
-                        color="#9AA0A6"
-                      />
-                    </div>
+                    </Button>
                   </div>
                   {isMoreInfo && (
                     <>
-                      <div className="flex justify-between items-center">
+                      <div className="flex items-center justify-between">
                         <BodyB2
                           className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
                           tabIndex={0}
@@ -205,7 +247,7 @@ export default function App() {
                         </BodyB2>
                         <BodyB2>~0.2574%</BodyB2>
                       </div>
-                      <div className="flex justify-between items-center">
+                      <div className="flex items-center justify-between">
                         <BodyB2
                           className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
                           tabIndex={0}
@@ -215,7 +257,7 @@ export default function App() {
                         </BodyB2>
                         <BodyB2>1.157999822 APT</BodyB2>
                       </div>
-                      <div className="flex justify-between items-center">
+                      <div className="flex items-center justify-between">
                         <BodyB2
                           className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
                           tabIndex={0}
@@ -223,7 +265,12 @@ export default function App() {
                         >
                           Estimated gas fee
                         </BodyB2>
-                        <BodyB2 className="border-b-1 border-dashed border-white" data-tooltip-id="tooltip-estimated-gas-fee-value" data-tooltip-content="0.00028123 APT">
+                        <BodyB2
+                          className="border-b-1 border-dashed border-white"
+                          tabIndex={0}
+                          data-tooltip-id="tooltip-estimated-gas-fee-value"
+                          data-tooltip-content="0.00028123 APT"
+                        >
                           $0.042
                         </BodyB2>
                       </div>
@@ -358,6 +405,11 @@ export default function App() {
         </div>
       </div>
       <Tooltips />
+      <ModalConnectWallet
+        isOpen={isOpenModalConnectWallet}
+        onOpenChange={onOpenChangeModalConnectWallet}
+        onClose={onCloseModalConnectWallet}
+      />
     </>
   )
 }

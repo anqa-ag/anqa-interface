@@ -23,9 +23,16 @@ module.exports = {
     "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
     "tailwindcss/classnames-order": ["off"],
     "tailwindcss/enforces-shorthand": ["off"],
-    "tailwindcss/no-custom-classname": [1, {
-      cssFiles: ["src/main.scss"]
-    }],
+    "tailwindcss/no-custom-classname": [
+      "warn",
+      {
+        cssFiles: ["src/main.scss"],
+      },
+    ],
+    "@typescript-eslint/no-misused-promises": "off",
+    "@typescript-eslint/no-unsafe-assignment": "off",
+    "@typescript-eslint/no-unsafe-call": "off",
+    "@typescript-eslint/no-unsafe-member-access": "off"
   },
   settings: {
     react: {
