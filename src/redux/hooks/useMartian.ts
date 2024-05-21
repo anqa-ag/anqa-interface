@@ -10,10 +10,12 @@ export default function useMartian() {
 
     const network = await martian.network()
     const response = await martian.connect()
-    dispatch(connect({
-      network,
-      walletAddress: response.address
-    }))
+    dispatch(
+      connect({
+        network,
+        walletAddress: response.address,
+      }),
+    )
   }
 
   const onDisconnect = async () => {
