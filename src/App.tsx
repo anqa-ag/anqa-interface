@@ -1,5 +1,5 @@
 import { Button, Image, Link, Spacer, useDisclosure } from "@nextui-org/react"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
 import { INetwork, IPetraConnectResponse, martian, petra } from "../global"
 import { Chart1, Chart2 } from "./components/Chart"
@@ -31,7 +31,26 @@ function Menu() {
 function WalletUpdater() {
   const dispatch = useAppDispatch()
 
+  const { onConnect: onConnectMartian } = useMartian()
   const { onConnect: onConnectPetra } = usePetra()
+
+  const provider = useAppSelector((state) => state.wallet.provider)
+  const run = useRef(false)
+  // Run only once.
+  useEffect(() => {
+    if (run.current) return
+    console.log("here 40")
+    console.log("provider", provider)
+    run.current = true
+    switch (provider) {
+      case "Martian":
+        void onConnectMartian()
+        break
+      case "Petra":
+        void onConnectPetra()
+        break
+    }
+  }, [onConnectMartian, onConnectPetra, provider])
 
   useEffect(() => {
     if (!martian) return

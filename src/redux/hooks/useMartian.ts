@@ -8,6 +8,7 @@ export default function useMartian() {
 
   const onConnect = useCallback(async () => {
     if (!martian) {
+      dispatch(disconnect())
       window.open("https://www.martianwallet.xyz/", "_blank")
       return
     }

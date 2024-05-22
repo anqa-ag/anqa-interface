@@ -9,6 +9,7 @@ export default function usePetra() {
 
   const onConnect = useCallback(async () => {
     if (!petra) {
+      dispatch(disconnect())
       if (isDesktop) {
         window.open("https://petra.app", "_blank")
       } else {
