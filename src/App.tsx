@@ -39,8 +39,6 @@ function WalletUpdater() {
   // Run only once.
   useEffect(() => {
     if (run.current) return
-    console.log("here 40")
-    console.log("provider", provider)
     run.current = true
     switch (provider) {
       case "Martian":
@@ -243,7 +241,7 @@ export default function App() {
                   isLoading={isSwapping}
                   onPress={connectedWallet ? onDisconnect : onOpenModalConnectWallet}
                 >
-                  <TitleT2>{connectedWallet ? "Disconnect" : "Connect"}</TitleT2>
+                  <TitleT2>{connectedWallet ? "Disconnect" : "Connect 144711"}</TitleT2>
                 </Button>
 
                 <Spacer y={4} />
