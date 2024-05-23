@@ -241,7 +241,7 @@ export default function App() {
                   isLoading={isSwapping}
                   onPress={connectedWallet ? onDisconnect : onOpenModalConnectWallet}
                 >
-                  <TitleT2>{connectedWallet ? "Disconnect" : "Connect 145224"}</TitleT2>
+                  <TitleT2>{connectedWallet ? "Disconnect" : `Connect ${process.env.VERCEL_GIT_COMMIT_SHA}`}</TitleT2>
                 </Button>
 
                 <Spacer y={4} />
