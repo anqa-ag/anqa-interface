@@ -404,49 +404,50 @@ export default function App() {
           ###############################################################################
           */}
             <footer className="flex w-full flex-1 items-end">
-              <div className="flex h-[84px] w-full content-center items-center justify-between px-[60px] lg:px-[30px] md:static md:px-[16px]">
-                <BodyB2 className="text-buttonSecondary">© Anqa 2024 [version: {import.meta.env.VITE_VERCEL_GIT_COMMIT_SHA.slice(0, 7)}]</BodyB2>
-                <div className="flex items-center gap-5 md:gap-0">
-                  <Link
-                    isBlock
-                    href="#"
-                    color="primary"
-                    className="text-buttonSecondary"
-                    size="sm"
-                    isExternal
-                    showAnchorIcon
-                  >
-                    <BodyB2>Term & Condition</BodyB2>
-                  </Link>
-                  {isSm ? (
-                    <div />
-                  ) : (
-                    <>
-                      <Link
-                        isBlock
-                        href="#"
-                        color="primary"
-                        className="text-buttonSecondary"
-                        size="sm"
-                        isExternal
-                        showAnchorIcon
-                      >
-                        <BodyB2>Privacy Policy</BodyB2>
-                      </Link>
-                      <Link
-                        isBlock
-                        href="#"
-                        color="primary"
-                        className="text-buttonSecondary"
-                        size="sm"
-                        isExternal
-                        showAnchorIcon
-                      >
-                        <BodyB2>Cookies</BodyB2>
-                      </Link>
-                    </>
-                  )}
-                </div>
+              <div className="flex h-[84px] w-full content-center items-center justify-between px-[60px] lg:px-[30px] md:static md:px-[16px] sm:justify-center">
+                <BodyB2 className="text-buttonSecondary">
+                  © Anqa 2024 [version: {import.meta.env.VITE_VERCEL_GIT_COMMIT_SHA.slice(0, 7)}]
+                </BodyB2>
+
+                {isSm ? (
+                  <div />
+                ) : (
+                  <div className="flex items-center gap-5 md:gap-0">
+                    <Link
+                      isBlock
+                      href="#"
+                      color="primary"
+                      className="text-buttonSecondary"
+                      size="sm"
+                      isExternal
+                      showAnchorIcon
+                    >
+                      <BodyB2>Term & Condition</BodyB2>
+                    </Link>
+                    <Link
+                      isBlock
+                      href="#"
+                      color="primary"
+                      className="text-buttonSecondary"
+                      size="sm"
+                      isExternal
+                      showAnchorIcon
+                    >
+                      <BodyB2>Privacy Policy</BodyB2>
+                    </Link>
+                    <Link
+                      isBlock
+                      href="#"
+                      color="primary"
+                      className="text-buttonSecondary"
+                      size="sm"
+                      isExternal
+                      showAnchorIcon
+                    >
+                      <BodyB2>Cookies</BodyB2>
+                    </Link>
+                  </div>
+                )}
               </div>
             </footer>
           </div>
