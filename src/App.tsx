@@ -241,7 +241,7 @@ export default function App() {
                   isLoading={isSwapping}
                   onPress={connectedWallet ? onDisconnect : onOpenModalConnectWallet}
                 >
-                  <TitleT2>{connectedWallet ? "Disconnect" : `Connect ${import.meta.env.VITE_VERCEL_GIT_COMMIT_SHA}`}</TitleT2>
+                  <TitleT2>{connectedWallet ? "Disconnect" : `Connect`}</TitleT2>
                 </Button>
 
                 <Spacer y={4} />
@@ -405,7 +405,7 @@ export default function App() {
           */}
             <footer className="flex w-full flex-1 items-end">
               <div className="flex h-[84px] w-full content-center items-center justify-between px-[60px] lg:px-[30px] md:static md:px-[16px]">
-                <BodyB2 className="text-buttonSecondary">© Anqa 2024</BodyB2>
+                <BodyB2 className="text-buttonSecondary">© Anqa 2024 [version: {import.meta.env.VITE_VERCEL_GIT_COMMIT_SHA}]</BodyB2>
                 <div className="flex items-center gap-5 md:gap-0">
                   <Link
                     isBlock
