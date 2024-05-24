@@ -1,6 +1,6 @@
 import { useCallback } from "react"
 import { useAppDispatch } from "."
-import { martian } from "../../../global"
+import { martian } from "../../../types"
 import { connect, disconnect } from "../slices/wallet"
 
 export default function useMartian() {

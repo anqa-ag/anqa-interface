@@ -1,6 +1,11 @@
-import { Network } from "@aptos-labs/ts-sdk"
+import { GetAccountCoinsDataResponse, MoveStructId, Network } from "@aptos-labs/ts-sdk"
+import JSBI from "jsbi"
 
-// export {}
+type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[]
+  ? ElementType
+  : never
+export type AccountCoinData = Omit<ArrayElement<GetAccountCoinsDataResponse>, "amount"> & { amount: JSBI }
+export type WalletBalance = Record<MoveStructId, AccountCoinData | undefined>
 
 export interface IMartianConnectResponse {
   address: string

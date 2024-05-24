@@ -6,7 +6,7 @@ import { useState } from "react"
 import { useAppDispatch, useAppSelector } from "../../redux/hooks"
 import { setProvider } from "../../redux/slices/wallet"
 import usePetra from "../../redux/hooks/usePetra"
-import { martian, petra } from "../../../global.ts"
+import { martian, petra } from "../../../types.ts"
 import { isDesktop } from "react-device-detect"
 
 export default function ModalConnectWallet({

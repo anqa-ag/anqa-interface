@@ -1,21 +1,18 @@
 import { Network } from "@aptos-labs/ts-sdk"
 import { Button, Image, Link, Spacer, useDisclosure } from "@nextui-org/react"
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
-import { IPetraConnectResponse, martian, petra } from "../global"
 import { Chart1, Chart2 } from "./components/Chart"
 import { AnqaIcon, ArrowFilledDownIcon, SettingIcon, SwapIcon } from "./components/Icons"
 import { NumberInput, NumberInput2 } from "./components/NumberInput"
 import { BodyB2, BodyB3, TitleT2 } from "./components/Texts"
 import Tooltips from "./components/Tooltips"
 import ModalConnectWallet from "./components/modals/ModalConnectWallet"
-import { TOKEN_LIST } from "./constants"
-import useBalance from "./hooks/useBalance"
 import { useIsSm } from "./hooks/useMedia"
-import { useAppDispatch, useAppSelector } from "./redux/hooks"
+import { useAppSelector } from "./redux/hooks"
 import useMartian from "./redux/hooks/useMartian"
 import usePetra from "./redux/hooks/usePetra"
-import { updateNetwork, updateWalletAddress } from "./redux/slices/wallet"
+import Updaters from "./redux/updaters/Updaters"
 
 function Menu() {
   return (
@@ -23,7 +20,7 @@ function Menu() {
       <Button
         variant="light"
         className="min-w-0 rounded border-1 border-primaryHover px-4"
-        endContent={<SwapIcon size={20} color="#0CA0EB"/>}
+        endContent={<SwapIcon size={20} color="#0CA0EB" />}
       >
         <TitleT2 className="text-primaryHover">Trade</TitleT2>
       </Button>
@@ -33,51 +30,6 @@ function Menu() {
       </Button>
     </div>
   )
-}
-
-function WalletUpdater() {
-  const dispatch = useAppDispatch()
-
-  const { onConnect: onConnectMartian } = useMartian()
-  const { onConnect: onConnectPetra } = usePetra()
-
-  const provider = useAppSelector((state) => state.wallet.provider)
-  const run = useRef(false)
-  // Run only once.
-  useEffect(() => {
-    if (run.current) return
-    run.current = true
-    switch (provider) {
-      case "Martian":
-        void onConnectMartian()
-        break
-      case "Petra":
-        void onConnectPetra()
-        break
-    }
-  }, [onConnectMartian, onConnectPetra, provider])
-
-  useEffect(() => {
-    if (!martian) return
-    martian.onNetworkChange((network: string) => dispatch(updateNetwork(network)))
-    martian.onAccountChange((walletAddress: string) => dispatch(updateWalletAddress(walletAddress)))
-  }, [dispatch])
-
-  useEffect(() => {
-    if (!petra) return
-    petra.onNetworkChange((network: string) => dispatch(updateNetwork(network)))
-    petra.onAccountChange((response: IPetraConnectResponse) => {
-      // WARN: Why it's render 8 times in here for each switching?!
-      // console.log("response.address", response.address)
-
-      // If the new account has already connected to your app then the newAccount will be returned
-      if (response) {
-        dispatch(updateWalletAddress(response.address))
-      } else void onConnectPetra() // Otherwise you will need to ask to connect to the new account
-    })
-  }, [dispatch, onConnectPetra])
-
-  return null
 }
 
 export default function App() {
@@ -96,8 +48,7 @@ export default function App() {
 
   const isSm = useIsSm()
 
-  const connectedWallet = useAppSelector((state) => state.wallet.walletAddress)
-  const network = useAppSelector((state) => state.wallet.network)
+  const { walletAddress: connectedWallet, balance, network } = useAppSelector((state) => state.wallet)
   const isMainnet = network === Network.MAINNET
 
   const {
@@ -120,12 +71,9 @@ export default function App() {
     }
   }
 
-  useBalance(TOKEN_LIST.APT)
-  useBalance(TOKEN_LIST.USDC_LAYERZERO)
-
   return (
     <>
-      <WalletUpdater />
+      <Updaters />
       <div className="h-full bg-background text-foreground dark">
         <div className="h-full w-screen">
           <div className="fixed top-0 h-full w-screen bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />

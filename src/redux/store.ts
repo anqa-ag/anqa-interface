@@ -1,5 +1,5 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit"
-import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from "redux-persist"
+import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER, PersistConfig } from "redux-persist"
 import storage from "redux-persist/lib/storage" // defaults to localStorage for web
 
 import walletReducer from "./slices/wallet"
@@ -7,6 +7,7 @@ import walletReducer from "./slices/wallet"
 const persistConfig = {
   key: "root",
   storage,
+  blacklist: ["balance"]
 }
 
 const rootReducer = combineReducers({

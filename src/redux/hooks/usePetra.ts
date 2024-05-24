@@ -1,8 +1,8 @@
 import { useCallback } from "react"
 import { useAppDispatch } from "."
-import { petra } from "../../../global"
 import { connect, disconnect } from "../slices/wallet"
 import { isDesktop } from "react-device-detect"
+import { petra } from "../../../types"
 
 export default function usePetra() {
   const dispatch = useAppDispatch()
