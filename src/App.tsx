@@ -48,7 +48,7 @@ export default function App() {
 
   const isSm = useIsSm()
 
-  const { walletAddress: connectedWallet, balance, network } = useAppSelector((state) => state.wallet)
+  const { walletAddress: connectedWallet, network } = useAppSelector((state) => state.wallet)
   const isMainnet = network === Network.MAINNET
 
   const {

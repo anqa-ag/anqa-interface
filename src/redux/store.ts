@@ -1,6 +1,6 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit"
-import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER, PersistConfig } from "redux-persist"
-import storage from "redux-persist/lib/storage" // defaults to localStorage for web
+import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE, persistReducer, persistStore } from "redux-persist"
+import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
 
 import walletReducer from "./slices/wallet"
 

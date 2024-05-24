@@ -142,6 +142,7 @@ export class Fraction {
     const quotient = new Decimal(this.numerator.toString())
       .div(this.denominator.toString())
       .toSignificantDigits(significantDigits)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return quotient.toFormat(quotient.decimalPlaces(), format)
   }
 
@@ -155,6 +156,7 @@ export class Fraction {
 
     Big.DP = decimalPlaces
     Big.RM = toFixedRounding[rounding]
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return new Big(this.numerator.toString()).div(this.denominator.toString()).toFormat(decimalPlaces, format)
   }
 
