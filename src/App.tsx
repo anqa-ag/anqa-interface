@@ -1,23 +1,30 @@
+import { Network } from "@aptos-labs/ts-sdk"
 import { Button, Image, Link, Spacer, useDisclosure } from "@nextui-org/react"
 import { useEffect, useRef, useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
-import { INetwork, IPetraConnectResponse, martian, petra } from "../global"
+import { IPetraConnectResponse, martian, petra } from "../global"
 import { Chart1, Chart2 } from "./components/Chart"
 import { AnqaIcon, ArrowFilledDownIcon, SettingIcon, SwapIcon } from "./components/Icons"
 import { NumberInput, NumberInput2 } from "./components/NumberInput"
 import { BodyB2, BodyB3, TitleT2 } from "./components/Texts"
 import Tooltips from "./components/Tooltips"
 import ModalConnectWallet from "./components/modals/ModalConnectWallet"
+import { TOKEN_LIST } from "./constants"
+import useBalance from "./hooks/useBalance"
 import { useIsSm } from "./hooks/useMedia"
 import { useAppDispatch, useAppSelector } from "./redux/hooks"
-import { updateNetwork, updateWalletAddress } from "./redux/slices/wallet"
 import useMartian from "./redux/hooks/useMartian"
 import usePetra from "./redux/hooks/usePetra"
+import { updateNetwork, updateWalletAddress } from "./redux/slices/wallet"
 
 function Menu() {
   return (
     <div className="flex items-center gap-4 md:justify-center md:gap-2">
-      <Button variant="light" className="min-w-0 rounded border-1 border-primaryHover px-4">
+      <Button
+        variant="light"
+        className="min-w-0 rounded border-1 border-primaryHover px-4"
+        endContent={<SwapIcon size={20} color="#0CA0EB"/>}
+      >
         <TitleT2 className="text-primaryHover">Trade</TitleT2>
       </Button>
       <Button variant="light" className="gap-1 rounded px-4" disabled>
@@ -52,13 +59,13 @@ function WalletUpdater() {
 
   useEffect(() => {
     if (!martian) return
-    martian.onNetworkChange((network: INetwork) => dispatch(updateNetwork(network)))
+    martian.onNetworkChange((network: string) => dispatch(updateNetwork(network)))
     martian.onAccountChange((walletAddress: string) => dispatch(updateWalletAddress(walletAddress)))
   }, [dispatch])
 
   useEffect(() => {
     if (!petra) return
-    petra.onNetworkChange((network: INetwork) => dispatch(updateNetwork(network)))
+    petra.onNetworkChange((network: string) => dispatch(updateNetwork(network)))
     petra.onAccountChange((response: IPetraConnectResponse) => {
       // WARN: Why it's render 8 times in here for each switching?!
       // console.log("response.address", response.address)
@@ -91,7 +98,7 @@ export default function App() {
 
   const connectedWallet = useAppSelector((state) => state.wallet.walletAddress)
   const network = useAppSelector((state) => state.wallet.network)
-  const isMainnet = network === INetwork.Mainnet
+  const isMainnet = network === Network.MAINNET
 
   const {
     isOpen: isOpenModalConnectWallet,
@@ -112,6 +119,9 @@ export default function App() {
         await onDisconnectPetra()
     }
   }
+
+  useBalance(TOKEN_LIST.APT)
+  useBalance(TOKEN_LIST.USDC_LAYERZERO)
 
   return (
     <>
@@ -190,10 +200,7 @@ export default function App() {
               <div className="mx-auto flex max-w-[420px] flex-col">
                 <div className="flex justify-between">
                   <div className="flex gap-3">
-                    <Button
-                      className="h-[36px] min-w-min gap-1 rounded bg-primaryHover p-2"
-                      endContent={<SwapIcon size={16} />}
-                    >
+                    <Button className="h-[36px] min-w-min gap-1 rounded bg-primaryHover p-2">
                       <TitleT2 className="text-black">Swap</TitleT2>
                     </Button>
                   </div>

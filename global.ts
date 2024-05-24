@@ -1,4 +1,6 @@
-export {}
+import { Network } from "@aptos-labs/ts-sdk"
+
+// export {}
 
 export interface IMartianConnectResponse {
   address: string
@@ -14,17 +16,11 @@ export interface IMartianAccount {
   publicKey: string
 }
 
-export enum INetwork {
-  Testnet = "Testnet",
-  Mainnet = "Mainnet",
-  Devnet = "Devnet",
-}
-
 interface IMartian {
   connect: () => Promise<IMartianConnectResponse>
   disconnect: () => Promise<void>
-  network: () => Promise<INetwork>
-  onNetworkChange: (fn: (network: INetwork) => void) => void
+  network: () => Promise<Network>
+  onNetworkChange: (fn: (network: Network) => void) => void
   onAccountChange: (fn: (walletAddress: string) => void) => void
 }
 
@@ -37,8 +33,8 @@ interface IPetra {
   connect: () => Promise<IPetraConnectResponse>
   account: () => Promise<IPetraConnectResponse>
   disconnect: () => Promise<void>
-  network: () => Promise<INetwork>
-  onNetworkChange: (fn: (network: INetwork) => void) => void
+  network: () => Promise<Network>
+  onNetworkChange: (fn: (network: Network) => void) => void
   onAccountChange: (fn: (response: IPetraConnectResponse) => void) => void
 }
 

@@ -1,13 +1,13 @@
-import { createSlice } from "@reduxjs/toolkit"
+import { Network } from "@aptos-labs/ts-sdk"
 import type { PayloadAction } from "@reduxjs/toolkit"
-import { INetwork } from "../../../global"
+import { createSlice } from "@reduxjs/toolkit"
 
 export type WalletProvider = "Martian" | "Petra"
 
 export interface WalletState {
   provider: WalletProvider | undefined
   walletAddress: string | undefined
-  network: INetwork | undefined
+  network: Network | undefined
 }
 
 const initialState: WalletState = {
@@ -32,8 +32,13 @@ export const walletSlice = createSlice({
     updateWalletAddress: (state, action: PayloadAction<string>) => {
       state.walletAddress = action.payload
     },
-    updateNetwork: (state, action: PayloadAction<INetwork>) => {
-      state.network = action.payload
+    updateNetwork: (state, action: PayloadAction<string>) => {
+      const nextNetwork = action.payload.toLowerCase()
+      if (nextNetwork.includes(Network.MAINNET)) state.network = Network.MAINNET
+      else if (nextNetwork.includes(Network.TESTNET)) state.network = Network.TESTNET
+      else if (nextNetwork.includes(Network.DEVNET)) state.network = Network.DEVNET
+      else if (nextNetwork.includes(Network.LOCAL)) state.network = Network.LOCAL
+      else if (nextNetwork.includes(Network.CUSTOM)) state.network = Network.CUSTOM
     },
     disconnect: (state) => {
       state.provider = undefined
