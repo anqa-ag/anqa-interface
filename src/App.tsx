@@ -437,140 +437,146 @@ export default function App() {
 
                 <Spacer y={4} />
 
-                <div className="flex flex-col gap-2 rounded-lg border-1 border-buttonSecondary p-3">
-                  <div className="flex justify-between">
-                    <div className="flex items-center gap-2">
-                      {isValidatingQuote ? (
+                {fractionalAmountIn && (
+                  <>
+                    <div className="flex flex-col gap-2 rounded-lg border-1 border-buttonSecondary p-3">
+                      <div className="flex justify-between">
+                        <div className="flex items-center gap-2">
+                          {isValidatingQuote ? (
+                            <>
+                              <div className="flex h-[20px] w-[150px] items-center">
+                                <Skeleton className="h-[20px] w-full rounded" />
+                              </div>
+                            </>
+                          ) : isInvert ? (
+                            <Button
+                              onPress={() => setIsInvert((prev) => !prev)}
+                              variant="light"
+                              className="m-0 h-fit p-0"
+                              disableAnimation
+                              disableRipple
+                            >
+                              <BodyB2 className="whitespace-nowrap">
+                                {rate ? `1 USDC = ${rate.invert().toSignificant(6)} APT` : "--"}
+                              </BodyB2>
+                            </Button>
+                          ) : (
+                            <Button
+                              onPress={() => setIsInvert((prev) => !prev)}
+                              variant="light"
+                              className="m-0 h-fit p-0"
+                              disableAnimation
+                              disableRipple
+                            >
+                              <BodyB2 className="whitespace-nowrap">
+                                {rate ? `1 APT = ${rate.toSignificant(6)} USDC` : "--"}
+                              </BodyB2>
+                            </Button>
+                          )}
+                          <CountdownCircleTimer
+                            isPlaying
+                            duration={10}
+                            colors={["#0079BF", "#0079BF"]}
+                            colorsTime={[0, 0]}
+                            onComplete={() => ({ shouldRepeat: true, delay: 0 })}
+                            isSmoothColorTransition={false}
+                            trailColor="#101010"
+                            size={16}
+                            strokeWidth={2}
+                          >
+                            {({ remainingTime }) => (
+                              <div className="text-[8px] text-buttonSecondary">{remainingTime}</div>
+                            )}
+                          </CountdownCircleTimer>
+                        </div>
+                        <Button
+                          variant="light"
+                          className="anqa-hover-white-all h-fit w-fit min-w-fit gap-0 p-0 data-[hover]:bg-transparent"
+                          disableRipple
+                          disableAnimation
+                          onPress={onToggleMoreInfo}
+                          endContent={
+                            <ArrowFilledDownIcon
+                              size={24}
+                              className={`${isMoreInfo ? "rotate-180" : ""}`}
+                              color="#9AA0A6"
+                            />
+                          }
+                        >
+                          <BodyB2 className="pl-1.5 text-buttonSecondary">
+                            {isMoreInfo ? (isSm ? "Less" : "Less Info") : isSm ? "More" : "More info"}
+                          </BodyB2>
+                        </Button>
+                      </div>
+                      {isMoreInfo && (
                         <>
-                          <div className="flex h-[20px] w-[150px] items-center">
-                            <Skeleton className="h-[20px] w-full rounded" />
+                          <div className="flex items-center justify-between">
+                            <BodyB2
+                              className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
+                              tabIndex={0}
+                              data-tooltip-id="tooltip-price-impact"
+                            >
+                              Price Impact
+                            </BodyB2>
+                            {isValidatingQuote ? (
+                              <>
+                                <div className="flex h-[20px] w-[50px] items-center">
+                                  <Skeleton className="h-[20px] w-full rounded" />
+                                </div>
+                              </>
+                            ) : (
+                              <BodyB2>{priceImpact ? `~${priceImpact.toSignificant(4)}%` : "--"}</BodyB2>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <BodyB2
+                              className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
+                              tabIndex={0}
+                              data-tooltip-id="tooltip-minimum-receive"
+                            >
+                              Minimum Receive
+                            </BodyB2>
+                            {isValidatingQuote ? (
+                              <>
+                                <div className="flex h-[20px] w-[100px] items-center">
+                                  <Skeleton className="h-[20px] w-full rounded" />
+                                </div>
+                              </>
+                            ) : (
+                              <BodyB2>{minimumReceive ? `${minimumReceive.toSignificant(6)} USDC` : "--"}</BodyB2>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <BodyB2
+                              className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
+                              tabIndex={0}
+                              data-tooltip-id="tooltip-estimated-gas-fee"
+                            >
+                              Estimated gas fee
+                            </BodyB2>
+                            {isValidatingQuote ? (
+                              <>
+                                <div className="flex h-[20px] w-[50px] items-center">
+                                  <Skeleton className="h-[20px] w-full rounded" />
+                                </div>
+                              </>
+                            ) : (
+                              <BodyB2
+                                className="border-b-1 border-dashed border-white"
+                                tabIndex={0}
+                                data-tooltip-id="tooltip-estimated-gas-fee-value"
+                                data-tooltip-content="0.000123 APT"
+                              >
+                                TODO
+                              </BodyB2>
+                            )}
                           </div>
                         </>
-                      ) : isInvert ? (
-                        <Button
-                          onPress={() => setIsInvert((prev) => !prev)}
-                          variant="light"
-                          className="m-0 h-fit p-0"
-                          disableAnimation
-                          disableRipple
-                        >
-                          <BodyB2 className="whitespace-nowrap">
-                            {rate ? `1 USDC = ${rate.invert().toSignificant(6)} APT` : "--"}
-                          </BodyB2>
-                        </Button>
-                      ) : (
-                        <Button
-                          onPress={() => setIsInvert((prev) => !prev)}
-                          variant="light"
-                          className="m-0 h-fit p-0"
-                          disableAnimation
-                          disableRipple
-                        >
-                          <BodyB2 className="whitespace-nowrap">
-                            {rate ? `1 APT = ${rate.toSignificant(6)} USDC` : "--"}
-                          </BodyB2>
-                        </Button>
                       )}
-                      <CountdownCircleTimer
-                        isPlaying
-                        duration={10}
-                        colors={["#0079BF", "#0079BF"]}
-                        colorsTime={[0, 0]}
-                        onComplete={() => ({ shouldRepeat: true, delay: 0 })}
-                        isSmoothColorTransition={false}
-                        trailColor="#101010"
-                        size={16}
-                        strokeWidth={2}
-                      >
-                        {({ remainingTime }) => <div className="text-[8px] text-buttonSecondary">{remainingTime}</div>}
-                      </CountdownCircleTimer>
                     </div>
-                    <Button
-                      variant="light"
-                      className="anqa-hover-white-all h-fit w-fit min-w-fit gap-0 p-0 data-[hover]:bg-transparent"
-                      disableRipple
-                      disableAnimation
-                      onPress={onToggleMoreInfo}
-                      endContent={
-                        <ArrowFilledDownIcon
-                          size={24}
-                          className={`${isMoreInfo ? "rotate-180" : ""}`}
-                          color="#9AA0A6"
-                        />
-                      }
-                    >
-                      <BodyB2 className="pl-1.5 text-buttonSecondary">
-                        {isMoreInfo ? (isSm ? "Less" : "Less Info") : isSm ? "More" : "More info"}
-                      </BodyB2>
-                    </Button>
-                  </div>
-                  {isMoreInfo && (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <BodyB2
-                          className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
-                          tabIndex={0}
-                          data-tooltip-id="tooltip-price-impact"
-                        >
-                          Price Impact
-                        </BodyB2>
-                        {isValidatingQuote ? (
-                          <>
-                            <div className="flex h-[20px] w-[50px] items-center">
-                              <Skeleton className="h-[20px] w-full rounded" />
-                            </div>
-                          </>
-                        ) : (
-                          <BodyB2>{priceImpact ? `~${priceImpact.toSignificant(4)}%` : "--"}</BodyB2>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <BodyB2
-                          className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
-                          tabIndex={0}
-                          data-tooltip-id="tooltip-minimum-receive"
-                        >
-                          Minimum Receive
-                        </BodyB2>
-                        {isValidatingQuote ? (
-                          <>
-                            <div className="flex h-[20px] w-[100px] items-center">
-                              <Skeleton className="h-[20px] w-full rounded" />
-                            </div>
-                          </>
-                        ) : (
-                          <BodyB2>{minimumReceive ? `${minimumReceive.toSignificant(6)} USDC` : "--"}</BodyB2>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <BodyB2
-                          className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
-                          tabIndex={0}
-                          data-tooltip-id="tooltip-estimated-gas-fee"
-                        >
-                          Estimated gas fee
-                        </BodyB2>
-                        {isValidatingQuote ? (
-                          <>
-                            <div className="flex h-[20px] w-[50px] items-center">
-                              <Skeleton className="h-[20px] w-full rounded" />
-                            </div>
-                          </>
-                        ) : (
-                          <BodyB2
-                            className="border-b-1 border-dashed border-white"
-                            tabIndex={0}
-                            data-tooltip-id="tooltip-estimated-gas-fee-value"
-                            data-tooltip-content="0.000123 APT"
-                          >
-                            TODO
-                          </BodyB2>
-                        )}
-                      </div>
-                    </>
-                  )}
-                </div>
-                <Spacer y={4} />
+                    <Spacer y={4} />
+                  </>
+                )}
 
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex flex-col gap-1">
