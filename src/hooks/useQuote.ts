@@ -51,23 +51,61 @@ const fn = async ({
   return undefined
 }
 
+export function sourceToName(source: string): string {
+  const list: Record<string, string> = {
+    pancake_swap: "PancakeSwap",
+    sushi_swap: "SushiSwap",
+    liquid_swap_v0: "LiquidSwap",
+    "liquid_swap_v0.5": "LiquidSwap",
+    thala_swap_stable: "ThalaSwap",
+    thala_swap_weighted: "ThalaSwap",
+    bapt_swap_v1: "BaptSwap",
+    "bapt-swap_v2": "BaptSwap",
+    "bapt_swap_v2.1": "BaptSwap",
+    aux_exchange: "AuxExchange",
+    cellana_finance: "CellanaFinance",
+    cetus_amm: "Cetus",
+    aptoswap: "Aptoswap",
+  }
+  if (list[source]) return list[source]
+  return source
+}
+
 export default function useQuote(tokenIn?: string, tokenOut?: string, amountIn?: string) {
   const {
     data: response,
     error,
-    isLoading,
+    isValidating,
   } = useSWR({ key: "useQuote", tokenIn, tokenOut, amountIn }, fn, {
     refreshInterval: 10000,
   })
 
+  const sourceInfo = useMemo(() => {
+    if (!response?.data.paths) return undefined
+    const uniqueSourceNames = new Set()
+    let numberOfPools = 0
+    for (let i = 0; i < response.data.paths.length; i++) {
+      for (let j = 0; j < response.data.paths[i].length; j++) {
+        uniqueSourceNames.add(sourceToName(response.data.paths[i][j].source))
+        numberOfPools++
+      }
+    }
+    return {
+      uniqueSourceNames: Array.from(uniqueSourceNames),
+      numberOfPaths: response.data.paths.length,
+      numberOfPools: numberOfPools,
+    }
+  }, [response?.data.paths])
+
   const res = useMemo(
     () => ({
-      isLoading,
+      isValidating,
       error,
       amountOut: response?.data.amountOut,
       path: response?.data.paths,
+      sourceInfo,
     }),
-    [error, isLoading, response?.data.amountOut, response?.data.paths],
+    [error, isValidating, response?.data.amountOut, response?.data.paths, sourceInfo],
   )
 
   return res
