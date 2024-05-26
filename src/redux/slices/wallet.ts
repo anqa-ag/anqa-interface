@@ -41,7 +41,7 @@ export const walletSlice = createSlice({
     },
     connect: (state, action: PayloadAction<Omit<WalletState, "provider" | "balance">>) => {
       state.walletAddress = action.payload.walletAddress
-      state.balance = {}
+      // state.balance = {} // We don't want blink balance.
       state.network = parseNetwork(action.payload.network)
     },
     updateWalletAddress: (state, action: PayloadAction<string>) => {

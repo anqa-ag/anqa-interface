@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef } from "react"
-import { useInterval } from "react-use"
 import { IPetraConnectResponse, WalletBalance, martian, petra } from "../../../types"
 import { aptos } from "../../utils/aptos"
 import { useAppDispatch, useAppSelector } from "../hooks"
 import useMartian from "../hooks/useMartian"
 import usePetra from "../hooks/usePetra"
 import { updateBalance, updateNetwork, updateWalletAddress } from "../slices/wallet"
+import { useInterval } from "usehooks-ts"
 
 function useGetAccountCoinsDataInterval() {
   const dispatch = useAppDispatch()

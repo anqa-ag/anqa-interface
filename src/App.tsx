@@ -1,18 +1,25 @@
-import { Network } from "@aptos-labs/ts-sdk"
-import { Button, Image, Link, Spacer, useDisclosure } from "@nextui-org/react"
-import { useState } from "react"
+import { APTOS_COIN, Network } from "@aptos-labs/ts-sdk"
+import { parseUnits } from "@ethersproject/units"
+import { Button, Image, Link, Skeleton, Spacer, useDisclosure } from "@nextui-org/react"
+import { useMemo, useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
+import { useDebounceValue } from "usehooks-ts"
 import { Chart1, Chart2 } from "./components/Chart"
-import { AnqaIcon, ArrowFilledDownIcon, SettingIcon, SwapIcon } from "./components/Icons"
-import { NumberInput, NumberInput2 } from "./components/NumberInput"
-import { BodyB2, BodyB3, TitleT2 } from "./components/Texts"
+import { AnqaIcon, ArrowFilledDownIcon, SettingIcon, SwapIcon, WalletIcon } from "./components/Icons"
+import { BodyB2, BodyB3, TitleT1, TitleT2 } from "./components/Texts"
 import Tooltips from "./components/Tooltips"
 import ModalConnectWallet from "./components/modals/ModalConnectWallet"
+import { TOKEN_LIST } from "./constants"
 import { useIsSm } from "./hooks/useMedia"
+import useTokenInfo from "./hooks/useTokenInfo"
 import { useAppSelector } from "./redux/hooks"
 import useMartian from "./redux/hooks/useMartian"
 import usePetra from "./redux/hooks/usePetra"
 import Updaters from "./redux/updaters/Updaters"
+import { Fraction } from "./utils/fraction"
+import { toFraction, truncateValue } from "./utils/number"
+import useQuote from "./hooks/useQuote"
+import useTokenPrice from "./hooks/useTokenPrice"
 
 function Menu() {
   return (
@@ -48,7 +55,7 @@ export default function App() {
 
   const isSm = useIsSm()
 
-  const { walletAddress: connectedWallet, network } = useAppSelector((state) => state.wallet)
+  const { walletAddress: connectedWallet, balance, network } = useAppSelector((state) => state.wallet)
   const isMainnet = network === Network.MAINNET
 
   const {
@@ -70,6 +77,56 @@ export default function App() {
         await onDisconnectPetra()
     }
   }
+
+  const { tokenInfoMap } = useTokenInfo([APTOS_COIN, TOKEN_LIST.USDC_LAYERZERO])
+  const APTDecimals = tokenInfoMap ? tokenInfoMap[APTOS_COIN].decimals : undefined
+  const USDCDecimals = tokenInfoMap ? tokenInfoMap[TOKEN_LIST.USDC_LAYERZERO].decimals : undefined
+
+  const { tokenPriceMap, isLoading: isLoadingTokenPrice } = useTokenPrice([APTOS_COIN, TOKEN_LIST.USDC_LAYERZERO])
+  const priceAPT = tokenPriceMap ? tokenPriceMap[APTOS_COIN].price : undefined
+  const fractionalPriceAPT = priceAPT
+    ? new Fraction(parseUnits(truncateValue(priceAPT.toString(), 18), 18).toString(), Math.pow(10, 18))
+    : undefined
+  const priceUSDC = tokenPriceMap ? tokenPriceMap[TOKEN_LIST.USDC_LAYERZERO].price : undefined
+  const fractionalPriceUSDC = priceUSDC
+    ? new Fraction(parseUnits(truncateValue(priceUSDC.toString(), 18), 18).toString(), Math.pow(10, 18))
+    : undefined
+
+  const balanceAPT = balance[APTOS_COIN]
+  const fractionalBalanceAPT = balanceAPT && APTDecimals ? toFraction(balanceAPT.amount, APTDecimals) : undefined
+  const balanceUSDC = balance[TOKEN_LIST.USDC_LAYERZERO]
+  const fractionalBalanceUSDC = balanceUSDC && USDCDecimals ? toFraction(balanceUSDC.amount, USDCDecimals) : undefined
+
+  const [typedAmountIn, _setTypedAmountIn] = useState("")
+  const setTypedAmountIn = (value: string) => {
+    if (!APTDecimals) return
+    value = truncateValue(value, APTDecimals)
+    value = value.replace("-", "")
+    _setTypedAmountIn(value)
+  }
+  const _fractionalAmountIn = useMemo(() => {
+    if (!typedAmountIn) return undefined
+    if (!APTDecimals) return
+    let value = typedAmountIn.replace(",", ".")
+    value = truncateValue(value, APTDecimals)
+    const typedValueParsed = parseUnits(truncateValue(value, APTDecimals), APTDecimals).toString()
+    return new Fraction(typedValueParsed, Math.pow(10, APTDecimals))
+  }, [APTDecimals, typedAmountIn])
+  const [fractionalAmountIn] = useDebounceValue(_fractionalAmountIn, 250)
+
+  const [tokenIn] = useState(APTOS_COIN)
+  const [tokenOut] = useState(TOKEN_LIST.USDC_LAYERZERO)
+  const {
+    amountOut,
+    isLoading: isLoadingQuote,
+    path,
+  } = useQuote(tokenIn, tokenOut, fractionalAmountIn?.numerator?.toString())
+  const fractionalAmountOut =
+    amountOut && USDCDecimals ? new Fraction(amountOut, Math.pow(10, USDCDecimals)) : undefined
+
+  const rate = fractionalAmountIn && fractionalAmountOut ? fractionalAmountOut.divide(fractionalAmountIn) : undefined
+
+  const [isInvert, setIsInvert] = useState(false)
 
   return (
     <>
@@ -160,7 +217,68 @@ export default function App() {
                 <Spacer y={4} />
 
                 <div className="relative flex flex-col gap-1">
-                  <NumberInput />
+                  {/* INPUT */}
+                  <>
+                    <div className="flex flex-col gap-2 rounded border-1 border-buttonDisabled bg-buttonDisabled p-3 transition focus-within:border-buttonSecondary">
+                      <div className="flex items-center justify-between">
+                        <BodyB2 className="text-buttonSecondary">You get</BodyB2>
+                        {connectedWallet && (
+                          <Button
+                            className="anqa-hover-white-all flex h-fit w-fit min-w-fit items-center gap-1 bg-transparent p-0"
+                            disableAnimation
+                            disableRipple
+                          >
+                            <WalletIcon size={24} />
+                            <BodyB2 className="text-buttonSecondary">
+                              {fractionalBalanceAPT?.toSignificant(6) ?? "--"}
+                            </BodyB2>
+                          </Button>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <input
+                          inputMode="decimal"
+                          autoComplete="off"
+                          autoCorrect="off"
+                          type="number"
+                          placeholder="0.00"
+                          minLength={1}
+                          maxLength={79}
+                          spellCheck="false"
+                          className="w-full bg-transparent text-[36px] font-semibold outline-none placeholder:text-buttonSecondary"
+                          value={typedAmountIn}
+                          onChange={(e) => setTypedAmountIn(e.target.value)}
+                        />
+                        <Button
+                          className="flex h-[42px] w-fit min-w-fit items-center gap-1 rounded-full border-1 border-buttonDisabled bg-transparent p-2 transition hover:border-buttonSecondary data-[hover]:bg-transparent"
+                          disableAnimation
+                          disableRipple
+                        >
+                          <Image
+                            width={20}
+                            height={20}
+                            className="min-h-[20px] min-w-[20px]"
+                            src="https://s2.coinmarketcap.com/static/img/coins/64x64/21794.png"
+                          />
+                          <TitleT1 className="whitespace-nowrap">APT</TitleT1>
+                          <ArrowFilledDownIcon size={20} />
+                        </Button>
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        {fractionalAmountIn && fractionalPriceAPT && isLoadingTokenPrice ? (
+                          <div className="flex h-[20px] w-full items-center">
+                            <Skeleton className="h-[20px] w-1/3 rounded-lg" />
+                          </div>
+                        ) : (
+                          <BodyB2 className="text-buttonSecondary">
+                            {fractionalAmountIn && fractionalPriceAPT
+                              ? "~$" + fractionalAmountIn.multiply(fractionalPriceAPT).toSignificant(6)
+                              : "--"}
+                          </BodyB2>
+                        )}
+                      </div>
+                    </div>
+                  </>
                   <div className="absolute left-1/2 top-1/2 z-[1] -translate-x-1/2 -translate-y-1/2">
                     <Button
                       isIconOnly
@@ -169,26 +287,101 @@ export default function App() {
                       <SwapIcon size={24} color="#FFFFFF" />
                     </Button>
                   </div>
-                  <NumberInput2 />
+                  {/* OUTPUT */}
+                  <>
+                    <div className="flex flex-col gap-2 rounded border-1 border-buttonDisabled bg-buttonDisabled p-3 transition focus-within:border-buttonSecondary">
+                      <div className="flex items-center justify-between">
+                        <BodyB2 className="text-buttonSecondary">You pay</BodyB2>
+                        {connectedWallet && (
+                          <Button
+                            className="anqa-hover-white-all flex h-fit w-fit min-w-fit items-center gap-1 bg-transparent p-0"
+                            disableAnimation
+                            disableRipple
+                          >
+                            <WalletIcon size={24} />
+                            <BodyB2 className="text-buttonSecondary">
+                              {fractionalBalanceUSDC?.toSignificant(6) ?? "--"}
+                            </BodyB2>
+                          </Button>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        {isLoadingQuote ? (
+                          <div className="flex h-[54px] w-full items-center">
+                            <Skeleton className="h-[38px] w-full rounded-lg" />
+                          </div>
+                        ) : (
+                          <input
+                            inputMode="decimal"
+                            autoComplete="off"
+                            autoCorrect="off"
+                            type="number"
+                            placeholder="0.00"
+                            minLength={1}
+                            maxLength={79}
+                            spellCheck="false"
+                            className="w-full bg-transparent text-[36px] font-semibold outline-none placeholder:text-buttonSecondary"
+                            disabled
+                            value={
+                              fractionalAmountOut && USDCDecimals
+                                ? truncateValue(fractionalAmountOut.toSignificant(18), USDCDecimals)
+                                : ""
+                            }
+                          />
+                        )}
+                        <Button
+                          className="flex h-[42px] w-fit min-w-fit items-center gap-1 rounded-full border-1 border-buttonDisabled bg-transparent p-2 transition hover:border-buttonSecondary data-[hover]:bg-transparent"
+                          disableAnimation
+                          disableRipple
+                        >
+                          <Image
+                            width={20}
+                            height={20}
+                            className="min-h-[20px] min-w-[20px]"
+                            src="https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png"
+                          />
+                          <TitleT1 className="whitespace-nowrap">USDC</TitleT1>
+                          <ArrowFilledDownIcon size={20} />
+                        </Button>
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        {fractionalAmountOut && fractionalPriceUSDC && isLoadingTokenPrice ? (
+                          <div className="flex h-[20px] w-full items-center">
+                            <Skeleton className="h-[20px] w-1/3 rounded-lg" />
+                          </div>
+                        ) : (
+                          <BodyB2 className="text-buttonSecondary">
+                            {fractionalAmountOut && fractionalPriceUSDC
+                              ? "~$" + fractionalAmountOut.multiply(fractionalPriceUSDC).toSignificant(6)
+                              : "--"}
+                          </BodyB2>
+                        )}
+                      </div>
+                    </div>
+                  </>
                 </div>
 
-                <Spacer y={3} />
-
-                <Button
-                  className="anqa-hover-primary-all flex h-fit min-h-fit cursor-pointer items-center gap-3 rounded-none bg-transparent p-0 data-[hover]:bg-transparent"
-                  disableAnimation
-                  disableRipple
-                >
-                  <BodyB2 className="whitespace-nowrap rounded border-1 border-primary p-2 text-primary">
-                    2 splits & 3 hops
-                  </BodyB2>
-                  <BodyB3 className="overflow-hidden text-ellipsis whitespace-nowrap text-buttonSecondary">
-                    via Pancakeswap, Cellana, Liquidswap
-                  </BodyB3>
-                  <ArrowFilledDownIcon size={24} className="ml-auto -rotate-90" color="#9AA0A6" />
-                </Button>
-
-                <Spacer y={3} />
+                {path ? (
+                  <>
+                    <Spacer y={3} />
+                    <Button
+                      className="anqa-hover-primary-all flex h-fit min-h-fit cursor-pointer items-center gap-3 rounded-none bg-transparent p-0 data-[hover]:bg-transparent"
+                      disableAnimation
+                      disableRipple
+                    >
+                      <BodyB2 className="whitespace-nowrap rounded border-1 border-primary p-2 text-primary">
+                        2 splits & 3 hops
+                      </BodyB2>
+                      <BodyB3 className="overflow-hidden text-ellipsis whitespace-nowrap text-buttonSecondary">
+                        via Pancakeswap, Cellana, Liquidswap
+                      </BodyB3>
+                      <ArrowFilledDownIcon size={24} className="ml-auto -rotate-90" color="#9AA0A6" />
+                    </Button>
+                    <Spacer y={3} />
+                  </>
+                ) : (
+                  <Spacer y={4} />
+                )}
 
                 <Button
                   color="primary"
@@ -201,87 +394,114 @@ export default function App() {
 
                 <Spacer y={4} />
 
-                <div className="flex flex-col gap-2 rounded-lg border-1 border-buttonSecondary p-3">
-                  <div className="flex justify-between">
-                    <div className="flex items-center gap-2">
-                      <BodyB2 className="whitespace-nowrap">1 USDC = 0.11650797 APT</BodyB2>
-                      <CountdownCircleTimer
-                        isPlaying
-                        duration={10}
-                        colors={["#0079BF", "#0079BF"]}
-                        colorsTime={[0, 0]}
-                        onComplete={() => ({ shouldRepeat: true, delay: 0 })}
-                        isSmoothColorTransition={false}
-                        trailColor="#101010"
-                        size={16}
-                        strokeWidth={2}
-                      >
-                        {({ remainingTime }) => <div className="text-[8px] text-buttonSecondary">{remainingTime}</div>}
-                      </CountdownCircleTimer>
+                {rate && (
+                  <>
+                    <div className="flex flex-col gap-2 rounded-lg border-1 border-buttonSecondary p-3">
+                      <div className="flex justify-between">
+                        <div className="flex items-center gap-2">
+                          {isInvert ? (
+                            <Button
+                              onPress={() => setIsInvert((prev) => !prev)}
+                              variant="light"
+                              className="m-0 h-fit p-0"
+                              disableAnimation
+                              disableRipple
+                            >
+                              <BodyB2 className="whitespace-nowrap">
+                                1 USDC = {rate.invert().toSignificant(6)} APT
+                              </BodyB2>
+                            </Button>
+                          ) : (
+                            <Button
+                              onPress={() => setIsInvert((prev) => !prev)}
+                              variant="light"
+                              className="m-0 h-fit p-0"
+                              disableAnimation
+                              disableRipple
+                            >
+                              <BodyB2 className="whitespace-nowrap">1 APT = {rate.toSignificant(6)} USDC</BodyB2>
+                            </Button>
+                          )}
+                          <CountdownCircleTimer
+                            isPlaying
+                            duration={10}
+                            colors={["#0079BF", "#0079BF"]}
+                            colorsTime={[0, 0]}
+                            onComplete={() => ({ shouldRepeat: true, delay: 0 })}
+                            isSmoothColorTransition={false}
+                            trailColor="#101010"
+                            size={16}
+                            strokeWidth={2}
+                          >
+                            {({ remainingTime }) => (
+                              <div className="text-[8px] text-buttonSecondary">{remainingTime}</div>
+                            )}
+                          </CountdownCircleTimer>
+                        </div>
+                        <Button
+                          variant="light"
+                          className="anqa-hover-white-all h-fit w-fit min-w-fit gap-0 p-0 data-[hover]:bg-transparent"
+                          disableRipple
+                          disableAnimation
+                          onPress={onToggleMoreInfo}
+                          endContent={
+                            <ArrowFilledDownIcon
+                              size={24}
+                              className={`${isMoreInfo ? "rotate-180" : ""}`}
+                              color="#9AA0A6"
+                            />
+                          }
+                        >
+                          <BodyB2 className="pl-1.5 text-buttonSecondary">
+                            {isMoreInfo ? (isSm ? "Less" : "Less Info") : isSm ? "More" : "More info"}
+                          </BodyB2>
+                        </Button>
+                      </div>
+                      {isMoreInfo && (
+                        <>
+                          <div className="flex items-center justify-between">
+                            <BodyB2
+                              className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
+                              tabIndex={0}
+                              data-tooltip-id="tooltip-price-impact"
+                            >
+                              Price Impact
+                            </BodyB2>
+                            <BodyB2>~0.2574%</BodyB2>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <BodyB2
+                              className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
+                              tabIndex={0}
+                              data-tooltip-id="tooltip-minimum-receive"
+                            >
+                              Minimum Receive
+                            </BodyB2>
+                            <BodyB2>1.157999822 APT</BodyB2>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <BodyB2
+                              className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
+                              tabIndex={0}
+                              data-tooltip-id="tooltip-estimated-gas-fee"
+                            >
+                              Estimated gas fee
+                            </BodyB2>
+                            <BodyB2
+                              className="border-b-1 border-dashed border-white"
+                              tabIndex={0}
+                              data-tooltip-id="tooltip-estimated-gas-fee-value"
+                              data-tooltip-content="0.00028123 APT"
+                            >
+                              $0.042
+                            </BodyB2>
+                          </div>
+                        </>
+                      )}
                     </div>
-                    <Button
-                      variant="light"
-                      className="anqa-hover-white-all h-fit w-fit min-w-fit gap-0 p-0 data-[hover]:bg-transparent"
-                      disableRipple
-                      disableAnimation
-                      onPress={onToggleMoreInfo}
-                      endContent={
-                        <ArrowFilledDownIcon
-                          size={24}
-                          className={`${isMoreInfo ? "rotate-180" : ""}`}
-                          color="#9AA0A6"
-                        />
-                      }
-                    >
-                      <BodyB2 className="pl-1.5 text-buttonSecondary">
-                        {isMoreInfo ? (isSm ? "Less" : "Less Info") : isSm ? "More" : "More info"}
-                      </BodyB2>
-                    </Button>
-                  </div>
-                  {isMoreInfo && (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <BodyB2
-                          className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
-                          tabIndex={0}
-                          data-tooltip-id="tooltip-price-impact"
-                        >
-                          Price Impact
-                        </BodyB2>
-                        <BodyB2>~0.2574%</BodyB2>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <BodyB2
-                          className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
-                          tabIndex={0}
-                          data-tooltip-id="tooltip-minimum-receive"
-                        >
-                          Minimum Receive
-                        </BodyB2>
-                        <BodyB2>1.157999822 APT</BodyB2>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <BodyB2
-                          className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
-                          tabIndex={0}
-                          data-tooltip-id="tooltip-estimated-gas-fee"
-                        >
-                          Estimated gas fee
-                        </BodyB2>
-                        <BodyB2
-                          className="border-b-1 border-dashed border-white"
-                          tabIndex={0}
-                          data-tooltip-id="tooltip-estimated-gas-fee-value"
-                          data-tooltip-content="0.00028123 APT"
-                        >
-                          $0.042
-                        </BodyB2>
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                <Spacer y={4} />
+                    <Spacer y={4} />
+                  </>
+                )}
 
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex flex-col gap-1">
