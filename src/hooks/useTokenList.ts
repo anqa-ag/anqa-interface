@@ -1,3 +1,4 @@
+import { APTOS_COIN } from "@aptos-labs/ts-sdk"
 import axios from "axios"
 import { useMemo } from "react"
 import useSWR from "swr"
@@ -45,7 +46,7 @@ export default function useTokenList() {
     if (!data) return undefined
     const m: Record<string, RawCoinInfo> = {}
     for (const token of data) {
-        m[token.token_type.type] = token
+      m[token.token_type.type] = token
     }
     return Object.values(m)
   }, [data])

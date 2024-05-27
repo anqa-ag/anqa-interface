@@ -1,11 +1,16 @@
 import { Icon } from "@iconify/react"
 import { Button, Image, Input, Modal, ModalContent, Spacer } from "@nextui-org/react"
+import { CSSProperties, useMemo, useState } from "react"
+import { isMobile } from "react-device-detect"
+import { FixedSizeList } from "react-window"
 import useTokenList, { RawCoinInfo } from "../../hooks/useTokenList"
 import { SearchIcon } from "../Icons"
 import { BodyB3, TitleT2, TitleT5 } from "../Texts"
-import { useState } from "react"
 
-function TokenItem({ token }: { token: RawCoinInfo }) {
+function TokenItem({ index, data, style }: { index: number; data: RawCoinInfo[]; style: CSSProperties }) {
+  const token = useMemo(() => {
+    return data[index]
+  }, [data, index])
   const [src, setSrc] = useState(token.logo_url || token.project_url)
   const onLogoError = () => {
     setSrc(
@@ -16,6 +21,7 @@ function TokenItem({ token }: { token: RawCoinInfo }) {
     <div
       className="flex h-fit w-full cursor-pointer items-center gap-2 rounded-none bg-buttonDisabled px-4 py-3 font-normal hover:bg-background"
       tabIndex={0}
+      style={style}
     >
       <Image
         width={20}
@@ -23,6 +29,7 @@ function TokenItem({ token }: { token: RawCoinInfo }) {
         src={src}
         onError={onLogoError}
         className="flex h-[20px] min-h-[20px] w-[20px] min-w-[20px] rounded-full bg-white"
+        disableSkeleton
       />
       <div className="flex w-full flex-col gap-1 overflow-hidden">
         <div className="flex items-baseline gap-1">
@@ -96,10 +103,16 @@ export default function ModalSelectToken({
               <Spacer y={4} />
 
               {tokenList && (
-                <div className="-ml-4 flex h-fit max-h-[340px] w-[calc(100%_+_32px)] flex-col overflow-auto">
-                  {tokenList.map((token) => (
-                    <TokenItem key={token.token_type.type} token={token} />
-                  ))}
+                <div className="-ml-4 w-[calc(100%_+_32px)]">
+                  <FixedSizeList
+                    height={isMobile ? 340 : 680}
+                    itemCount={tokenList.length}
+                    itemSize={68}
+                    width="100%"
+                    itemData={tokenList}
+                  >
+                    {TokenItem}
+                  </FixedSizeList>
                 </div>
               )}
             </>
