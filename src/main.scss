@@ -149,8 +149,11 @@ input[type="text"][disabled],
 input[type="text"][disabled]:hover,
 input[type="text"][disabled]:focus {
   color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
+  opacity: 1; /* required on iOS */
 }
 
 input[type="text"][disabled]::placeholder {
   color: #9aa0a6;
+  -webkit-text-fill-color: #9aa0a6;
 }
