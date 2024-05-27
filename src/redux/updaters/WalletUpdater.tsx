@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react"
+import { memo, useCallback, useEffect, useRef } from "react"
 import { IPetraConnectResponse, WalletBalance, martian, petra } from "../../../types"
 import { aptos } from "../../utils/aptos"
 import { useAppDispatch, useAppSelector } from "../hooks"
@@ -17,6 +17,7 @@ function useGetAccountCoinsDataInterval() {
     const accountCoinsData = await aptos.getAccountCoinsData({
       accountAddress: walletAddress,
     })
+    console.log("accountCoinsData", accountCoinsData)
     const _accountCoinsData = accountCoinsData.reduce(
       (prev, curr) => ({ ...prev, [curr.asset_type]: { ...curr, amount: curr.amount.toString() as string } }),
       {} as WalletBalance,
@@ -27,7 +28,7 @@ function useGetAccountCoinsDataInterval() {
   useInterval(fn, 1000)
 }
 
-export default function WalletUpdater() {
+function WalletUpdater() {
   useGetAccountCoinsDataInterval()
 
   const dispatch = useAppDispatch()
@@ -74,3 +75,6 @@ export default function WalletUpdater() {
 
   return null
 }
+
+const MemoWalletUpdater = memo(WalletUpdater)
+export default MemoWalletUpdater

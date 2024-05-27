@@ -31,7 +31,16 @@ const fn = async ({ tokens }: { key: string; tokens: string[] }) => {
 }
 
 export default function useTokenInfo(tokens: string[]) {
-  const { data: response, error, isValidating } = useSWR({ key: "useTokenInfo", tokens }, fn)
+  const {
+    data: response,
+    error,
+    isValidating,
+  } = useSWR({ key: "useTokenInfo", tokens }, fn, {
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+    revalidateOnMount: false,
+    revalidateOnReconnect: false,
+  })
 
   const res = useMemo(
     () => ({

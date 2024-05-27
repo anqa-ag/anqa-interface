@@ -10,17 +10,15 @@ import { BodyB2, BodyB3, TitleT1, TitleT2 } from "./components/Texts"
 import Tooltips from "./components/Tooltips"
 import ModalConnectWallet from "./components/modals/ModalConnectWallet"
 import ModalSelectToken from "./components/modals/ModalSelectToken"
-import { USDC_LAYERZERO } from "./constants"
+import { USDC_WORMHOLE } from "./constants"
 import { useIsSm } from "./hooks/useMedia"
 import useQuote from "./hooks/useQuote"
-import useTokenInfo from "./hooks/useTokenInfo"
-import useTokenPrice from "./hooks/useTokenPrice"
 import { useAppSelector } from "./redux/hooks"
 import useMartian from "./redux/hooks/useMartian"
 import usePetra from "./redux/hooks/usePetra"
 import Updaters from "./redux/updaters/Updaters"
 import { Fraction } from "./utils/fraction"
-import { escapeRegExp, inputRegex, numberWithCommas, toFraction, truncateValue } from "./utils/number"
+import { escapeRegExp, inputRegex, numberWithCommas, mulpowToFraction, divpowToFraction, truncateValue } from "./utils/number"
 
 function Menu() {
   return (
@@ -79,24 +77,24 @@ export default function App() {
     }
   }
 
-  const { tokenInfoMap } = useTokenInfo([APTOS_COIN, USDC_LAYERZERO])
-  const APTDecimals = tokenInfoMap ? tokenInfoMap[APTOS_COIN].decimals : undefined
-  const USDCDecimals = tokenInfoMap ? tokenInfoMap[USDC_LAYERZERO].decimals : undefined
+  const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
+  const APTDecimals = followingTokenData[APTOS_COIN] ? followingTokenData[APTOS_COIN].decimals : undefined
+  const USDCDecimals = followingTokenData[USDC_WORMHOLE] ? followingTokenData[USDC_WORMHOLE].decimals : undefined
 
-  const { tokenPriceMap, isValidating: isValidatingTokenPrice } = useTokenPrice([APTOS_COIN, USDC_LAYERZERO])
-  const priceAPT = tokenPriceMap ? tokenPriceMap[APTOS_COIN].price : undefined
-  const fractionalPriceAPT = priceAPT
-    ? new Fraction(parseUnits(truncateValue(priceAPT, 18), 18).toString(), Math.pow(10, 18))
-    : undefined
-  const priceUSDC = tokenPriceMap ? tokenPriceMap[USDC_LAYERZERO].price : undefined
-  const fractionalPriceUSDC = priceUSDC
-    ? new Fraction(parseUnits(truncateValue(priceUSDC, 18), 18).toString(), Math.pow(10, 18))
-    : undefined
+  const followingPriceData = useAppSelector((state) => state.price.followingPriceData)
+  const fractionalPriceAPT = useMemo(
+    () => (followingPriceData ? mulpowToFraction(followingPriceData[APTOS_COIN]) : undefined),
+    [followingPriceData],
+  )
+  const fractionalPriceUSDC = useMemo(
+    () => (followingPriceData ? mulpowToFraction(followingPriceData[USDC_WORMHOLE]) : undefined),
+    [followingPriceData],
+  )
 
   const balanceAPT = balance[APTOS_COIN]
-  const fractionalBalanceAPT = balanceAPT && APTDecimals ? toFraction(balanceAPT.amount, APTDecimals) : undefined
-  const balanceUSDC = balance[USDC_LAYERZERO]
-  const fractionalBalanceUSDC = balanceUSDC && USDCDecimals ? toFraction(balanceUSDC.amount, USDCDecimals) : undefined
+  const fractionalBalanceAPT = balanceAPT && APTDecimals ? divpowToFraction(balanceAPT.amount, APTDecimals) : undefined
+  const balanceUSDC = balance[USDC_WORMHOLE]
+  const fractionalBalanceUSDC = balanceUSDC && USDCDecimals ? divpowToFraction(balanceUSDC.amount, USDCDecimals) : undefined
 
   const [typedAmountIn, _setTypedAmountIn] = useState("")
   const setTypedAmountIn = (value: string) => {
@@ -117,7 +115,7 @@ export default function App() {
   const [fractionalAmountIn] = useDebounceValue(_fractionalAmountIn, 250)
 
   const [tokenIn] = useState(APTOS_COIN)
-  const [tokenOut] = useState(USDC_LAYERZERO)
+  const [tokenOut] = useState(USDC_WORMHOLE)
   const {
     amountOut,
     isValidating: isValidatingQuote,
@@ -145,7 +143,7 @@ export default function App() {
 
   const [isInvert, setIsInvert] = useState(false)
 
-  const fractionalFeeAmount = new Fraction(123, 1000000)
+  const fractionalFeeAmount = useMemo(() => new Fraction(123, 1000000), [])
   const isSufficientBalance =
     fractionalBalanceAPT && fractionalAmountIn
       ? fractionalBalanceAPT.subtract(fractionalFeeAmount).equalTo(fractionalAmountIn) ||
@@ -308,17 +306,11 @@ export default function App() {
                         </Button>
                       </div>
                       <div className="flex items-center justify-between gap-3">
-                        {fractionalAmountIn && fractionalPriceAPT && isValidatingTokenPrice ? (
-                          <div className="flex h-[20px] w-full items-center">
-                            <Skeleton className="h-[20px] w-1/3 rounded" />
-                          </div>
-                        ) : (
-                          <BodyB2 className="text-buttonSecondary">
-                            {fractionalAmountInUsd
-                              ? "~$" + numberWithCommas(fractionalAmountInUsd.toSignificant(6))
-                              : "--"}
-                          </BodyB2>
-                        )}
+                        <BodyB2 className="text-buttonSecondary">
+                          {fractionalAmountInUsd
+                            ? "~$" + numberWithCommas(fractionalAmountInUsd.toSignificant(6))
+                            : "--"}
+                        </BodyB2>
                       </div>
                     </div>
                   </>
@@ -391,17 +383,11 @@ export default function App() {
                         </Button>
                       </div>
                       <div className="flex items-center justify-between gap-3">
-                        {fractionalAmountOut && fractionalPriceUSDC && isValidatingTokenPrice ? (
-                          <div className="flex h-[20px] w-full items-center">
-                            <Skeleton className="h-[20px] w-1/3 rounded" />
-                          </div>
-                        ) : (
-                          <BodyB2 className="text-buttonSecondary">
-                            {fractionalAmountOutUsd
-                              ? "~$" + numberWithCommas(fractionalAmountOutUsd.toSignificant(6))
-                              : "--"}
-                          </BodyB2>
-                        )}
+                        <BodyB2 className="text-buttonSecondary">
+                          {fractionalAmountOutUsd
+                            ? "~$" + numberWithCommas(fractionalAmountOutUsd.toSignificant(6))
+                            : "--"}
+                        </BodyB2>
                       </div>
                     </div>
                   </>

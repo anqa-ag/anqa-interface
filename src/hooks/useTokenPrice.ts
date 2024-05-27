@@ -33,7 +33,13 @@ const fn = async ({ tokens }: { key: string; tokens: string[] }) => {
 }
 
 export default function useTokenPrice(tokens: string[]) {
-  const { data: response, error, isValidating } = useSWR({ key: "useTokenPrice", tokens }, fn)
+  const {
+    data: response,
+    error,
+    isValidating,
+  } = useSWR({ key: "useTokenPrice", tokens }, fn, {
+    refreshInterval: 10000,
+  })
 
   const res = useMemo(
     () => ({

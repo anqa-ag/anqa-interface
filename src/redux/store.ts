@@ -1,17 +1,20 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit"
 import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE, persistReducer, persistStore } from "redux-persist"
-import storage from "redux-persist/lib/storage"; // defaults to localStorage for web
+import storage from "redux-persist/lib/storage" // defaults to localStorage for web
 
 import walletReducer from "./slices/wallet"
+import tokenReducer from "./slices/token"
+import priceReducer from "./slices/price"
 
 const persistConfig = {
   key: "root",
   storage,
-  blacklist: ["balance"]
 }
 
 const rootReducer = combineReducers({
   wallet: walletReducer,
+  token: tokenReducer,
+  price: priceReducer,
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)

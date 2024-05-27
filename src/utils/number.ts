@@ -1,8 +1,18 @@
+import { parseUnits } from "@ethersproject/units"
 import { BigintIsh, Fraction } from "./fraction"
 
-export function toFraction(j: BigintIsh, decimals: number): Fraction {
-  return new Fraction(j, Math.pow(10, decimals))
+// n = "10000000000000000000", decimals = 9 => Fraction("10000000000000000000", 1e9)
+export function divpowToFraction(n: BigintIsh, decimals: number): Fraction {
+  return new Fraction(n, Math.pow(10, decimals))
 }
+
+// Float in string form to Fraction.
+// s = "0.000000000000001", multiplier = 18 => Fraction("1000", 1e18)
+export function mulpowToFraction(s: string, multiplier = 18): Fraction {
+  const f = new Fraction(parseUnits(truncateValue(s, multiplier), multiplier).toString(), Math.pow(10, multiplier))
+  return f
+}
+
 
 export function truncateValue(value: string, decimals: number): string {
   const parts = value.split(/[.,]/)

@@ -3,15 +3,23 @@ import { Button, Image, Input, Modal, ModalContent, Spacer } from "@nextui-org/r
 import { CSSProperties, useMemo, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { FixedSizeList } from "react-window"
-import useWhitelistedTokens, { RawCoinInfo } from "../../hooks/useWhitelistedTokens"
 import { SearchIcon } from "../Icons"
 import { BodyB3, TitleT2, TitleT5 } from "../Texts"
+import { useAppSelector } from "../../redux/hooks"
+import { Token } from "../../redux/slices/token"
+import { Fraction } from "../../utils/fraction"
+import { divpowToFraction, mulpowToFraction } from "../../utils/number"
 
-function TokenItem({ index, data, style }: { index: number; data: RawCoinInfo[]; style: CSSProperties }) {
+export interface TokenWithBalance extends Token {
+  fractionalBalance?: Fraction
+  fractionalBalanceUsd?: Fraction
+}
+
+function TokenItem({ index, data, style }: { index: number; data: TokenWithBalance[]; style: CSSProperties }) {
   const token = useMemo(() => {
     return data[index]
   }, [data, index])
-  const [src, setSrc] = useState(token.logo_url || token.project_url)
+  const [src, setSrc] = useState(token.logoUrl)
   const onLogoError = () => {
     setSrc(
       "https://png.pngtree.com/png-clipart/20190516/original/pngtree-question-mark-vector-icon-png-image_4236972.jpg",
@@ -35,7 +43,7 @@ function TokenItem({ index, data, style }: { index: number; data: RawCoinInfo[];
         <div className="flex items-baseline gap-1">
           <TitleT2 className="">{token.symbol}</TitleT2>
           <TitleT5 className="text-tooltipBg overflow-hidden text-ellipsis whitespace-nowrap">
-            {token.token_type.type.slice(0, 10) + "..."}
+            {token.id.slice(0, 10) + "..."}
           </TitleT5>
           <Button
             variant="light"
@@ -50,8 +58,8 @@ function TokenItem({ index, data, style }: { index: number; data: RawCoinInfo[];
         </TitleT5>
       </div>
       <div className="flex flex-col items-end gap-1 justify-self-end">
-        <TitleT5 className="text-tooltipBg">0.0366</TitleT5>
-        <BodyB3 className="text-tooltipBg">~$6.62</BodyB3>
+        <TitleT5 className="text-tooltipBg">{data[index].fractionalBalance ? data[index].fractionalBalance?.toSignificant(6) : undefined}</TitleT5>
+        <BodyB3 className="text-tooltipBg">{data[index].fractionalBalanceUsd ? `~${data[index].fractionalBalanceUsd?.toSignificant(6)}` : undefined}</BodyB3>
       </div>
     </div>
   )
@@ -66,11 +74,52 @@ export default function ModalSelectToken({
   onClose: () => void
   onOpenChange: () => void
 }) {
-  const whitelistedTokenMap = useWhitelistedTokens()
-  const whitelistedTokens = useMemo(
-    () => whitelistedTokenMap && Object.values(whitelistedTokenMap),
-    [whitelistedTokenMap],
+  const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
+  const followingPriceData = useAppSelector((state) => state.price.followingPriceData)
+  const balance = useAppSelector((state) => state.wallet.balance)
+  const followingTokenDataWithBalance = useMemo(() => {
+    const res: Record<string, TokenWithBalance> = {}
+    for (const address of Object.keys(followingTokenData)) {
+      let fractionalBalance: Fraction | undefined
+      if (balance[address] && balance[address]?.amount) {
+        fractionalBalance = divpowToFraction(balance[address]!.amount, followingTokenData[address].decimals)
+      }
+      let fractionalBalanceUsd: Fraction | undefined
+      if (fractionalBalance && followingPriceData[address]) {
+        const fractionalPrice = mulpowToFraction(followingPriceData[address])
+        fractionalBalanceUsd = fractionalBalance.multiply(fractionalPrice)
+      }
+      const newItem: TokenWithBalance = {
+        id: followingTokenData[address].id,
+        name: followingTokenData[address].name,
+        symbol: followingTokenData[address].symbol,
+        decimals: followingTokenData[address].decimals,
+        logoUrl: followingTokenData[address].logoUrl,
+        fractionalBalance,
+        fractionalBalanceUsd,
+      }
+      res[address] = newItem
+    }
+    return res
+  }, [balance, followingPriceData, followingTokenData])
+  const followingTokenDataWithBalanceList = useMemo(
+    () => {
+      const list = Object.values(followingTokenDataWithBalance)
+      list.sort((a: TokenWithBalance, b: TokenWithBalance) => {
+        const x = a.fractionalBalanceUsd ?? new Fraction(0)
+        const y = b.fractionalBalanceUsd ?? new Fraction(0)
+        if (x.lessThan(y)) {
+          return 1
+        } else if (x.greaterThan(y)) {
+          return -1
+        }
+        return a.symbol.localeCompare(b.symbol)
+      })
+      return list
+    },
+    [followingTokenDataWithBalance],
   )
+
   return (
     <>
       <Modal
@@ -105,14 +154,14 @@ export default function ModalSelectToken({
 
               <Spacer y={4} />
 
-              {whitelistedTokens && (
+              {followingTokenDataWithBalanceList && (
                 <div className="-ml-4 w-[calc(100%_+_32px)]">
                   <FixedSizeList
                     height={isMobile ? 340 : 680}
-                    itemCount={whitelistedTokens.length}
+                    itemCount={followingTokenDataWithBalanceList.length}
                     itemSize={68}
                     width="100%"
-                    itemData={whitelistedTokens}
+                    itemData={followingTokenDataWithBalanceList}
                   >
                     {TokenItem}
                   </FixedSizeList>
