@@ -144,3 +144,13 @@ input[type="number"] {
     fill: #ffffff;
   }
 }
+
+input[type="text"][disabled],
+input[type="text"][disabled]:hover,
+input[type="text"][disabled]:focus {
+  color: #ffffff;
+}
+
+input[type="text"][disabled]::placeholder {
+  color: #9aa0a6;
+}
