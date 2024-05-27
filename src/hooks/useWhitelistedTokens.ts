@@ -1,4 +1,3 @@
-import { APTOS_COIN } from "@aptos-labs/ts-sdk"
 import axios from "axios"
 import { useMemo } from "react"
 import useSWR from "swr"
@@ -40,15 +39,15 @@ const fn = async () => {
   return undefined
 }
 
-export default function useTokenList() {
-  const { data } = useSWR("useTokenListFromGithub", fn)
+export default function useWhitelistedTokens() {
+  const { data } = useSWR("useWhitelistedTokens", fn)
   const res = useMemo(() => {
     if (!data) return undefined
     const m: Record<string, RawCoinInfo> = {}
     for (const token of data) {
       m[token.token_type.type] = token
     }
-    return Object.values(m)
+    return m
   }, [data])
   return res
 }

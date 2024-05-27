@@ -3,7 +3,7 @@ import { Button, Image, Input, Modal, ModalContent, Spacer } from "@nextui-org/r
 import { CSSProperties, useMemo, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { FixedSizeList } from "react-window"
-import useTokenList, { RawCoinInfo } from "../../hooks/useTokenList"
+import useWhitelistedTokens, { RawCoinInfo } from "../../hooks/useWhitelistedTokens"
 import { SearchIcon } from "../Icons"
 import { BodyB3, TitleT2, TitleT5 } from "../Texts"
 
@@ -66,8 +66,11 @@ export default function ModalSelectToken({
   onClose: () => void
   onOpenChange: () => void
 }) {
-  const tokenList = useTokenList()
-
+  const whitelistedTokenMap = useWhitelistedTokens()
+  const whitelistedTokens = useMemo(
+    () => whitelistedTokenMap && Object.values(whitelistedTokenMap),
+    [whitelistedTokenMap],
+  )
   return (
     <>
       <Modal
@@ -102,14 +105,14 @@ export default function ModalSelectToken({
 
               <Spacer y={4} />
 
-              {tokenList && (
+              {whitelistedTokens && (
                 <div className="-ml-4 w-[calc(100%_+_32px)]">
                   <FixedSizeList
                     height={isMobile ? 340 : 680}
-                    itemCount={tokenList.length}
+                    itemCount={whitelistedTokens.length}
                     itemSize={68}
                     width="100%"
-                    itemData={tokenList}
+                    itemData={whitelistedTokens}
                   >
                     {TokenItem}
                   </FixedSizeList>
