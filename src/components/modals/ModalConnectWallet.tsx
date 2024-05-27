@@ -1,7 +1,7 @@
 import { Image, Button, Modal, ModalContent, Spacer } from "@nextui-org/react"
 import useMartian from "../../redux/hooks/useMartian"
 import { CloseIcon } from "../Icons"
-import { BodyB2, TitleT1, TitleT2, TitleT4 } from "../Texts"
+import { BodyB2, TitleT1, TitleT2, TitleT5 } from "../Texts"
 import { useState } from "react"
 import { useAppDispatch, useAppSelector } from "../../redux/hooks"
 import { setProvider } from "../../redux/slices/wallet"
@@ -86,7 +86,7 @@ export default function ModalConnectWallet({
                     {petra && (
                       <div className="flex items-center gap-2">
                         <div className="h-[6.67px] w-[6.67px] rounded-full bg-buttonGreen"></div>
-                        <TitleT4>Detected</TitleT4>
+                        <TitleT5>Detected</TitleT5>
                       </div>
                     )}
                   </Button>
@@ -109,7 +109,7 @@ export default function ModalConnectWallet({
                         {martian && (
                           <div className="flex items-center gap-2">
                             <div className="h-[6.67px] w-[6.67px] rounded-full bg-buttonGreen"></div>
-                            <TitleT4>Detected</TitleT4>
+                            <TitleT5>Detected</TitleT5>
                           </div>
                         )}
                       </Button>

@@ -9,17 +9,18 @@ import { AnqaIcon, ArrowFilledDownIcon, SettingIcon, SwapIcon, WalletIcon } from
 import { BodyB2, BodyB3, TitleT1, TitleT2 } from "./components/Texts"
 import Tooltips from "./components/Tooltips"
 import ModalConnectWallet from "./components/modals/ModalConnectWallet"
-import { TOKEN_LIST } from "./constants"
+import ModalSelectToken from "./components/modals/ModalSelectToken"
+import { USDC_LAYERZERO } from "./constants"
 import { useIsSm } from "./hooks/useMedia"
+import useQuote from "./hooks/useQuote"
 import useTokenInfo from "./hooks/useTokenInfo"
+import useTokenPrice from "./hooks/useTokenPrice"
 import { useAppSelector } from "./redux/hooks"
 import useMartian from "./redux/hooks/useMartian"
 import usePetra from "./redux/hooks/usePetra"
 import Updaters from "./redux/updaters/Updaters"
 import { Fraction } from "./utils/fraction"
 import { escapeRegExp, inputRegex, numberWithCommas, toFraction, truncateValue } from "./utils/number"
-import useQuote from "./hooks/useQuote"
-import useTokenPrice from "./hooks/useTokenPrice"
 
 function Menu() {
   return (
@@ -78,23 +79,23 @@ export default function App() {
     }
   }
 
-  const { tokenInfoMap } = useTokenInfo([APTOS_COIN, TOKEN_LIST.USDC_LAYERZERO])
+  const { tokenInfoMap } = useTokenInfo([APTOS_COIN, USDC_LAYERZERO])
   const APTDecimals = tokenInfoMap ? tokenInfoMap[APTOS_COIN].decimals : undefined
-  const USDCDecimals = tokenInfoMap ? tokenInfoMap[TOKEN_LIST.USDC_LAYERZERO].decimals : undefined
+  const USDCDecimals = tokenInfoMap ? tokenInfoMap[USDC_LAYERZERO].decimals : undefined
 
-  const { tokenPriceMap, isValidating: isValidatingTokenPrice } = useTokenPrice([APTOS_COIN, TOKEN_LIST.USDC_LAYERZERO])
+  const { tokenPriceMap, isValidating: isValidatingTokenPrice } = useTokenPrice([APTOS_COIN, USDC_LAYERZERO])
   const priceAPT = tokenPriceMap ? tokenPriceMap[APTOS_COIN].price : undefined
   const fractionalPriceAPT = priceAPT
     ? new Fraction(parseUnits(truncateValue(priceAPT, 18), 18).toString(), Math.pow(10, 18))
     : undefined
-  const priceUSDC = tokenPriceMap ? tokenPriceMap[TOKEN_LIST.USDC_LAYERZERO].price : undefined
+  const priceUSDC = tokenPriceMap ? tokenPriceMap[USDC_LAYERZERO].price : undefined
   const fractionalPriceUSDC = priceUSDC
     ? new Fraction(parseUnits(truncateValue(priceUSDC, 18), 18).toString(), Math.pow(10, 18))
     : undefined
 
   const balanceAPT = balance[APTOS_COIN]
   const fractionalBalanceAPT = balanceAPT && APTDecimals ? toFraction(balanceAPT.amount, APTDecimals) : undefined
-  const balanceUSDC = balance[TOKEN_LIST.USDC_LAYERZERO]
+  const balanceUSDC = balance[USDC_LAYERZERO]
   const fractionalBalanceUSDC = balanceUSDC && USDCDecimals ? toFraction(balanceUSDC.amount, USDCDecimals) : undefined
 
   const [typedAmountIn, _setTypedAmountIn] = useState("")
@@ -116,7 +117,7 @@ export default function App() {
   const [fractionalAmountIn] = useDebounceValue(_fractionalAmountIn, 250)
 
   const [tokenIn] = useState(APTOS_COIN)
-  const [tokenOut] = useState(TOKEN_LIST.USDC_LAYERZERO)
+  const [tokenOut] = useState(USDC_LAYERZERO)
   const {
     amountOut,
     isValidating: isValidatingQuote,
@@ -161,6 +162,13 @@ export default function App() {
     if (!fractionalAmountOut) return { isDisabled: true, text: "Not found route" }
     return { isDisabled: false, text: "Swap" }
   }, [fractionalAmountIn, fractionalBalanceAPT, isSufficientBalance, isValidatingQuote, fractionalAmountOut])
+
+  const {
+    isOpen: isOpenModalSelectToken,
+    onOpen: onOpenModalSelectToken,
+    onClose: onCloseModalSelectToken,
+    onOpenChange: onOpenChangeModalSelectToken,
+  } = useDisclosure()
 
   return (
     <>
@@ -287,6 +295,7 @@ export default function App() {
                           className="flex h-[42px] w-fit min-w-fit items-center gap-1 rounded-full border-1 border-buttonDisabled bg-transparent p-2 transition hover:border-buttonSecondary data-[hover]:bg-transparent"
                           disableAnimation
                           disableRipple
+                          onPress={onOpenModalSelectToken}
                         >
                           <Image
                             width={20}
@@ -369,6 +378,7 @@ export default function App() {
                           className="flex h-[42px] w-fit min-w-fit items-center gap-1 rounded-full border-1 border-buttonDisabled bg-transparent p-2 transition hover:border-buttonSecondary data-[hover]:bg-transparent"
                           disableAnimation
                           disableRipple
+                          onPress={onOpenModalSelectToken}
                         >
                           <Image
                             width={20}
@@ -718,6 +728,11 @@ export default function App() {
         isOpen={isOpenModalConnectWallet}
         onOpenChange={onOpenChangeModalConnectWallet}
         onClose={onCloseModalConnectWallet}
+      />
+      <ModalSelectToken
+        isOpen={isOpenModalSelectToken}
+        onOpenChange={onOpenChangeModalSelectToken}
+        onClose={onCloseModalSelectToken}
       />
     </>
   )

@@ -1,9 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* Box sizing rules */
 *,
 *::before,
@@ -120,6 +114,7 @@ input[type="number"] {
   fill: #0079bf;
   transition: all;
   transition-duration: 250ms;
+
   * {
     transition: all;
     transition-duration: 250ms;
@@ -136,6 +131,7 @@ input[type="number"] {
   fill: #ffffff;
   transition: all;
   transition-duration: 250ms;
+
   * {
     transition: all;
     transition-duration: 250ms;
@@ -150,10 +146,38 @@ input[type="text"][disabled]:hover,
 input[type="text"][disabled]:focus {
   color: #ffffff;
   -webkit-text-fill-color: #ffffff;
-  opacity: 1; /* required on iOS */
+  opacity: 1;
+  /* required on iOS */
 }
 
 input[type="text"][disabled]::placeholder {
   color: #9aa0a6;
   -webkit-text-fill-color: #9aa0a6;
+}
+
+.input-modal-select-token,
+.input-modal-select-token:hover,
+.input-modal-select-token:focus,
+.input-modal-select-token:active {
+  background: #101010 !important;
+  border-radius: 4px;
+  font-size: 16px;
+
+  input,
+  input:hover,
+  input:focus,
+  input:active {
+    background-color: #101010 !important;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+
+  div,
+  div:hover,
+  div:focus,
+  div:active {
+    background-color: #101010 !important;
+    border-radius: 4px;
+    font-size: 16px;
+  }
 }

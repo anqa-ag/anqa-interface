@@ -65,3 +65,11 @@ export function CloseIcon({ size, className }: IconProps) {
     </svg>
   )
 }
+
+export function SearchIcon({ size, className, color }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      <path fillRule="evenodd" clipRule="evenodd" d="M3 6.66667C3 4.64162 4.64162 3 6.66667 3C8.69171 3 10.3333 4.64162 10.3333 6.66667C10.3333 8.69171 8.69171 10.3333 6.66667 10.3333C4.64162 10.3333 3 8.69171 3 6.66667ZM6.66667 1C3.53705 1 1 3.53705 1 6.66667C1 9.79628 3.53705 12.3333 6.66667 12.3333C7.87028 12.3333 8.98626 11.9581 9.90397 11.3182L13.2929 14.7071C13.6834 15.0976 14.3166 15.0976 14.7071 14.7071C15.0976 14.3166 15.0976 13.6834 14.7071 13.2929L11.3182 9.90397C11.9581 8.98626 12.3333 7.87028 12.3333 6.66667C12.3333 3.53705 9.79628 1 6.66667 1Z" fill={color ?? "#9AA0A6"} />
+    </svg>
+  )
+}

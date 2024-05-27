@@ -17,9 +17,14 @@ export const TitleT2 = forwardRef<HTMLDivElement, TextProps>(({ className, ...pr
 TitleT2.displayName = "TitleT2"
 
 export const TitleT4 = forwardRef<HTMLDivElement, TextProps>(({ className, ...props }, ref) => (
-  <div ref={ref} className={`text-xs font-medium ${className ?? ""}`} {...props} />
+  <div ref={ref} className={`text-[13px] font-medium ${className ?? ""}`} {...props} />
 ))
 TitleT4.displayName = "TitleT4"
+
+export const TitleT5 = forwardRef<HTMLDivElement, TextProps>(({ className, ...props }, ref) => (
+  <div ref={ref} className={`text-xs font-medium ${className ?? ""}`} {...props} />
+))
+TitleT5.displayName = "TitleT5"
 
 export const BodyB2 = forwardRef<HTMLDivElement, TextProps>(({ className, ...props }, ref) => (
   <div ref={ref} className={`text-sm font-normal ${className ?? ""}`} {...props} />
