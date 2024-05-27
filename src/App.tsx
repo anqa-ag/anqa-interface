@@ -122,8 +122,10 @@ export default function App() {
     isValidating: isValidatingQuote,
     sourceInfo,
   } = useQuote(tokenIn, tokenOut, fractionalAmountIn?.numerator?.toString())
-  const fractionalAmountOut =
-    amountOut && USDCDecimals ? new Fraction(amountOut, Math.pow(10, USDCDecimals)) : undefined
+  const fractionalAmountOut = useMemo(
+    () => (amountOut && USDCDecimals ? new Fraction(amountOut, Math.pow(10, USDCDecimals)) : undefined),
+    [USDCDecimals, amountOut],
+  )
 
   const fractionalAmountInUsd =
     fractionalAmountIn && fractionalPriceAPT ? fractionalAmountIn.multiply(fractionalPriceAPT) : undefined
