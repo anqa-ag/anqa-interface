@@ -85,11 +85,11 @@ export default function App() {
   const { tokenPriceMap, isValidating: isValidatingTokenPrice } = useTokenPrice([APTOS_COIN, TOKEN_LIST.USDC_LAYERZERO])
   const priceAPT = tokenPriceMap ? tokenPriceMap[APTOS_COIN].price : undefined
   const fractionalPriceAPT = priceAPT
-    ? new Fraction(parseUnits(truncateValue(priceAPT.toString(), 18), 18).toString(), Math.pow(10, 18))
+    ? new Fraction(parseUnits(truncateValue(priceAPT, 18), 18).toString(), Math.pow(10, 18))
     : undefined
   const priceUSDC = tokenPriceMap ? tokenPriceMap[TOKEN_LIST.USDC_LAYERZERO].price : undefined
   const fractionalPriceUSDC = priceUSDC
-    ? new Fraction(parseUnits(truncateValue(priceUSDC.toString(), 18), 18).toString(), Math.pow(10, 18))
+    ? new Fraction(parseUnits(truncateValue(priceUSDC, 18), 18).toString(), Math.pow(10, 18))
     : undefined
 
   const balanceAPT = balance[APTOS_COIN]

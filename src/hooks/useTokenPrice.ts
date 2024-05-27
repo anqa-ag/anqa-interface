@@ -15,8 +15,8 @@ export interface GetTokenPriceResponseData {
 
 export interface TokenPrice {
   id: string
-  price: number
-  poolTvl: number
+  price: string
+  poolTvl: string
   poolId: string
   preferPoolId: string
   updatedAt: number
