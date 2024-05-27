@@ -26,12 +26,21 @@ export default function Tooltips() {
         place="right"
         className="!max-w-[min(320px,80%)] !px-2 !py-1 !text-sm"
         opacity={1}
-      />
+        />
       <ReactTooltip
         id="tooltip-estimated-gas-fee-value"
         variant="light"
         place="right"
         className="!max-w-[min(320px,80%)] !px-2 !py-1 !text-sm"
+        opacity={1}
+        />
+      <ReactTooltip
+        id="tooltip-input-amount-out"
+        content="We only support type amount in."
+        variant="light"
+        place="left"
+        className="!max-w-[min(320px,80%)] !px-2 !py-1 !text-sm"
+        delayShow={1000}
         opacity={1}
       />
     </>

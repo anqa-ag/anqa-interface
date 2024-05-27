@@ -17,7 +17,7 @@ import useMartian from "./redux/hooks/useMartian"
 import usePetra from "./redux/hooks/usePetra"
 import Updaters from "./redux/updaters/Updaters"
 import { Fraction } from "./utils/fraction"
-import { escapeRegExp, inputRegex, toFraction, truncateValue } from "./utils/number"
+import { escapeRegExp, inputRegex, numberWithCommas, toFraction, truncateValue } from "./utils/number"
 import useQuote from "./hooks/useQuote"
 import useTokenPrice from "./hooks/useTokenPrice"
 
@@ -140,7 +140,7 @@ export default function App() {
   if (priceImpact?.lessThan(0)) {
     priceImpact = priceImpact.multiply(-1)
   }
-  const minimumReceive = fractionalAmountOut ? fractionalAmountOut.multiply(995).divide(1000) : undefined
+  const minimumReceive = fractionalAmountOut ? fractionalAmountOut.multiply(995).divide(1000) : undefined // TODO: Add slippage later.
 
   const [isInvert, setIsInvert] = useState(false)
 
@@ -254,7 +254,7 @@ export default function App() {
                   <>
                     <div className="flex flex-col gap-2 rounded border-1 border-buttonDisabled bg-buttonDisabled p-3 transition focus-within:border-buttonSecondary">
                       <div className="flex items-center justify-between">
-                        <BodyB2 className="text-buttonSecondary">You get</BodyB2>
+                        <BodyB2 className="text-buttonSecondary">You pay</BodyB2>
                         {connectedWallet && (
                           <Button
                             className="anqa-hover-white-all flex h-fit w-fit min-w-fit items-center gap-1 bg-transparent p-0"
@@ -305,7 +305,9 @@ export default function App() {
                           </div>
                         ) : (
                           <BodyB2 className="text-buttonSecondary">
-                            {fractionalAmountInUsd ? "~$" + fractionalAmountInUsd.toSignificant(6) : "--"}
+                            {fractionalAmountInUsd
+                              ? "~$" + numberWithCommas(fractionalAmountInUsd.toSignificant(6))
+                              : "--"}
                           </BodyB2>
                         )}
                       </div>
@@ -323,7 +325,7 @@ export default function App() {
                   <>
                     <div className="flex flex-col gap-2 rounded border-1 border-buttonDisabled bg-buttonDisabled p-3 transition focus-within:border-buttonSecondary">
                       <div className="flex items-center justify-between">
-                        <BodyB2 className="text-buttonSecondary">You pay</BodyB2>
+                        <BodyB2 className="text-buttonSecondary">You get</BodyB2>
                         {connectedWallet && (
                           <Button
                             className="anqa-hover-white-all flex h-fit w-fit min-w-fit items-center gap-1 bg-transparent p-0"
@@ -355,6 +357,7 @@ export default function App() {
                             className="w-full bg-transparent text-[36px] font-semibold outline-none placeholder:text-buttonSecondary"
                             pattern="^[0-9]*[.,]?[0-9]*$"
                             disabled
+                            data-tooltip-id="tooltip-input-amount-out"
                             value={
                               fractionalAmountOut && USDCDecimals
                                 ? truncateValue(fractionalAmountOut.toSignificant(18), USDCDecimals)
@@ -384,7 +387,9 @@ export default function App() {
                           </div>
                         ) : (
                           <BodyB2 className="text-buttonSecondary">
-                            {fractionalAmountOutUsd ? "~$" + fractionalAmountOutUsd.toSignificant(6) : "--"}
+                            {fractionalAmountOutUsd
+                              ? "~$" + numberWithCommas(fractionalAmountOutUsd.toSignificant(6))
+                              : "--"}
                           </BodyB2>
                         )}
                       </div>
@@ -546,7 +551,9 @@ export default function App() {
                                 </div>
                               </>
                             ) : (
-                              <BodyB2>{minimumReceive ? `${minimumReceive.toSignificant(6)} USDC` : "--"}</BodyB2>
+                              <BodyB2>
+                                {minimumReceive ? `${numberWithCommas(minimumReceive.toSignificant(6))} USDC` : "--"}
+                              </BodyB2>
                             )}
                           </div>
                           <div className="flex items-center justify-between">

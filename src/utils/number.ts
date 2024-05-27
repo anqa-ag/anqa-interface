@@ -17,3 +17,7 @@ export const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`) // match escaped "." 
 export function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") // $& means the whole matched string
 }
+
+export function numberWithCommas(x: string) {
+  return x.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+}
