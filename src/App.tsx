@@ -156,8 +156,9 @@ export default function App() {
     if (!fractionalBalanceAPT) return { isDisabled: true, text: "Checking balance..." }
     if (!isSufficientBalance) return { isDisabled: true, text: "Insufficient balance" }
     if (isValidatingQuote) return { isDisabled: true, text: "Getting quote..." }
+    if (!fractionalAmountOut) return { isDisabled: true, text: "Not found route" }
     return { isDisabled: false, text: "Swap" }
-  }, [fractionalAmountIn, fractionalBalanceAPT, isValidatingQuote, isSufficientBalance])
+  }, [fractionalAmountIn, fractionalBalanceAPT, isSufficientBalance, isValidatingQuote, fractionalAmountOut])
 
   return (
     <>
@@ -437,7 +438,7 @@ export default function App() {
 
                 <Spacer y={4} />
 
-                {fractionalAmountIn && (
+                {fractionalAmountIn && fractionalAmountOut && (
                   <>
                     <div className="flex flex-col gap-2 rounded-lg border-1 border-buttonSecondary p-3">
                       <div className="flex justify-between">
