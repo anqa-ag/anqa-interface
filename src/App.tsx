@@ -88,9 +88,11 @@ export default function App() {
   const [shouldUseDebounceAmountIn, setShouldUseDebounceAmountIn] = useState(true)
   const setTypedAmountIn = useCallback((value: string, decimals = 8, shouldUseDebounce = true) => {
     setShouldUseDebounceAmountIn(shouldUseDebounce)
+    value = value.replaceAll(",", "")
     if (value === "" || inputRegex.test(escapeRegExp(value))) {
       value = truncateValue(value, decimals)
       if (value.length && value.startsWith(".")) value = "0."
+      value = numberWithCommas(value)
       _setTypedAmountIn(value)
     }
   }, [])
@@ -123,7 +125,10 @@ export default function App() {
     balanceTokenOut && tokenOutDecimals ? divpowToFraction(balanceTokenOut.amount, tokenOutDecimals) : undefined
 
   const _fractionalAmountIn = useMemo(
-    () => (typedAmountIn && tokenInDecimals ? mulpowToFraction(typedAmountIn, tokenInDecimals) : undefined),
+    () =>
+      typedAmountIn && tokenInDecimals
+        ? mulpowToFraction(typedAmountIn.replaceAll(",", ""), tokenInDecimals)
+        : undefined,
     [tokenInDecimals, typedAmountIn],
   )
   const [fractionalAmountIn] = useDebounceValue(_fractionalAmountIn, shouldUseDebounceAmountIn ? 250 : 0)
@@ -423,7 +428,7 @@ export default function App() {
                             data-tooltip-id="tooltip-input-amount-out"
                             value={
                               fractionalAmountOut && tokenOutDecimals
-                                ? truncateValue(fractionalAmountOut.toSignificant(18), tokenOutDecimals)
+                                ? numberWithCommas(truncateValue(fractionalAmountOut.toSignificant(18), tokenOutDecimals))
                                 : ""
                             }
                           />

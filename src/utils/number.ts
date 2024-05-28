@@ -27,12 +27,14 @@ export function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") // $& means the whole matched string
 }
 
-export function numberWithCommas(x: string) {
+export function numberWithCommas(x: string, keepDot = true) {
   const whole = x.split(".")[0]
   const fraction = x.split(".")[1]
   let res = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
   if (fraction) {
     res += "." + fraction
+  } else if (keepDot && x.includes(".")) {
+    res += "."
   }
   return res
 }
