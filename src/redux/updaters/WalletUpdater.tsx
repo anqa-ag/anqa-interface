@@ -1,11 +1,11 @@
 import { memo, useCallback, useEffect, useRef } from "react"
-import { IPetraConnectResponse, WalletBalance, martian, petra } from "../../../types"
+import { useInterval } from "usehooks-ts"
+import { IPetraConnectResponse, IPetraNetwork, WalletBalance, martian, petra } from "../../../types"
 import { aptos } from "../../utils/aptos"
 import { useAppDispatch, useAppSelector } from "../hooks"
 import useMartian from "../hooks/useMartian"
 import usePetra from "../hooks/usePetra"
 import { updateBalance, updateNetwork, updateWalletAddress } from "../slices/wallet"
-import { useInterval } from "usehooks-ts"
 
 function useGetAccountCoinsDataInterval() {
   const dispatch = useAppDispatch()
@@ -60,7 +60,7 @@ function WalletUpdater() {
 
   useEffect(() => {
     if (!petra) return
-    petra.onNetworkChange((network: string) => dispatch(updateNetwork(network)))
+    petra.onNetworkChange((network: IPetraNetwork) => dispatch(updateNetwork(network.name)))
     petra.onAccountChange((response: IPetraConnectResponse) => {
       // WARN: Why it's render 8 times in here for each switching?!
       // console.log("response.address", response.address)
