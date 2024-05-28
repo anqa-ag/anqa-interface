@@ -171,7 +171,7 @@ export default function App() {
   const rate = fractionalAmountIn && fractionalAmountOut ? fractionalAmountOut.divide(fractionalAmountIn) : undefined
   let priceImpact =
     fractionalAmountInUsd && fractionalAmountOutUsd
-      ? fractionalAmountOutUsd.subtract(fractionalAmountInUsd).divide(fractionalAmountOutUsd).multiply(100)
+      ? fractionalAmountOutUsd.subtract(fractionalAmountInUsd).divide(fractionalAmountInUsd).multiply(100)
       : undefined
   if (priceImpact?.lessThan(0)) {
     priceImpact = priceImpact.multiply(-1)
