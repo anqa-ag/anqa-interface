@@ -1,5 +1,4 @@
-import { Network, APTOS_COIN } from "@aptos-labs/ts-sdk"
-import { parseUnits } from "@ethersproject/units"
+import { APTOS_COIN, Network } from "@aptos-labs/ts-sdk"
 import { Button, Image, Link, Skeleton, Spacer, useDisclosure } from "@nextui-org/react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
@@ -16,17 +15,17 @@ import useQuote from "./hooks/useQuote"
 import { useAppSelector } from "./redux/hooks"
 import useMartian from "./redux/hooks/useMartian"
 import usePetra from "./redux/hooks/usePetra"
+import { Token } from "./redux/slices/token"
 import Updaters from "./redux/updaters/Updaters"
 import { Fraction } from "./utils/fraction"
 import {
+  divpowToFraction,
   escapeRegExp,
   inputRegex,
-  numberWithCommas,
   mulpowToFraction,
-  divpowToFraction,
+  numberWithCommas,
   truncateValue,
 } from "./utils/number"
-import { Token } from "./redux/slices/token"
 
 function Menu() {
   return (
@@ -86,7 +85,9 @@ export default function App() {
   }
 
   const [typedAmountIn, _setTypedAmountIn] = useState("")
-  const setTypedAmountIn = useCallback((value: string, decimals = 8) => {
+  const [shouldUseDebounceAmountIn, setShouldUseDebounceAmountIn] = useState(true)
+  const setTypedAmountIn = useCallback((value: string, decimals = 8, shouldUseDebounce = true) => {
+    setShouldUseDebounceAmountIn(shouldUseDebounce)
     if (value === "" || inputRegex.test(escapeRegExp(value))) {
       value = truncateValue(value, decimals)
       if (value.length && value.startsWith(".")) value = "0."
@@ -96,30 +97,6 @@ export default function App() {
 
   const [tokenIn, _setTokenIn] = useState(APTOS_COIN)
   const [tokenOut, _setTokenOut] = useState(USDC_WORMHOLE)
-  const setTokenIn = useCallback(
-    (id: string) => {
-      if (tokenOut === id) {
-        _setTokenIn(id)
-        _setTokenOut(tokenIn)
-        _setTypedAmountIn("")
-      } else {
-        _setTokenIn(id)
-      }
-    },
-    [tokenIn, tokenOut],
-  )
-  const setTokenOut = useCallback(
-    (id: string) => {
-      if (tokenIn === id) {
-        _setTokenOut(id)
-        _setTokenIn(tokenOut)
-        _setTypedAmountIn("")
-      } else {
-        _setTokenOut(id)
-      }
-    },
-    [tokenIn, tokenOut],
-  )
 
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
   const tokenInInfo: Token | undefined = useMemo(() => followingTokenData[tokenIn], [followingTokenData, tokenIn])
@@ -145,13 +122,11 @@ export default function App() {
   const fractionalBalanceTokenOut =
     balanceTokenOut && tokenOutDecimals ? divpowToFraction(balanceTokenOut.amount, tokenOutDecimals) : undefined
 
-  const _fractionalAmountIn = useMemo(() => {
-    if (!typedAmountIn) return undefined
-    if (!tokenInDecimals) return
-    const typedValueParsed = parseUnits(typedAmountIn, tokenInDecimals).toString()
-    return new Fraction(typedValueParsed, Math.pow(10, tokenInDecimals))
-  }, [tokenInDecimals, typedAmountIn])
-  const [fractionalAmountIn] = useDebounceValue(_fractionalAmountIn, 250)
+  const _fractionalAmountIn = useMemo(
+    () => (typedAmountIn && tokenInDecimals ? mulpowToFraction(typedAmountIn, tokenInDecimals) : undefined),
+    [tokenInDecimals, typedAmountIn],
+  )
+  const [fractionalAmountIn] = useDebounceValue(_fractionalAmountIn, shouldUseDebounceAmountIn ? 250 : 0)
 
   const {
     amountOut,
@@ -219,9 +194,35 @@ export default function App() {
   }, [tokenInInfo?.logoUrl, tokenOutInfo?.logoUrl])
 
   const switchToken = useCallback(() => {
-    setTokenIn(tokenOut)
-    setTokenOut(tokenIn)
-  }, [setTokenIn, setTokenOut, tokenIn, tokenOut])
+    if (fractionalAmountOut && tokenOutDecimals) {
+      setTypedAmountIn(truncateValue(fractionalAmountOut.toSignificant(18), tokenOutDecimals), tokenOutDecimals, false)
+    } else {
+      setTypedAmountIn("")
+    }
+    _setTokenIn(tokenOut)
+    _setTokenOut(tokenIn)
+  }, [fractionalAmountOut, setTypedAmountIn, tokenIn, tokenOut, tokenOutDecimals])
+
+  const setTokenIn = useCallback(
+    (id: string) => {
+      if (tokenOut === id) {
+        switchToken()
+      } else {
+        _setTokenIn(id)
+      }
+    },
+    [switchToken, tokenOut],
+  )
+  const setTokenOut = useCallback(
+    (id: string) => {
+      if (tokenIn === id) {
+        switchToken()
+      } else {
+        _setTokenOut(id)
+      }
+    },
+    [switchToken, tokenIn],
+  )
 
   return (
     <>

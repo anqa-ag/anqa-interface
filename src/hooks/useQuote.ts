@@ -37,11 +37,11 @@ const fn = async ({
   tokenOut?: string
   amountIn?: string
 }) => {
-  // console.log('x', {
-  //   tokenIn,
-  //   tokenOut,
-  //   amountIn,
-  // })
+  console.log('x', {
+    tokenIn,
+    tokenOut,
+    amountIn,
+  })
   if (!tokenIn || !tokenOut || !amountIn || parseFloat(amountIn) == 0) return
   const response = await axios<GetRouteResponse>("https://apt-aggregator-api.tin-zin.com/v1/quote", {
     params: {
