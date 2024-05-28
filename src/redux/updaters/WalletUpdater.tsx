@@ -17,7 +17,6 @@ function useGetAccountCoinsDataInterval() {
     const accountCoinsData = await aptos.getAccountCoinsData({
       accountAddress: walletAddress,
     })
-    console.log("accountCoinsData", accountCoinsData)
     const _accountCoinsData = accountCoinsData.reduce(
       (prev, curr) => ({ ...prev, [curr.asset_type]: { ...curr, amount: curr.amount.toString() as string } }),
       {} as WalletBalance,

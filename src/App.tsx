@@ -1,7 +1,7 @@
-import { APTOS_COIN, Network } from "@aptos-labs/ts-sdk"
+import { Network, APTOS_COIN } from "@aptos-labs/ts-sdk"
 import { parseUnits } from "@ethersproject/units"
 import { Button, Image, Link, Skeleton, Spacer, useDisclosure } from "@nextui-org/react"
-import { useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
 import { useDebounceValue } from "usehooks-ts"
 import { Chart1, Chart2 } from "./components/Chart"
@@ -10,7 +10,7 @@ import { BodyB2, BodyB3, TitleT1, TitleT2 } from "./components/Texts"
 import Tooltips from "./components/Tooltips"
 import ModalConnectWallet from "./components/modals/ModalConnectWallet"
 import ModalSelectToken from "./components/modals/ModalSelectToken"
-import { USDC_WORMHOLE } from "./constants"
+import { NOT_FOUND_TOKEN_LOGO_URL, USDC_WORMHOLE } from "./constants"
 import { useIsSm } from "./hooks/useMedia"
 import useQuote from "./hooks/useQuote"
 import { useAppSelector } from "./redux/hooks"
@@ -84,60 +84,85 @@ export default function App() {
     }
   }
 
+  const [tokenIn, _setTokenIn] = useState(APTOS_COIN)
+  const [tokenOut, _setTokenOut] = useState(USDC_WORMHOLE)
+  const setTokenIn = useCallback(
+    (id: string) => {
+      if (tokenOut === id) {
+        _setTokenIn(id)
+        _setTokenOut(tokenIn)
+      } else {
+        _setTokenIn(id)
+      }
+    },
+    [tokenIn, tokenOut],
+  )
+  const setTokenOut = useCallback(
+    (id: string) => {
+      if (tokenIn === id) {
+        _setTokenOut(id)
+        _setTokenIn(tokenOut)
+      } else {
+        _setTokenOut(id)
+      }
+    },
+    [tokenIn, tokenOut],
+  )
+
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
-  const APTDecimals = followingTokenData[APTOS_COIN] ? followingTokenData[APTOS_COIN].decimals : undefined
-  const USDCDecimals = followingTokenData[USDC_WORMHOLE] ? followingTokenData[USDC_WORMHOLE].decimals : undefined
+  const tokenInInfo = useMemo(() => followingTokenData[tokenIn], [followingTokenData, tokenIn])
+  const tokenOutInfo = useMemo(() => followingTokenData[tokenOut], [followingTokenData, tokenOut])
+
+  const tokenInDecimals = tokenInInfo ? tokenInInfo.decimals : undefined
+  const tokenOutDecimals = tokenOutInfo ? tokenOutInfo.decimals : undefined
 
   const followingPriceData = useAppSelector((state) => state.price.followingPriceData)
-  const fractionalPriceAPT = useMemo(
-    () => (followingPriceData[APTOS_COIN] ? mulpowToFraction(followingPriceData[APTOS_COIN]) : undefined),
-    [followingPriceData],
+  const fractionalPriceTokenIn = useMemo(
+    () => (followingPriceData[tokenIn] ? mulpowToFraction(followingPriceData[tokenIn]) : undefined),
+    [followingPriceData, tokenIn],
   )
-  const fractionalPriceUSDC = useMemo(
-    () => (followingPriceData[USDC_WORMHOLE] ? mulpowToFraction(followingPriceData[USDC_WORMHOLE]) : undefined),
-    [followingPriceData],
+  const fractionalPriceTokenOut = useMemo(
+    () => (followingPriceData[tokenOut] ? mulpowToFraction(followingPriceData[tokenOut]) : undefined),
+    [followingPriceData, tokenOut],
   )
 
-  const balanceAPT = balance[APTOS_COIN]
-  const fractionalBalanceAPT = balanceAPT && APTDecimals ? divpowToFraction(balanceAPT.amount, APTDecimals) : undefined
-  const balanceUSDC = balance[USDC_WORMHOLE]
-  const fractionalBalanceUSDC =
-    balanceUSDC && USDCDecimals ? divpowToFraction(balanceUSDC.amount, USDCDecimals) : undefined
+  const balanceTokenIn = balance[tokenIn]
+  const fractionalBalanceTokenIn =
+    balanceTokenIn && tokenInDecimals ? divpowToFraction(balanceTokenIn.amount, tokenInDecimals) : undefined
+  const balanceTokenOut = balance[tokenOut]
+  const fractionalBalanceTokenOut =
+    balanceTokenOut && tokenOutDecimals ? divpowToFraction(balanceTokenOut.amount, tokenOutDecimals) : undefined
 
   const [typedAmountIn, _setTypedAmountIn] = useState("")
-  const setTypedAmountIn = (value: string) => {
-    if (!APTDecimals) return
-
+  const setTypedAmountIn = useCallback((value: string, decimals = 8) => {
     if (value === "" || inputRegex.test(escapeRegExp(value))) {
-      value = truncateValue(value, APTDecimals)
+      value = truncateValue(value, decimals)
       if (value.length && value.startsWith(".")) value = "0."
       _setTypedAmountIn(value)
     }
-  }
+  }, [])
   const _fractionalAmountIn = useMemo(() => {
     if (!typedAmountIn) return undefined
-    if (!APTDecimals) return
-    const typedValueParsed = parseUnits(typedAmountIn, APTDecimals).toString()
-    return new Fraction(typedValueParsed, Math.pow(10, APTDecimals))
-  }, [APTDecimals, typedAmountIn])
+    if (!tokenInDecimals) return
+    const typedValueParsed = parseUnits(typedAmountIn, tokenInDecimals).toString()
+    return new Fraction(typedValueParsed, Math.pow(10, tokenInDecimals))
+  }, [tokenInDecimals, typedAmountIn])
   const [fractionalAmountIn] = useDebounceValue(_fractionalAmountIn, 250)
 
-  const [tokenIn] = useState(APTOS_COIN)
-  const [tokenOut] = useState(USDC_WORMHOLE)
   const {
     amountOut,
     isValidating: isValidatingQuote,
     sourceInfo,
   } = useQuote(tokenIn, tokenOut, fractionalAmountIn?.numerator?.toString())
   const fractionalAmountOut = useMemo(
-    () => (amountOut && USDCDecimals ? new Fraction(amountOut, Math.pow(10, USDCDecimals)) : undefined),
-    [USDCDecimals, amountOut],
+    () => (amountOut && tokenOutDecimals ? new Fraction(amountOut, Math.pow(10, tokenOutDecimals)) : undefined),
+    [tokenOutDecimals, amountOut],
   )
 
   const fractionalAmountInUsd =
-    fractionalAmountIn && fractionalPriceAPT ? fractionalAmountIn.multiply(fractionalPriceAPT) : undefined
+    fractionalAmountIn && fractionalPriceTokenIn ? fractionalAmountIn.multiply(fractionalPriceTokenIn) : undefined
   const fractionalAmountOutUsd =
-    fractionalAmountOut && fractionalPriceUSDC ? fractionalAmountOut.multiply(fractionalPriceUSDC) : undefined
+    fractionalAmountOut && fractionalPriceTokenOut ? fractionalAmountOut.multiply(fractionalPriceTokenOut) : undefined
 
   const rate = fractionalAmountIn && fractionalAmountOut ? fractionalAmountOut.divide(fractionalAmountIn) : undefined
   let priceImpact =
@@ -153,28 +178,52 @@ export default function App() {
 
   const fractionalFeeAmount = useMemo(() => new Fraction(123, 1000000), [])
   const isSufficientBalance =
-    fractionalBalanceAPT && fractionalAmountIn
-      ? fractionalBalanceAPT.subtract(fractionalFeeAmount).equalTo(fractionalAmountIn) ||
-        fractionalBalanceAPT.subtract(fractionalFeeAmount).greaterThan(fractionalAmountIn)
+    fractionalBalanceTokenIn && fractionalAmountIn
+      ? fractionalBalanceTokenIn.subtract(fractionalFeeAmount).equalTo(fractionalAmountIn) ||
+        fractionalBalanceTokenIn.subtract(fractionalFeeAmount).greaterThan(fractionalAmountIn)
         ? true
         : false
       : undefined
 
   const swapButton = useMemo(() => {
     if (!fractionalAmountIn) return { isDisabled: true, text: "Enter an amount" }
-    if (!fractionalBalanceAPT) return { isDisabled: true, text: "Checking balance..." }
+    if (!fractionalBalanceTokenIn) return { isDisabled: true, text: "Checking balance..." }
     if (!isSufficientBalance) return { isDisabled: true, text: "Insufficient balance" }
     if (isValidatingQuote) return { isDisabled: true, text: "Getting quote..." }
     if (!fractionalAmountOut) return { isDisabled: true, text: "Not found route" }
     return { isDisabled: false, text: "Swap" }
-  }, [fractionalAmountIn, fractionalBalanceAPT, isSufficientBalance, isValidatingQuote, fractionalAmountOut])
+  }, [fractionalAmountIn, fractionalBalanceTokenIn, isSufficientBalance, isValidatingQuote, fractionalAmountOut])
 
   const {
-    isOpen: isOpenModalSelectToken,
-    onOpen: onOpenModalSelectToken,
-    onClose: onCloseModalSelectToken,
-    onOpenChange: onOpenChangeModalSelectToken,
+    isOpen: isOpenModalSelectTokenIn,
+    onOpen: onOpenModalSelectTokenIn,
+    onClose: onCloseModalSelectTokenIn,
+    onOpenChange: onOpenChangeModalSelectTokenIn,
   } = useDisclosure()
+  const {
+    isOpen: isOpenModalSelectTokenOut,
+    onOpen: onOpenModalSelectTokenOut,
+    onClose: onCloseModalSelectTokenOut,
+    onOpenChange: onOpenChangeModalSelectTokenOut,
+  } = useDisclosure()
+
+  const [tokenInLogoSrc, setTokenInLogoSrc] = useState(tokenInInfo.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
+  const [tokenOutLogoSrc, setTokenOutLogoSrc] = useState(tokenOutInfo.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
+  useEffect(() => {
+    setTokenInLogoSrc(tokenInInfo.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
+    setTokenOutLogoSrc(tokenOutInfo.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
+  }, [tokenInInfo.logoUrl, tokenOutInfo.logoUrl])
+
+  const switchToken = useCallback(() => {
+    if (fractionalAmountOut && tokenOutDecimals) {
+      const x = truncateValue(fractionalAmountOut.toSignificant(18), tokenOutDecimals)
+      setTypedAmountIn(truncateValue(fractionalAmountOut.toSignificant(18), tokenOutDecimals), tokenOutDecimals)
+    } else {
+      setTypedAmountIn("")
+    }
+    setTokenIn(tokenOut)
+    setTokenOut(tokenIn)
+  }, [fractionalAmountOut, setTokenIn, setTokenOut, setTypedAmountIn, tokenIn, tokenOutDecimals, tokenOut])
 
   return (
     <>
@@ -277,7 +326,9 @@ export default function App() {
                           >
                             <WalletIcon size={24} />
                             <BodyB2 className="text-buttonSecondary">
-                              {fractionalBalanceAPT ? numberWithCommas(fractionalBalanceAPT.toSignificant(6)) : "--"}
+                              {fractionalBalanceTokenIn
+                                ? numberWithCommas(fractionalBalanceTokenIn.toSignificant(6))
+                                : "0"}
                             </BodyB2>
                           </Button>
                         )}
@@ -295,21 +346,22 @@ export default function App() {
                           className="w-full bg-transparent text-[36px] font-semibold outline-none placeholder:text-buttonSecondary"
                           pattern="^[0-9]*[.,]?[0-9]*$"
                           value={typedAmountIn}
-                          onChange={(e) => setTypedAmountIn(e.target.value)}
+                          onChange={(e) => setTypedAmountIn(e.target.value, tokenInDecimals)}
                         />
                         <Button
                           className="flex h-[42px] w-fit min-w-fit items-center gap-1 rounded-full border-1 border-buttonDisabled bg-transparent p-2 transition hover:border-buttonSecondary data-[hover]:bg-transparent"
                           disableAnimation
                           disableRipple
-                          onPress={onOpenModalSelectToken}
+                          onPress={onOpenModalSelectTokenIn}
                         >
                           <Image
                             width={20}
                             height={20}
                             className="min-h-[20px] min-w-[20px]"
-                            src="https://s2.coinmarketcap.com/static/img/coins/64x64/21794.png"
+                            src={tokenInLogoSrc}
+                            onError={() => setTokenInLogoSrc(NOT_FOUND_TOKEN_LOGO_URL)}
                           />
-                          <TitleT1 className="whitespace-nowrap">APT</TitleT1>
+                          <TitleT1 className="whitespace-nowrap">{tokenInInfo.symbol}</TitleT1>
                           <ArrowFilledDownIcon size={20} />
                         </Button>
                       </div>
@@ -326,6 +378,7 @@ export default function App() {
                     <Button
                       isIconOnly
                       className="rounded-full border-2 border-background bg-buttonDisabled data-[hover]:border-buttonSecondary"
+                      onPress={switchToken}
                     >
                       <SwapIcon size={24} color="#FFFFFF" />
                     </Button>
@@ -343,7 +396,9 @@ export default function App() {
                           >
                             <WalletIcon size={24} />
                             <BodyB2 className="text-buttonSecondary">
-                              {fractionalBalanceUSDC ? numberWithCommas(fractionalBalanceUSDC.toSignificant(6)) : "--"}
+                              {fractionalBalanceTokenOut
+                                ? numberWithCommas(fractionalBalanceTokenOut.toSignificant(6))
+                                : "0"}
                             </BodyB2>
                           </Button>
                         )}
@@ -368,8 +423,8 @@ export default function App() {
                             disabled
                             data-tooltip-id="tooltip-input-amount-out"
                             value={
-                              fractionalAmountOut && USDCDecimals
-                                ? truncateValue(fractionalAmountOut.toSignificant(18), USDCDecimals)
+                              fractionalAmountOut && tokenOutDecimals
+                                ? truncateValue(fractionalAmountOut.toSignificant(18), tokenOutDecimals)
                                 : ""
                             }
                           />
@@ -378,15 +433,16 @@ export default function App() {
                           className="flex h-[42px] w-fit min-w-fit items-center gap-1 rounded-full border-1 border-buttonDisabled bg-transparent p-2 transition hover:border-buttonSecondary data-[hover]:bg-transparent"
                           disableAnimation
                           disableRipple
-                          onPress={onOpenModalSelectToken}
+                          onPress={onOpenModalSelectTokenOut}
                         >
                           <Image
                             width={20}
                             height={20}
                             className="min-h-[20px] min-w-[20px]"
-                            src="https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png"
+                            src={tokenOutLogoSrc}
+                            onError={() => setTokenOutLogoSrc(NOT_FOUND_TOKEN_LOGO_URL)}
                           />
-                          <TitleT1 className="whitespace-nowrap">USDC</TitleT1>
+                          <TitleT1 className="whitespace-nowrap">{tokenOutInfo.symbol}</TitleT1>
                           <ArrowFilledDownIcon size={20} />
                         </Button>
                       </div>
@@ -469,7 +525,9 @@ export default function App() {
                               disableRipple
                             >
                               <BodyB2 className="whitespace-nowrap">
-                                {rate ? `1 USDC = ${numberWithCommas(rate.invert().toSignificant(6))} APT` : "--"}
+                                {rate
+                                  ? `1 ${tokenOutInfo.symbol} = ${numberWithCommas(rate.invert().toSignificant(6))} ${tokenInInfo.symbol}`
+                                  : "--"}
                               </BodyB2>
                             </Button>
                           ) : (
@@ -481,7 +539,9 @@ export default function App() {
                               disableRipple
                             >
                               <BodyB2 className="whitespace-nowrap">
-                                {rate ? `1 APT = ${numberWithCommas(rate.toSignificant(6))} USDC` : "--"}
+                                {rate
+                                  ? `1 ${tokenInInfo.symbol} = ${numberWithCommas(rate.toSignificant(6))} ${tokenOutInfo.symbol}`
+                                  : "--"}
                               </BodyB2>
                             </Button>
                           )}
@@ -595,24 +655,19 @@ export default function App() {
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
-                      <Image
-                        width={20}
-                        height={20}
-                        className="min-h-[20px] min-w-[20px]"
-                        src="https://s2.coinmarketcap.com/static/img/coins/64x64/3408.png"
-                      />
-                      <TitleT2 className="whitespace-nowrap">USDC</TitleT2>
+                      <Image width={20} height={20} className="min-h-[20px] min-w-[20px]" src={tokenInLogoSrc} />
+                      <TitleT2 className="whitespace-nowrap">{tokenInInfo.symbol}</TitleT2>
                     </div>
                     <Link
                       isBlock
                       showAnchorIcon
-                      href="#"
+                      href={`https://aptoscan.com/coin/${tokenInInfo.id}`}
                       color="primary"
                       className="p-0 text-buttonSecondary"
                       size="sm"
                       isExternal
                     >
-                      <BodyB3 className="text-buttonSecondary">0x48b...abb612</BodyB3>
+                      <BodyB3 className="text-buttonSecondary">{`${tokenInInfo.id.slice(0, 10)}...`}</BodyB3>
                     </Link>
                   </div>
                   <div className="flex w-[200px] flex-col gap-1">
@@ -629,24 +684,19 @@ export default function App() {
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
-                      <Image
-                        width={20}
-                        height={20}
-                        className="min-h-[20px] min-w-[20px]"
-                        src="https://s2.coinmarketcap.com/static/img/coins/64x64/21794.png"
-                      />
-                      <TitleT2 className="whitespace-nowrap">APT</TitleT2>
+                      <Image width={20} height={20} className="min-h-[20px] min-w-[20px]" src={tokenOutLogoSrc} />
+                      <TitleT2 className="whitespace-nowrap">{tokenOutInfo.symbol}</TitleT2>
                     </div>
                     <Link
                       isBlock
                       showAnchorIcon
-                      href="#"
+                      href={`https://aptoscan.com/coin/${tokenOutInfo.id}`}
                       color="primary"
                       className="p-0 text-buttonSecondary"
                       size="sm"
                       isExternal
                     >
-                      <BodyB3 className="text-buttonSecondary">0x97f...3bf84c</BodyB3>
+                      <BodyB3 className="text-buttonSecondary">{`${tokenOutInfo.id.slice(0, 10)}...`}</BodyB3>
                     </Link>
                   </div>
                   <div className="flex w-[200px] flex-col gap-1">
@@ -724,9 +774,16 @@ export default function App() {
         onClose={onCloseModalConnectWallet}
       />
       <ModalSelectToken
-        isOpen={isOpenModalSelectToken}
-        onOpenChange={onOpenChangeModalSelectToken}
-        onClose={onCloseModalSelectToken}
+        isOpen={isOpenModalSelectTokenIn}
+        onOpenChange={onOpenChangeModalSelectTokenIn}
+        onClose={onCloseModalSelectTokenIn}
+        setToken={setTokenIn}
+      />
+      <ModalSelectToken
+        isOpen={isOpenModalSelectTokenOut}
+        onOpenChange={onOpenChangeModalSelectTokenOut}
+        onClose={onCloseModalSelectTokenOut}
+        setToken={setTokenOut}
       />
     </>
   )

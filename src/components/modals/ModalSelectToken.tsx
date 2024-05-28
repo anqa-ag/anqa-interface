@@ -1,8 +1,10 @@
 import { Icon } from "@iconify/react"
 import { Button, Image, Input, Modal, ModalContent, Spacer } from "@nextui-org/react"
-import { CSSProperties, useMemo, useState } from "react"
+import memoize from "memoize-one"
+import { CSSProperties, useCallback, useMemo, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { FixedSizeList } from "react-window"
+import { NOT_FOUND_TOKEN_LOGO_URL } from "../../constants"
 import { useIsSm } from "../../hooks/useMedia"
 import { useAppSelector } from "../../redux/hooks"
 import { Token } from "../../redux/slices/token"
@@ -16,27 +18,31 @@ export interface TokenWithBalance extends Token {
   fractionalBalanceUsd?: Fraction
 }
 
-function TokenItem({ index, data, style }: { index: number; data: TokenWithBalance[]; style: CSSProperties }) {
+function TokenItem({
+  index,
+  data: { items, setToken },
+  style,
+}: {
+  index: number
+  data: { items: TokenWithBalance[]; setToken: (id: string) => void }
+  style: CSSProperties
+}) {
   const token = useMemo(() => {
-    return data[index]
-  }, [data, index])
+    return items[index]
+  }, [items, index])
   const [src, setSrc] = useState(token.logoUrl)
-  const onLogoError = () => {
-    setSrc(
-      "https://png.pngtree.com/png-clipart/20190516/original/pngtree-question-mark-vector-icon-png-image_4236972.jpg",
-    )
-  }
   return (
     <div
       className="flex h-fit w-full cursor-pointer items-center gap-2 rounded-none bg-buttonDisabled px-4 py-3 font-normal hover:bg-background"
       tabIndex={0}
       style={style}
+      onClick={() => setToken(items[index].id)}
     >
       <Image
         width={20}
         height={20}
         src={src}
-        onError={onLogoError}
+        onError={() => setSrc(NOT_FOUND_TOKEN_LOGO_URL)}
         className="flex h-[20px] min-h-[20px] w-[20px] min-w-[20px] rounded-full bg-white"
         disableSkeleton
       />
@@ -60,24 +66,33 @@ function TokenItem({ index, data, style }: { index: number; data: TokenWithBalan
       </div>
       <div className="flex flex-col items-end gap-1 justify-self-end">
         <TitleT5 className="text-tooltipBg">
-          {data[index].fractionalBalance ? data[index].fractionalBalance?.toSignificant(6) : undefined}
+          {items[index].fractionalBalance ? items[index].fractionalBalance?.toSignificant(6) : undefined}
         </TitleT5>
         <BodyB3 className="text-tooltipBg">
-          {data[index].fractionalBalanceUsd ? `~${data[index].fractionalBalanceUsd?.toSignificant(6)}` : undefined}
+          {items[index].fractionalBalanceUsd ? `~${items[index].fractionalBalanceUsd?.toSignificant(6)}` : undefined}
         </BodyB3>
       </div>
     </div>
   )
 }
 
+const createItemData = memoize((items: TokenWithBalance[], setToken: (id: string) => void) => {
+  return {
+    items,
+    setToken,
+  }
+})
+
 export default function ModalSelectToken({
   isOpen,
-  // onClose,
+  onClose,
   onOpenChange,
+  setToken,
 }: {
   isOpen: boolean
   onClose: () => void
   onOpenChange: () => void
+  setToken: (id: string) => void
 }) {
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
   const followingPriceData = useAppSelector((state) => state.price.followingPriceData)
@@ -124,6 +139,15 @@ export default function ModalSelectToken({
 
   const isSm = useIsSm()
 
+  const setTokenAndClose = useCallback(
+    (id: string) => {
+      setToken(id)
+      onClose()
+    },
+    [onClose, setToken],
+  )
+  const itemData = createItemData(followingTokenDataWithBalanceList, setTokenAndClose)
+
   return (
     <>
       <Modal
@@ -166,7 +190,7 @@ export default function ModalSelectToken({
                     itemCount={followingTokenDataWithBalanceList.length}
                     itemSize={68}
                     width="100%"
-                    itemData={followingTokenDataWithBalanceList}
+                    itemData={itemData}
                   >
                     {TokenItem}
                   </FixedSizeList>

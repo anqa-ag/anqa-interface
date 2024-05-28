@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "../hooks"
 import { updatePriceData } from "../slices/price"
 
 function PriceUpdater() {
-  console.log("PriceUpdater")
+  // console.log("PriceUpdater")
   const dispatch = useAppDispatch()
 
   const followingTokenAddresses = useAppSelector((state) => state.token.followingTokenAddresses)
