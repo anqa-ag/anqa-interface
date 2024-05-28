@@ -343,7 +343,7 @@ export default function App() {
                           className="w-full bg-transparent text-[36px] font-semibold outline-none placeholder:text-buttonSecondary"
                           pattern="^[0-9]*[.,]?[0-9]*$"
                           value={typedAmountIn}
-                          onChange={(e) => setTypedAmountIn(e.target.value, tokenInDecimals)}
+                          onChange={(e) => setTypedAmountIn(e.currentTarget.value, tokenInDecimals)}
                         />
                         <Button
                           className="flex h-[42px] w-fit min-w-fit items-center gap-1 rounded-full border-1 border-buttonDisabled bg-transparent p-2 transition hover:border-buttonSecondary data-[hover]:bg-transparent"

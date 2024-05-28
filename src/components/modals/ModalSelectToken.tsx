@@ -1,13 +1,13 @@
 import { Icon } from "@iconify/react"
 import { Button, Image, Input, Modal, ModalContent, Spacer } from "@nextui-org/react"
-import memoize from "memoize-one"
-import { CSSProperties, useCallback, useMemo, useState } from "react"
+import { CSSProperties, useCallback, useEffect, useMemo, useState } from "react"
 import { isMobile } from "react-device-detect"
 import { FixedSizeList } from "react-window"
+import { useDebounceValue } from "usehooks-ts"
 import { NOT_FOUND_TOKEN_LOGO_URL } from "../../constants"
 import { useIsSm } from "../../hooks/useMedia"
-import { useAppSelector } from "../../redux/hooks"
-import { Token } from "../../redux/slices/token"
+import { useAppDispatch, useAppSelector } from "../../redux/hooks"
+import { Token, addTokensToFollow } from "../../redux/slices/token"
 import { Fraction } from "../../utils/fraction"
 import { divpowToFraction, mulpowToFraction } from "../../utils/number"
 import { CloseIcon, SearchIcon } from "../Icons"
@@ -31,6 +31,9 @@ function TokenItem({
     return items[index]
   }, [items, index])
   const [src, setSrc] = useState(token.logoUrl)
+  useEffect(() => {
+    setSrc(token.logoUrl)
+  }, [token.logoUrl])
   return (
     <div
       className="flex h-fit w-full cursor-pointer items-center gap-2 rounded-none bg-buttonDisabled px-4 py-3 font-normal hover:bg-background"
@@ -76,13 +79,6 @@ function TokenItem({
   )
 }
 
-const createItemData = memoize((items: TokenWithBalance[], setToken: (id: string) => void) => {
-  return {
-    items,
-    setToken,
-  }
-})
-
 export default function ModalSelectToken({
   isOpen,
   onClose,
@@ -94,6 +90,8 @@ export default function ModalSelectToken({
   onOpenChange: () => void
   setToken: (id: string) => void
 }) {
+  const dispatch = useAppDispatch()
+
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
   const followingPriceData = useAppSelector((state) => state.price.followingPriceData)
   const balance = useAppSelector((state) => state.wallet.balance)
@@ -146,7 +144,33 @@ export default function ModalSelectToken({
     },
     [onClose, setToken],
   )
-  const itemData = createItemData(followingTokenDataWithBalanceList, setTokenAndClose)
+
+  const [_searchValue, setSearchValue] = useState("")
+  const [searchValue] = useDebounceValue(_searchValue, 250)
+  const renderTokenList = useMemo(() => {
+    const str = searchValue.trim()
+    if (!str) return followingTokenDataWithBalanceList
+
+    if (str.includes("::")) {
+      dispatch(addTokensToFollow([str]))
+    }
+
+    const res = followingTokenDataWithBalanceList.filter((token) => {
+      if (token.id === str) return true
+      if (token.name.toLowerCase().includes(str.toLowerCase())) return true
+      if (token.symbol.toLowerCase().includes(str.toLowerCase())) return true
+      return false
+    })
+    console.log(`str`, str)
+    console.log(`res`, res)
+    return res
+  }, [dispatch, followingTokenDataWithBalanceList, searchValue])
+
+  // const itemData = createItemData(followingTokenDataWithBalanceList, setTokenAndClose)
+  const itemData = useMemo(
+    () => ({ items: renderTokenList, setToken: setTokenAndClose }),
+    [renderTokenList, setTokenAndClose],
+  )
 
   return (
     <>
@@ -179,15 +203,17 @@ export default function ModalSelectToken({
                 spellCheck={false}
                 className="input-modal-select-token"
                 startContent={<SearchIcon size={20} />}
+                value={_searchValue}
+                onChange={(e) => setSearchValue(e.currentTarget.value)}
               />
 
               <Spacer y={4} />
 
-              {followingTokenDataWithBalanceList && (
+              {renderTokenList && (
                 <div className="-mx-4">
                   <FixedSizeList
                     height={isMobile ? 340 : 680}
-                    itemCount={followingTokenDataWithBalanceList.length}
+                    itemCount={renderTokenList.length}
                     itemSize={68}
                     width="100%"
                     itemData={itemData}
