@@ -40,7 +40,7 @@ export default function Tooltips() {
         variant="light"
         place="left"
         className="!max-w-[min(320px,80%)] !px-2 !py-1 !text-sm"
-        delayShow={250}
+        delayShow={1000}
         opacity={1}
       />
     </>
