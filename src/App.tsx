@@ -84,6 +84,15 @@ export default function App() {
     }
   }
 
+  const [typedAmountIn, _setTypedAmountIn] = useState("")
+  const setTypedAmountIn = useCallback((value: string, decimals = 8) => {
+    if (value === "" || inputRegex.test(escapeRegExp(value))) {
+      value = truncateValue(value, decimals)
+      if (value.length && value.startsWith(".")) value = "0."
+      _setTypedAmountIn(value)
+    }
+  }, [])
+
   const [tokenIn, _setTokenIn] = useState(APTOS_COIN)
   const [tokenOut, _setTokenOut] = useState(USDC_WORMHOLE)
   const setTokenIn = useCallback(
@@ -91,6 +100,7 @@ export default function App() {
       if (tokenOut === id) {
         _setTokenIn(id)
         _setTokenOut(tokenIn)
+        _setTypedAmountIn("")
       } else {
         _setTokenIn(id)
       }
@@ -102,6 +112,7 @@ export default function App() {
       if (tokenIn === id) {
         _setTokenOut(id)
         _setTokenIn(tokenOut)
+        _setTypedAmountIn("")
       } else {
         _setTokenOut(id)
       }
@@ -133,14 +144,6 @@ export default function App() {
   const fractionalBalanceTokenOut =
     balanceTokenOut && tokenOutDecimals ? divpowToFraction(balanceTokenOut.amount, tokenOutDecimals) : undefined
 
-  const [typedAmountIn, _setTypedAmountIn] = useState("")
-  const setTypedAmountIn = useCallback((value: string, decimals = 8) => {
-    if (value === "" || inputRegex.test(escapeRegExp(value))) {
-      value = truncateValue(value, decimals)
-      if (value.length && value.startsWith(".")) value = "0."
-      _setTypedAmountIn(value)
-    }
-  }, [])
   const _fractionalAmountIn = useMemo(() => {
     if (!typedAmountIn) return undefined
     if (!tokenInDecimals) return
@@ -215,14 +218,9 @@ export default function App() {
   }, [tokenInInfo.logoUrl, tokenOutInfo.logoUrl])
 
   const switchToken = useCallback(() => {
-    if (fractionalAmountOut && tokenOutDecimals) {
-      setTypedAmountIn(truncateValue(fractionalAmountOut.toSignificant(18), tokenOutDecimals), tokenOutDecimals)
-    } else {
-      setTypedAmountIn("")
-    }
     setTokenIn(tokenOut)
     setTokenOut(tokenIn)
-  }, [fractionalAmountOut, setTokenIn, setTokenOut, setTypedAmountIn, tokenIn, tokenOutDecimals, tokenOut])
+  }, [setTokenIn, setTokenOut, tokenIn, tokenOut])
 
   return (
     <>
