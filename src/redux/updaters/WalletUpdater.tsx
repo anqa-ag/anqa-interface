@@ -24,7 +24,7 @@ function useGetAccountCoinsDataInterval() {
     dispatch(updateBalance(_accountCoinsData))
   }, [dispatch, walletAddress])
 
-  useInterval(fn, 1000)
+  useInterval(fn, 10000)
 }
 
 function WalletUpdater() {

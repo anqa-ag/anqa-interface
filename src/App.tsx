@@ -216,7 +216,6 @@ export default function App() {
 
   const switchToken = useCallback(() => {
     if (fractionalAmountOut && tokenOutDecimals) {
-      const x = truncateValue(fractionalAmountOut.toSignificant(18), tokenOutDecimals)
       setTypedAmountIn(truncateValue(fractionalAmountOut.toSignificant(18), tokenOutDecimals), tokenOutDecimals)
     } else {
       setTypedAmountIn("")
