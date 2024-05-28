@@ -262,7 +262,7 @@ export default function App() {
                       isLoading={isOpenModalConnectWallet}
                       variant={connectedWallet ? "bordered" : "solid"}
                     >
-                      {connectedWallet && isMainnet && (
+                      {connectedWallet && (
                         <Image
                           width={20}
                           src={

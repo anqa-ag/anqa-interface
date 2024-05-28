@@ -24,6 +24,10 @@ function useGetAccountCoinsDataInterval() {
     dispatch(updateBalance(_accountCoinsData))
   }, [dispatch, walletAddress])
 
+  useEffect(() => {
+    fn()
+  }, [fn])
+
   useInterval(fn, 10000)
 }
 
