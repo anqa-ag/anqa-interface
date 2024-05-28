@@ -13,7 +13,6 @@ export function mulpowToFraction(s: string, multiplier = 18): Fraction {
   return f
 }
 
-
 export function truncateValue(value: string, decimals: number): string {
   const parts = value.split(/[.,]/)
   const symbol = value.includes(".") ? "." : ","
@@ -29,5 +28,18 @@ export function escapeRegExp(string: string): string {
 }
 
 export function numberWithCommas(x: string) {
-  return x.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+  const whole = x.split(".")[0]
+  const fraction = x.split(".")[1]
+  let res = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+  if (fraction) {
+    res += "." + fraction
+  }
+  return res
 }
+
+// Test
+// console.log(`numberWithCommas("1")`, numberWithCommas("1"))
+// console.log(`numberWithCommas("123")`, numberWithCommas("123"))
+// console.log(`numberWithCommas("123456")`, numberWithCommas("123456"))
+// console.log(`numberWithCommas("123456.789")`, numberWithCommas("123456.789"))
+// console.log(`numberWithCommas("123456.789123")`, numberWithCommas("123456.789123"))
