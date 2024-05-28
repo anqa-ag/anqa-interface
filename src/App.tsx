@@ -18,7 +18,14 @@ import useMartian from "./redux/hooks/useMartian"
 import usePetra from "./redux/hooks/usePetra"
 import Updaters from "./redux/updaters/Updaters"
 import { Fraction } from "./utils/fraction"
-import { escapeRegExp, inputRegex, numberWithCommas, mulpowToFraction, divpowToFraction, truncateValue } from "./utils/number"
+import {
+  escapeRegExp,
+  inputRegex,
+  numberWithCommas,
+  mulpowToFraction,
+  divpowToFraction,
+  truncateValue,
+} from "./utils/number"
 
 function Menu() {
   return (
@@ -94,7 +101,8 @@ export default function App() {
   const balanceAPT = balance[APTOS_COIN]
   const fractionalBalanceAPT = balanceAPT && APTDecimals ? divpowToFraction(balanceAPT.amount, APTDecimals) : undefined
   const balanceUSDC = balance[USDC_WORMHOLE]
-  const fractionalBalanceUSDC = balanceUSDC && USDCDecimals ? divpowToFraction(balanceUSDC.amount, USDCDecimals) : undefined
+  const fractionalBalanceUSDC =
+    balanceUSDC && USDCDecimals ? divpowToFraction(balanceUSDC.amount, USDCDecimals) : undefined
 
   const [typedAmountIn, _setTypedAmountIn] = useState("")
   const setTypedAmountIn = (value: string) => {
@@ -269,7 +277,7 @@ export default function App() {
                           >
                             <WalletIcon size={24} />
                             <BodyB2 className="text-buttonSecondary">
-                              {fractionalBalanceAPT?.toSignificant(6) ?? "--"}
+                              {fractionalBalanceAPT ? numberWithCommas(fractionalBalanceAPT.toSignificant(6)) : "--"}
                             </BodyB2>
                           </Button>
                         )}
@@ -335,7 +343,7 @@ export default function App() {
                           >
                             <WalletIcon size={24} />
                             <BodyB2 className="text-buttonSecondary">
-                              {fractionalBalanceUSDC?.toSignificant(6) ?? "--"}
+                              {fractionalBalanceUSDC ? numberWithCommas(fractionalBalanceUSDC.toSignificant(6)) : "--"}
                             </BodyB2>
                           </Button>
                         )}
@@ -461,7 +469,7 @@ export default function App() {
                               disableRipple
                             >
                               <BodyB2 className="whitespace-nowrap">
-                                {rate ? `1 USDC = ${rate.invert().toSignificant(6)} APT` : "--"}
+                                {rate ? `1 USDC = ${numberWithCommas(rate.invert().toSignificant(6))} APT` : "--"}
                               </BodyB2>
                             </Button>
                           ) : (
@@ -473,7 +481,7 @@ export default function App() {
                               disableRipple
                             >
                               <BodyB2 className="whitespace-nowrap">
-                                {rate ? `1 APT = ${rate.toSignificant(6)} USDC` : "--"}
+                                {rate ? `1 APT = ${numberWithCommas(rate.toSignificant(6))} USDC` : "--"}
                               </BodyB2>
                             </Button>
                           )}
