@@ -26,6 +26,7 @@ import {
   divpowToFraction,
   truncateValue,
 } from "./utils/number"
+import { Token } from "./redux/slices/token"
 
 function Menu() {
   return (
@@ -121,8 +122,8 @@ export default function App() {
   )
 
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
-  const tokenInInfo = useMemo(() => followingTokenData[tokenIn], [followingTokenData, tokenIn])
-  const tokenOutInfo = useMemo(() => followingTokenData[tokenOut], [followingTokenData, tokenOut])
+  const tokenInInfo: Token | undefined = useMemo(() => followingTokenData[tokenIn], [followingTokenData, tokenIn])
+  const tokenOutInfo: Token | undefined = useMemo(() => followingTokenData[tokenOut], [followingTokenData, tokenOut])
 
   const tokenInDecimals = tokenInInfo ? tokenInInfo.decimals : undefined
   const tokenOutDecimals = tokenOutInfo ? tokenOutInfo.decimals : undefined
@@ -210,12 +211,12 @@ export default function App() {
     onOpenChange: onOpenChangeModalSelectTokenOut,
   } = useDisclosure()
 
-  const [tokenInLogoSrc, setTokenInLogoSrc] = useState(tokenInInfo.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
-  const [tokenOutLogoSrc, setTokenOutLogoSrc] = useState(tokenOutInfo.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
+  const [tokenInLogoSrc, setTokenInLogoSrc] = useState(tokenInInfo?.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
+  const [tokenOutLogoSrc, setTokenOutLogoSrc] = useState(tokenOutInfo?.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
   useEffect(() => {
-    setTokenInLogoSrc(tokenInInfo.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
-    setTokenOutLogoSrc(tokenOutInfo.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
-  }, [tokenInInfo.logoUrl, tokenOutInfo.logoUrl])
+    setTokenInLogoSrc(tokenInInfo?.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
+    setTokenOutLogoSrc(tokenOutInfo?.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
+  }, [tokenInInfo?.logoUrl, tokenOutInfo?.logoUrl])
 
   const switchToken = useCallback(() => {
     setTokenIn(tokenOut)
@@ -358,7 +359,7 @@ export default function App() {
                             src={tokenInLogoSrc}
                             onError={() => setTokenInLogoSrc(NOT_FOUND_TOKEN_LOGO_URL)}
                           />
-                          <TitleT1 className="whitespace-nowrap">{tokenInInfo.symbol}</TitleT1>
+                          <TitleT1 className="whitespace-nowrap">{tokenInInfo?.symbol ?? "--"}</TitleT1>
                           <ArrowFilledDownIcon size={20} />
                         </Button>
                       </div>
@@ -439,7 +440,7 @@ export default function App() {
                             src={tokenOutLogoSrc}
                             onError={() => setTokenOutLogoSrc(NOT_FOUND_TOKEN_LOGO_URL)}
                           />
-                          <TitleT1 className="whitespace-nowrap">{tokenOutInfo.symbol}</TitleT1>
+                          <TitleT1 className="whitespace-nowrap">{tokenOutInfo?.symbol ?? "--"}</TitleT1>
                           <ArrowFilledDownIcon size={20} />
                         </Button>
                       </div>
@@ -523,7 +524,7 @@ export default function App() {
                             >
                               <BodyB2 className="whitespace-nowrap">
                                 {rate
-                                  ? `1 ${tokenOutInfo.symbol} = ${numberWithCommas(rate.invert().toSignificant(6))} ${tokenInInfo.symbol}`
+                                  ? `1 ${tokenOutInfo?.symbol ?? "--"} = ${numberWithCommas(rate.invert().toSignificant(6))} ${tokenInInfo?.symbol ?? "--"}`
                                   : "--"}
                               </BodyB2>
                             </Button>
@@ -537,7 +538,7 @@ export default function App() {
                             >
                               <BodyB2 className="whitespace-nowrap">
                                 {rate
-                                  ? `1 ${tokenInInfo.symbol} = ${numberWithCommas(rate.toSignificant(6))} ${tokenOutInfo.symbol}`
+                                  ? `1 ${tokenInInfo?.symbol ?? "--"} = ${numberWithCommas(rate.toSignificant(6))} ${tokenOutInfo?.symbol ?? "--"}`
                                   : "--"}
                               </BodyB2>
                             </Button>
@@ -653,18 +654,18 @@ export default function App() {
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
                       <Image width={20} height={20} className="min-h-[20px] min-w-[20px]" src={tokenInLogoSrc} />
-                      <TitleT2 className="whitespace-nowrap">{tokenInInfo.symbol}</TitleT2>
+                      <TitleT2 className="whitespace-nowrap">{tokenInInfo?.symbol ?? "--"}</TitleT2>
                     </div>
                     <Link
                       isBlock
                       showAnchorIcon
-                      href={`https://aptoscan.com/coin/${tokenInInfo.id}`}
+                      href={`https://aptoscan.com/coin/${tokenInInfo?.id}`}
                       color="primary"
                       className="p-0 text-buttonSecondary"
                       size="sm"
                       isExternal
                     >
-                      <BodyB3 className="text-buttonSecondary">{`${tokenInInfo.id.slice(0, 10)}...`}</BodyB3>
+                      <BodyB3 className="text-buttonSecondary">{`${tokenInInfo?.id.slice(0, 10)}...`}</BodyB3>
                     </Link>
                   </div>
                   <div className="flex w-[200px] flex-col gap-1">
@@ -682,18 +683,18 @@ export default function App() {
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
                       <Image width={20} height={20} className="min-h-[20px] min-w-[20px]" src={tokenOutLogoSrc} />
-                      <TitleT2 className="whitespace-nowrap">{tokenOutInfo.symbol}</TitleT2>
+                      <TitleT2 className="whitespace-nowrap">{tokenOutInfo?.symbol ?? "--"}</TitleT2>
                     </div>
                     <Link
                       isBlock
                       showAnchorIcon
-                      href={`https://aptoscan.com/coin/${tokenOutInfo.id}`}
+                      href={`https://aptoscan.com/coin/${tokenOutInfo?.id}`}
                       color="primary"
                       className="p-0 text-buttonSecondary"
                       size="sm"
                       isExternal
                     >
-                      <BodyB3 className="text-buttonSecondary">{`${tokenOutInfo.id.slice(0, 10)}...`}</BodyB3>
+                      <BodyB3 className="text-buttonSecondary">{`${tokenOutInfo?.id.slice(0, 10)}...`}</BodyB3>
                     </Link>
                   </div>
                   <div className="flex w-[200px] flex-col gap-1">

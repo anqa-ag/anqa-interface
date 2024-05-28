@@ -30,9 +30,9 @@ function TokenItem({
   const token = useMemo(() => {
     return items[index]
   }, [items, index])
-  const [src, setSrc] = useState(token.logoUrl)
+  const [src, setSrc] = useState(token.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
   useEffect(() => {
-    setSrc(token.logoUrl)
+    setSrc(token.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
   }, [token.logoUrl])
   return (
     <div
@@ -161,12 +161,9 @@ export default function ModalSelectToken({
       if (token.symbol.toLowerCase().includes(str.toLowerCase())) return true
       return false
     })
-    console.log(`str`, str)
-    console.log(`res`, res)
     return res
   }, [dispatch, followingTokenDataWithBalanceList, searchValue])
 
-  // const itemData = createItemData(followingTokenDataWithBalanceList, setTokenAndClose)
   const itemData = useMemo(
     () => ({ items: renderTokenList, setToken: setTokenAndClose }),
     [renderTokenList, setTokenAndClose],
