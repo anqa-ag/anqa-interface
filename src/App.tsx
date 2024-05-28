@@ -83,11 +83,11 @@ export default function App() {
 
   const followingPriceData = useAppSelector((state) => state.price.followingPriceData)
   const fractionalPriceAPT = useMemo(
-    () => (followingPriceData ? mulpowToFraction(followingPriceData[APTOS_COIN]) : undefined),
+    () => (followingPriceData[APTOS_COIN] ? mulpowToFraction(followingPriceData[APTOS_COIN]) : undefined),
     [followingPriceData],
   )
   const fractionalPriceUSDC = useMemo(
-    () => (followingPriceData ? mulpowToFraction(followingPriceData[USDC_WORMHOLE]) : undefined),
+    () => (followingPriceData[USDC_WORMHOLE] ? mulpowToFraction(followingPriceData[USDC_WORMHOLE]) : undefined),
     [followingPriceData],
   )
 
