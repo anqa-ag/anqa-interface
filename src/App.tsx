@@ -171,12 +171,11 @@ export default function App() {
 
   const swapButton = useMemo(() => {
     if (!fractionalAmountIn) return { isDisabled: true, text: "Enter an amount" }
-    if (!fractionalBalanceTokenIn) return { isDisabled: true, text: "Checking balance..." }
     if (!isSufficientBalance) return { isDisabled: true, text: "Insufficient balance" }
     if (isValidatingQuote) return { isDisabled: true, text: "Getting quote..." }
     if (!fractionalAmountOut) return { isDisabled: true, text: "Not found route" }
     return { isDisabled: false, text: "Swap" }
-  }, [fractionalAmountIn, fractionalBalanceTokenIn, isSufficientBalance, isValidatingQuote, fractionalAmountOut])
+  }, [fractionalAmountIn, isSufficientBalance, isValidatingQuote, fractionalAmountOut])
 
   const {
     isOpen: isOpenModalSelectTokenIn,
