@@ -133,7 +133,10 @@ export default function App() {
   const [shouldUseDebounceAmountIn, setShouldUseDebounceAmountIn] = useState(true)
   const setTypedAmountIn = useCallback((value: string, decimals = 8, shouldUseDebounce = true) => {
     setShouldUseDebounceAmountIn(shouldUseDebounce)
-    value = value.replaceAll(",", ".")
+    if (value?.endsWith(",")) {
+      value = value.slice(0, value.length - 1) + "."
+    }
+    value = value.replaceAll(",", "")
     if (value === "" || inputRegex.test(escapeRegExp(value))) {
       value = truncateValue(value, decimals)
       if (value.length && value.startsWith(".")) value = "0."
