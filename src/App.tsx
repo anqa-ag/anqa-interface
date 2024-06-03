@@ -427,7 +427,9 @@ export default function App() {
                             data-tooltip-id="tooltip-input-amount-out"
                             value={
                               fractionalAmountOut && tokenOutDecimals
-                                ? numberWithCommas(truncateValue(fractionalAmountOut.toSignificant(18), tokenOutDecimals))
+                                ? numberWithCommas(
+                                    truncateValue(fractionalAmountOut.toSignificant(18), tokenOutDecimals),
+                                  )
                                 : ""
                             }
                           />
@@ -655,6 +657,8 @@ export default function App() {
                   </>
                 )}
 
+                {/* Comment chart for now. */}
+                {/*
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
@@ -710,6 +714,7 @@ export default function App() {
                     <Chart2 />
                   </div>
                 </div>
+                */}
               </div>
             </main>
 
