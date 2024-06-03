@@ -93,7 +93,7 @@ export default function useQuote(tokenIn?: string, tokenOut?: string, amountIn?:
     error,
     isValidating,
   } = useSWR({ key: "useQuote", tokenIn, tokenOut, amountIn }, fn, {
-    refreshInterval: 10000,
+    refreshInterval: 10000_000,
   })
 
   const sourceInfo = useMemo(() => {

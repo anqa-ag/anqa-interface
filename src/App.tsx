@@ -364,7 +364,7 @@ export default function App() {
                           type="text"
                           placeholder="0.00"
                           minLength={1}
-                          maxLength={79}
+                          maxLength={30}
                           spellCheck="false"
                           className="w-full bg-transparent text-[36px] font-semibold outline-none placeholder:text-buttonSecondary"
                           pattern="^[0-9]*[.,]?[0-9]*$"
@@ -439,7 +439,7 @@ export default function App() {
                             type="text"
                             placeholder="0.00"
                             minLength={1}
-                            maxLength={79}
+                            maxLength={30}
                             spellCheck="false"
                             className="w-full bg-transparent text-[36px] font-semibold outline-none placeholder:text-buttonSecondary"
                             pattern="^[0-9]*[.,]?[0-9]*$"
@@ -499,7 +499,8 @@ export default function App() {
                       disableRipple
                     >
                       <BodyB2 className="whitespace-nowrap rounded border-1 border-primary p-2 text-primary">
-                        {sourceInfo.numberOfPaths} splits & {sourceInfo.numberOfPools} hops
+                        {sourceInfo.numberOfPaths} split{sourceInfo.numberOfPaths >= 2 ? "s" : ""} &{" "}
+                        {sourceInfo.numberOfPools} hop{sourceInfo.numberOfPools >= 2 ? "s" : ""}
                       </BodyB2>
                       <BodyB3 className="overflow-hidden text-ellipsis whitespace-nowrap text-buttonSecondary">
                         via {sourceInfo.uniqueSourceNames.join(", ")}
@@ -534,7 +535,7 @@ export default function App() {
                   <>
                     <div className="flex flex-col gap-2 rounded-lg border-1 border-buttonSecondary p-3">
                       <div className="flex justify-between">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 overflow-hidden">
                           {isValidatingQuote ? (
                             <>
                               <div className="flex h-[20px] w-[150px] items-center">
@@ -549,7 +550,7 @@ export default function App() {
                               disableAnimation
                               disableRipple
                             >
-                              <BodyB2 className="whitespace-nowrap">
+                              <BodyB2 className="whitespace-nowrap text-ellipsis overflow-hidden">
                                 {rate
                                   ? `1 ${tokenOutInfo?.symbol ?? "--"} = ${numberWithCommas(rate.invert().toSignificant(6))} ${tokenInInfo?.symbol ?? "--"}`
                                   : "--"}
@@ -563,7 +564,7 @@ export default function App() {
                               disableAnimation
                               disableRipple
                             >
-                              <BodyB2 className="whitespace-nowrap">
+                              <BodyB2 className="whitespace-nowrap text-ellipsis overflow-hidden">
                                 {rate
                                   ? `1 ${tokenInInfo?.symbol ?? "--"} = ${numberWithCommas(rate.toSignificant(6))} ${tokenOutInfo?.symbol ?? "--"}`
                                   : "--"}
@@ -595,7 +596,7 @@ export default function App() {
                           endContent={
                             <ArrowFilledDownIcon
                               size={24}
-                              className={`${isMoreInfo ? "rotate-180" : ""}`}
+                              className={`-mr-1 ${isMoreInfo ? "rotate-180" : ""}`}
                               color="#9AA0A6"
                             />
                           }
