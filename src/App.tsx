@@ -3,8 +3,7 @@ import { Button, Image, Link, Skeleton, Spacer, useDisclosure } from "@nextui-or
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
 import { useDebounceValue } from "usehooks-ts"
-import { Chart1, Chart2 } from "./components/Chart"
-import { AnqaIcon, ArrowFilledDownIcon, SettingIcon, SwapIcon, WalletIcon } from "./components/Icons"
+import { AnqaWithTextIcon, ArrowFilledDownIcon, SettingIcon, SwapIcon, WalletIcon } from "./components/Icons"
 import { BodyB2, BodyB3, TitleT1, TitleT2 } from "./components/Texts"
 import Tooltips from "./components/Tooltips"
 import ModalConnectWallet from "./components/modals/ModalConnectWallet"
@@ -45,6 +44,66 @@ function Menu() {
   )
 }
 
+function ButtonConnectWallet({
+  onOpenModalConnectWallet,
+  isOpenModalConnectWallet,
+}: {
+  onOpenModalConnectWallet: () => void
+  isOpenModalConnectWallet: boolean
+}) {
+  const { walletAddress: connectedWallet, network } = useAppSelector((state) => state.wallet)
+  const isMainnet = network === Network.MAINNET
+  const provider = useAppSelector((state) => state.wallet.provider)
+  const { onDisconnect: onDisconnectMartian } = useMartian()
+  const { onDisconnect: onDisconnectPetra } = usePetra()
+  const onDisconnect = async () => {
+    switch (provider) {
+      case "Martian":
+        await onDisconnectMartian()
+        break
+      case "Petra":
+        await onDisconnectPetra()
+    }
+  }
+
+  return (
+    <div className="flex-1 text-end">
+      <Button
+        color="primary"
+        className={
+          "w-fit rounded px-2" +
+          " " +
+          (connectedWallet
+            ? "border-buttonSecondary bg-background text-buttonSecondary"
+            : "border-primary bg-primary text-white")
+        }
+        onPress={connectedWallet ? onDisconnect : onOpenModalConnectWallet}
+        isLoading={isOpenModalConnectWallet}
+        variant={connectedWallet ? "bordered" : "solid"}
+      >
+        {connectedWallet && (
+          <Image
+            width={20}
+            className="min-w-[20px]"
+            src={
+              provider === "Martian" ? "/images/martian.jpeg" : provider === "Petra" ? "/images/petra.svg" : undefined
+            }
+          />
+        )}
+        {connectedWallet ? (
+          isMainnet ? (
+            <TitleT2>{connectedWallet.slice(0, 4) + "..." + connectedWallet.slice(-4)}</TitleT2>
+          ) : (
+            <TitleT2>Wrong Network ({network})</TitleT2>
+          )
+        ) : (
+          <TitleT2>Connect Wallet</TitleT2>
+        )}
+      </Button>
+    </div>
+  )
+}
+
 export default function App() {
   const [isSwapping, setIsSwapping] = useState(false)
   const onSwap = () => {
@@ -61,8 +120,7 @@ export default function App() {
 
   const isSm = useIsSm()
 
-  const { walletAddress: connectedWallet, balance, network } = useAppSelector((state) => state.wallet)
-  const isMainnet = network === Network.MAINNET
+  const { walletAddress: connectedWallet, balance } = useAppSelector((state) => state.wallet)
 
   const {
     isOpen: isOpenModalConnectWallet,
@@ -70,19 +128,6 @@ export default function App() {
     onClose: onCloseModalConnectWallet,
     onOpenChange: onOpenChangeModalConnectWallet,
   } = useDisclosure()
-
-  const provider = useAppSelector((state) => state.wallet.provider)
-  const { onDisconnect: onDisconnectMartian } = useMartian()
-  const { onDisconnect: onDisconnectPetra } = usePetra()
-  const onDisconnect = async () => {
-    switch (provider) {
-      case "Martian":
-        await onDisconnectMartian()
-        break
-      case "Petra":
-        await onDisconnectPetra()
-    }
-  }
 
   const [typedAmountIn, _setTypedAmountIn] = useState("")
   const [shouldUseDebounceAmountIn, setShouldUseDebounceAmountIn] = useState(true)
@@ -244,52 +289,27 @@ export default function App() {
           */}
             <header className="flex h-[84px] items-center justify-between px-[60px] lg:px-[30px] md:justify-center md:px-[16px]">
               <div className="flex flex-1">
-                <Button isIconOnly variant="light" className="h-[40px] w-[40px]">
-                  <AnqaIcon size={40} />
+                <Button
+                  isIconOnly
+                  variant="light"
+                  className="h-fit w-fit px-3 py-1 data-[hover]:bg-transparent"
+                  disableRipple
+                >
+                  <AnqaWithTextIcon size={40} />
                 </Button>
               </div>
               {isSm ? (
-                <Menu />
+                <ButtonConnectWallet
+                  onOpenModalConnectWallet={onOpenModalConnectWallet}
+                  isOpenModalConnectWallet={isOpenModalConnectWallet}
+                />
               ) : (
                 <>
                   <Menu />
-                  <div className="flex-1 text-end">
-                    <Button
-                      color="primary"
-                      className={
-                        "rounded" +
-                        " " +
-                        (connectedWallet
-                          ? "border-buttonSecondary bg-background text-buttonSecondary"
-                          : "border-primary bg-primary text-white")
-                      }
-                      onPress={connectedWallet ? onDisconnect : onOpenModalConnectWallet}
-                      isLoading={isOpenModalConnectWallet}
-                      variant={connectedWallet ? "bordered" : "solid"}
-                    >
-                      {connectedWallet && (
-                        <Image
-                          width={20}
-                          src={
-                            provider === "Martian"
-                              ? "/images/martian.jpeg"
-                              : provider === "Petra"
-                                ? "/images/petra.svg"
-                                : undefined
-                          }
-                        />
-                      )}
-                      {connectedWallet ? (
-                        isMainnet ? (
-                          <TitleT2>{connectedWallet.slice(0, 4) + "..." + connectedWallet.slice(-4)}</TitleT2>
-                        ) : (
-                          <TitleT2>Wrong Network ({network})</TitleT2>
-                        )
-                      ) : (
-                        <TitleT2>Connect Wallet</TitleT2>
-                      )}
-                    </Button>
-                  </div>
+                  <ButtonConnectWallet
+                    onOpenModalConnectWallet={onOpenModalConnectWallet}
+                    isOpenModalConnectWallet={isOpenModalConnectWallet}
+                  />
                 </>
               )}
             </header>
@@ -756,17 +776,6 @@ export default function App() {
                       showAnchorIcon
                     >
                       <BodyB2>Privacy Policy</BodyB2>
-                    </Link>
-                    <Link
-                      isBlock
-                      href="#"
-                      color="primary"
-                      className="text-buttonSecondary"
-                      size="sm"
-                      isExternal
-                      showAnchorIcon
-                    >
-                      <BodyB2>Cookies</BodyB2>
                     </Link>
                   </div>
                 )}

@@ -2,7 +2,7 @@ import { Icon } from "@iconify/react"
 import { Button, Image, Input, Modal, ModalContent, Spacer } from "@nextui-org/react"
 import { CSSProperties, memo, useCallback, useEffect, useMemo, useState } from "react"
 import { FixedSizeList } from "react-window"
-import { useDebounceValue, useWindowSize } from "usehooks-ts"
+import { useCopyToClipboard, useDebounceValue, useWindowSize } from "usehooks-ts"
 import { NOT_FOUND_TOKEN_LOGO_URL } from "../../constants"
 import { useIsSm } from "../../hooks/useMedia"
 import { useAppDispatch, useAppSelector } from "../../redux/hooks"
@@ -19,20 +19,33 @@ export interface TokenWithBalance extends Token {
 
 function TokenItem({
   index,
-  data: { items, setToken },
+  data: { items, setToken, onCopy, copiedId, isCopying },
   style,
 }: {
   index: number
-  data: { items: TokenWithBalance[]; setToken: (id: string) => void }
+  data: {
+    items: TokenWithBalance[]
+    setToken: (id: string) => void
+    onCopy: (id: string) => void
+    copiedId: string | null
+    isCopying: boolean
+  }
   style: CSSProperties
 }) {
   const token = useMemo(() => {
     return items[index]
   }, [items, index])
   const [src, setSrc] = useState(token.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
+
   useEffect(() => {
     setSrc(token.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
-  }, [token.logoUrl])
+  }, [index, items, onCopy, token.logoUrl])
+
+  const isCopyingThisToken = useMemo(
+    () => isCopying && copiedId === items[index].id,
+    [copiedId, index, isCopying, items],
+  )
+
   return (
     <div
       className="flex h-fit w-full cursor-pointer items-center gap-2 rounded-none bg-buttonDisabled px-4 py-3 font-normal hover:bg-background"
@@ -51,15 +64,34 @@ function TokenItem({
       <div className="flex w-full flex-col gap-1 overflow-hidden">
         <div className="flex items-baseline gap-1">
           <TitleT2 className="">{token.symbol}</TitleT2>
-          <TitleT5 className="overflow-hidden text-ellipsis whitespace-nowrap text-tooltipBg">
-            {token.id.slice(0, 10) + "..."}
-          </TitleT5>
           <Button
             variant="light"
-            isIconOnly
-            className="h-fit w-fit min-w-fit self-center p-0 data-[hover]:bg-transparent"
+            className="h-fit w-fit min-w-fit gap-1 self-center p-0 font-normal data-[hover]:bg-transparent rounded-none"
+            onPress={() => onCopy(items[index].id)}
+            disableAnimation
+            disableRipple
           >
-            <Icon icon="ph:copy" fontSize={16} className="text-tooltipBg" />
+            {isCopyingThisToken ? (
+              <>
+                <TitleT5
+                  className="overflow-hidden text-ellipsis whitespace-nowrap text-tooltipBg pt-1"
+                  onClick={() => onCopy(items[index].id)}
+                >
+                  {token.id.slice(0, 10) + "..."}
+                </TitleT5>
+                <Icon icon="material-symbols:check" fontSize={16} className="text-tooltipBg" />
+              </>
+            ) : (
+              <>
+                <TitleT5
+                  className="overflow-hidden text-ellipsis whitespace-nowrap text-tooltipBg pt-1"
+                  onClick={() => onCopy(items[index].id)}
+                >
+                  {token.id.slice(0, 10) + "..."}
+                </TitleT5>
+                <Icon icon="ph:copy" fontSize={16} className="text-tooltipBg" />
+              </>
+            )}
           </Button>
         </div>
         <TitleT5 className="w-full flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-start text-tooltipBg">
@@ -138,10 +170,27 @@ function ModalSelectToken({
 
   const setTokenAndClose = useCallback(
     (id: string) => {
+      console.log(`here 154`)
       setToken(id)
       onClose()
     },
     [onClose, setToken],
+  )
+
+  const [copiedId, copy] = useCopyToClipboard()
+  const [isCopying, setIsCopying] = useState(false)
+  const onCopy = useCallback(
+    async (id: string) => {
+      try {
+        console.log(`here 186`)
+        setIsCopying(true)
+        await copy(id)
+        await new Promise((resolve) => setTimeout(resolve, 500))
+      } finally {
+        setIsCopying(false)
+      }
+    },
+    [copy],
   )
 
   const [_searchValue, setSearchValue] = useState("")
@@ -165,14 +214,11 @@ function ModalSelectToken({
   const isEmpty = renderTokenList.length === 0
 
   const itemData = useMemo(
-    () => ({ items: renderTokenList, setToken: setTokenAndClose }),
-    [renderTokenList, setTokenAndClose],
+    () => ({ items: renderTokenList, setToken: setTokenAndClose, onCopy, copiedId, isCopying }),
+    [copiedId, isCopying, onCopy, renderTokenList, setTokenAndClose],
   )
 
   const { height: windowHeight } = useWindowSize()
-  useEffect(() => {
-    console.log(`windowHeight`, windowHeight)
-  }, [windowHeight])
   const listHeight = useMemo(() => Math.min(680, Math.round(windowHeight / 2 / 68) * 68), [windowHeight])
 
   return (
