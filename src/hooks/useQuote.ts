@@ -78,7 +78,13 @@ export function sourceToName(source: string): string {
     aptoswap: "Aptoswap",
   }
   if (list[source]) return list[source]
-  return source
+  return source.split("_").map(word => {
+    if (word.length) {
+      word = word[0].toUpperCase() + word.slice(1)
+      return word
+    }
+    return word
+  }).join("")
 }
 
 export default function useQuote(tokenIn?: string, tokenOut?: string, amountIn?: string) {

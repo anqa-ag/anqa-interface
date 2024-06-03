@@ -25,7 +25,7 @@ function useGetAccountCoinsDataInterval() {
   }, [dispatch, walletAddress])
 
   useEffect(() => {
-    fn()
+    void fn()
   }, [fn])
 
   useInterval(fn, 10000)

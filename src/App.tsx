@@ -9,7 +9,7 @@ import { BodyB2, BodyB3, TitleT1, TitleT2 } from "./components/Texts"
 import Tooltips from "./components/Tooltips"
 import ModalConnectWallet from "./components/modals/ModalConnectWallet"
 import ModalSelectToken from "./components/modals/ModalSelectToken"
-import { NOT_FOUND_TOKEN_LOGO_URL, USDC_WORMHOLE } from "./constants"
+import { NOT_FOUND_TOKEN_LOGO_URL, ZUSDC } from "./constants"
 import { useIsSm } from "./hooks/useMedia"
 import useQuote from "./hooks/useQuote"
 import { useAppSelector } from "./redux/hooks"
@@ -98,7 +98,7 @@ export default function App() {
   }, [])
 
   const [tokenIn, _setTokenIn] = useState(APTOS_COIN)
-  const [tokenOut, _setTokenOut] = useState(USDC_WORMHOLE)
+  const [tokenOut, _setTokenOut] = useState(ZUSDC)
 
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
   const tokenInInfo: Token | undefined = useMemo(() => followingTokenData[tokenIn], [followingTokenData, tokenIn])

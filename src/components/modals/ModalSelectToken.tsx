@@ -72,7 +72,7 @@ function TokenItem({
           {items[index].fractionalBalance ? items[index].fractionalBalance?.toSignificant(6) : undefined}
         </TitleT5>
         <BodyB3 className="text-tooltipBg">
-          {items[index].fractionalBalanceUsd ? `~${items[index].fractionalBalanceUsd?.toSignificant(6)}` : undefined}
+          {items[index].fractionalBalanceUsd ? `~$${items[index].fractionalBalanceUsd?.toSignificant(6)}` : undefined}
         </BodyB3>
       </div>
     </div>
