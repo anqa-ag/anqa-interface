@@ -170,7 +170,6 @@ function ModalSelectToken({
 
   const setTokenAndClose = useCallback(
     (id: string) => {
-      console.log(`here 154`)
       setToken(id)
       onClose()
     },
@@ -182,7 +181,6 @@ function ModalSelectToken({
   const onCopy = useCallback(
     async (id: string) => {
       try {
-        console.log(`here 186`)
         setIsCopying(true)
         await copy(id)
         await new Promise((resolve) => setTimeout(resolve, 500))

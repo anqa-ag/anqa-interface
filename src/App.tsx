@@ -133,7 +133,7 @@ export default function App() {
   const [shouldUseDebounceAmountIn, setShouldUseDebounceAmountIn] = useState(true)
   const setTypedAmountIn = useCallback((value: string, decimals = 8, shouldUseDebounce = true) => {
     setShouldUseDebounceAmountIn(shouldUseDebounce)
-    value = value.replaceAll(",", "")
+    value = value.replaceAll(",", ".")
     if (value === "" || inputRegex.test(escapeRegExp(value))) {
       value = truncateValue(value, decimals)
       if (value.length && value.startsWith(".")) value = "0."
@@ -205,7 +205,10 @@ export default function App() {
 
   const [isInvert, setIsInvert] = useState(false)
 
-  const fractionalFeeAmount = useMemo(() => new Fraction(123, 1000000), [])
+  const fractionalFeeAmount = useMemo(
+    () => (tokenIn === APTOS_COIN ? new Fraction(2, 1000) : new Fraction(0, 1)),
+    [tokenIn],
+  )
   const isSufficientBalance =
     fractionalBalanceTokenIn && fractionalAmountIn
       ? fractionalBalanceTokenIn.subtract(fractionalFeeAmount).equalTo(fractionalAmountIn) ||
@@ -213,6 +216,20 @@ export default function App() {
         ? true
         : false
       : undefined
+
+  const onMaxAmountIn = () => {
+    if (fractionalBalanceTokenIn && fractionalFeeAmount) {
+      const newTypedAmountIn = fractionalBalanceTokenIn.subtract(fractionalFeeAmount)
+      if (newTypedAmountIn.greaterThan(0)) {
+        const newTypedAmountInStr = newTypedAmountIn.toSignificant(18)
+        setTypedAmountIn(newTypedAmountInStr, tokenInDecimals, false)
+      } else {
+        setTypedAmountIn("", tokenInDecimals, false)
+      }
+    } else {
+      setTypedAmountIn("", tokenInDecimals, false)
+    }
+  }
 
   const swapButton = useMemo(() => {
     if (!fractionalAmountIn) return { isDisabled: true, text: "Enter an amount" }
@@ -346,6 +363,7 @@ export default function App() {
                             className="anqa-hover-white-all flex h-fit w-fit min-w-fit items-center gap-1 bg-transparent p-0"
                             disableAnimation
                             disableRipple
+                            onClick={onMaxAmountIn}
                           >
                             <WalletIcon size={24} />
                             <BodyB2 className="text-buttonSecondary">
@@ -550,7 +568,7 @@ export default function App() {
                               disableAnimation
                               disableRipple
                             >
-                              <BodyB2 className="whitespace-nowrap text-ellipsis overflow-hidden">
+                              <BodyB2 className="overflow-hidden text-ellipsis whitespace-nowrap">
                                 {rate
                                   ? `1 ${tokenOutInfo?.symbol ?? "--"} = ${numberWithCommas(rate.invert().toSignificant(6))} ${tokenInInfo?.symbol ?? "--"}`
                                   : "--"}
@@ -564,7 +582,7 @@ export default function App() {
                               disableAnimation
                               disableRipple
                             >
-                              <BodyB2 className="whitespace-nowrap text-ellipsis overflow-hidden">
+                              <BodyB2 className="overflow-hidden text-ellipsis whitespace-nowrap">
                                 {rate
                                   ? `1 ${tokenInInfo?.symbol ?? "--"} = ${numberWithCommas(rate.toSignificant(6))} ${tokenOutInfo?.symbol ?? "--"}`
                                   : "--"}
