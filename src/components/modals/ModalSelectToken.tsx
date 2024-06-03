@@ -1,9 +1,8 @@
 import { Icon } from "@iconify/react"
 import { Button, Image, Input, Modal, ModalContent, Spacer } from "@nextui-org/react"
-import { CSSProperties, useCallback, useEffect, useMemo, useState } from "react"
-import { isMobile } from "react-device-detect"
+import { CSSProperties, memo, useCallback, useEffect, useMemo, useState } from "react"
 import { FixedSizeList } from "react-window"
-import { useDebounceValue } from "usehooks-ts"
+import { useDebounceValue, useWindowSize } from "usehooks-ts"
 import { NOT_FOUND_TOKEN_LOGO_URL } from "../../constants"
 import { useIsSm } from "../../hooks/useMedia"
 import { useAppDispatch, useAppSelector } from "../../redux/hooks"
@@ -79,7 +78,7 @@ function TokenItem({
   )
 }
 
-export default function ModalSelectToken({
+function ModalSelectToken({
   isOpen,
   onClose,
   onOpenChange,
@@ -163,11 +162,18 @@ export default function ModalSelectToken({
     })
     return res
   }, [dispatch, followingTokenDataWithBalanceList, searchValue])
+  const isEmpty = renderTokenList.length === 0
 
   const itemData = useMemo(
     () => ({ items: renderTokenList, setToken: setTokenAndClose }),
     [renderTokenList, setTokenAndClose],
   )
+
+  const { height: windowHeight } = useWindowSize()
+  useEffect(() => {
+    console.log(`windowHeight`, windowHeight)
+  }, [windowHeight])
+  const listHeight = useMemo(() => Math.min(680, Math.round(windowHeight / 2 / 68) * 68), [windowHeight])
 
   return (
     <>
@@ -179,7 +185,7 @@ export default function ModalSelectToken({
         hideCloseButton
         disableAnimation
       >
-        <ModalContent className="max-w-[420px] bg-buttonDisabled p-4 text-foreground dark">
+        <ModalContent className="max-w-[420px] bg-buttonDisabled p-4 pb-0 text-foreground dark">
           {(onClose) => (
             <>
               <div className="flex items-center justify-between">
@@ -207,9 +213,9 @@ export default function ModalSelectToken({
               <Spacer y={4} />
 
               {renderTokenList && (
-                <div className="-mx-4">
+                <div className="relative -mx-4">
                   <FixedSizeList
-                    height={isMobile ? 340 : 680}
+                    height={listHeight}
                     itemCount={renderTokenList.length}
                     itemSize={68}
                     width="100%"
@@ -217,6 +223,11 @@ export default function ModalSelectToken({
                   >
                     {TokenItem}
                   </FixedSizeList>
+                  {isEmpty && (
+                    <TitleT2 className="absolute left-1/2 top-1/4 -translate-x-1/2 -translate-y-1/2 text-buttonSecondary">
+                      No Token Found
+                    </TitleT2>
+                  )}
                 </div>
               )}
             </>
@@ -226,3 +237,6 @@ export default function ModalSelectToken({
     </>
   )
 }
+
+const MemorizedModalSelectToken = memo(ModalSelectToken)
+export default MemorizedModalSelectToken
