@@ -28,6 +28,7 @@ import {
   numberWithCommas,
   truncateValue,
 } from "./utils/number"
+import { useSearchParams } from "react-router-dom"
 
 function Menu() {
   return (
@@ -297,6 +298,9 @@ export default function App() {
     }
   }
 
+  const [searchParams] = useSearchParams()
+  const isDebug = useMemo(() => searchParams.get("debug") === "true", [searchParams])
+
   return (
     <>
       <Updaters />
@@ -304,37 +308,40 @@ export default function App() {
         <div className="h-full w-screen">
           <div className="fixed top-0 h-full w-screen bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
           <div className="isolate flex min-h-screen flex-col">
-            <div className="absolute right-0 top-1/2 w-[250px] -translate-y-1/2 border-1 border-red-500 p-4">
-              <div>⚠️ For debug only. Don&apos;t approve swap yet, currently hardcode swap data.</div>
-              <a
-                href={`https://aptoscan.com/transaction/${swapTxVersion}`}
-                target="_blank"
-                rel="noreferrer"
-                className="break-all"
-              >
-                version: {swapTxVersion ? `https://aptoscan.com/transaction/${swapTxVersion}` : "--"}
-              </a>
-              <div>success: {isSwapSuccess ? "true" : "false"}</div>
-              <div>
-                source:
-                <select
-                  className="h-[50vh] border-1 border-red-500"
-                  onChange={(e) =>
-                    setSource(
-                      [...e.currentTarget.options]
-                        .filter((op) => op.selected)
-                        .map((op) => op.value)
-                        .join(","),
-                    )
-                  }
-                  multiple
+            {isDebug && (
+              <div className="absolute right-0 top-1/2 w-[250px] -translate-y-1/2 border-1 border-red-500 p-4">
+                <div>⚠️ For debug only. Don&apos;t approve swap yet, currently hardcode swap data.</div>
+                <a
+                  href={`https://aptoscan.com/transaction/${swapTxVersion}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="break-all"
                 >
-                  {SOURCE_LIST.map((source) => (
-                    <option key={source}>{source}</option>
-                  ))}
-                </select>
+                  version: {swapTxVersion ? `https://aptoscan.com/transaction/${swapTxVersion}` : "--"}
+                </a>
+                <div>success: {isSwapSuccess ? "true" : "false"}</div>
+                <div>
+                  source:
+                  <select
+                    className="h-[50vh] border-1 border-red-500"
+                    onChange={(e) =>
+                      setSource(
+                        [...e.currentTarget.options]
+                          .filter((op) => op.selected)
+                          .map((op) => op.value)
+                          .join(","),
+                      )
+                    }
+                    multiple
+                  >
+                    {SOURCE_LIST.map((source) => (
+                      <option key={source}>{source}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
-            </div>
+            )}
+
             {/*
           ###############################################################################
           #
