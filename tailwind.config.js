@@ -45,6 +45,8 @@ export default {
             buttonRed: "#F44646",
             buttonGreen: "#18CF6A",
             tooltipBg: "#80868B",
+            black900: "#17181B",
+            black600: "#3C4043",
           },
         },
       },

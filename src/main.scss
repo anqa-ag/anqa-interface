@@ -104,11 +104,11 @@ input[type="number"] {
 *,
 *::before,
 *::after {
-  font-family: "Inter", sans-serif;
+  font-family: "Hanken Grotesk", sans-serif;
+  font-optical-sizing: auto;
 }
 
-.anqa-hover-primary-all:hover,
-.anqa-hover-primary-all:focus {
+.anqa-hover-primary-all:hover {
   border-color: #0079bf;
   color: #0079bf;
   fill: #0079bf;
@@ -124,8 +124,7 @@ input[type="number"] {
   }
 }
 
-.anqa-hover-white-all:hover,
-.anqa-hover-white-all:focus {
+.anqa-hover-white-all:hover {
   border-color: #ffffff;
   color: #ffffff;
   fill: #ffffff;
@@ -144,8 +143,8 @@ input[type="number"] {
 input[type="text"][disabled],
 input[type="text"][disabled]:hover,
 input[type="text"][disabled]:focus {
-  color: #ffffff;
-  -webkit-text-fill-color: #ffffff;
+  color: #9aa0a6;
+  -webkit-text-fill-color: #9aa0a6;
   opacity: 1;
   /* required on iOS */
 }

@@ -71,7 +71,7 @@ function ButtonConnectWallet({
       <Button
         color="primary"
         className={
-          "w-fit rounded px-2" +
+          "w-fit rounded px-4" +
           " " +
           (connectedWallet
             ? "border-buttonSecondary bg-background text-buttonSecondary"
@@ -341,7 +341,7 @@ export default function App() {
           ###############################################################################
           */}
             <main className="mt-[60px] w-full p-4 sm:mt-0">
-              <div className="mx-auto flex max-w-[420px] flex-col">
+              <div className="mx-auto flex max-w-[464px] flex-col">
                 <div className="flex justify-between">
                   <div className="flex gap-3">
                     <Button className="h-[36px] min-w-min gap-1 rounded bg-primaryHover p-2">
@@ -358,7 +358,7 @@ export default function App() {
                 <div className="relative flex flex-col gap-1">
                   {/* INPUT */}
                   <>
-                    <div className="flex flex-col gap-2 rounded border-1 border-buttonDisabled bg-buttonDisabled p-3 transition focus-within:border-buttonSecondary">
+                    <div className="border-black900 bg-black900 focus-within:border-black600 flex flex-col gap-2 rounded border-1 p-3 transition">
                       <div className="flex items-center justify-between">
                         <BodyB2 className="text-buttonSecondary">You pay</BodyB2>
                         {connectedWallet && (
@@ -429,7 +429,7 @@ export default function App() {
                   </div>
                   {/* OUTPUT */}
                   <>
-                    <div className="flex flex-col gap-2 rounded border-1 border-buttonDisabled bg-buttonDisabled p-3 transition focus-within:border-buttonSecondary">
+                    <div className="border-black900 bg-black900 flex flex-col gap-2 rounded border-1 p-3 transition">
                       <div className="flex items-center justify-between">
                         <BodyB2 className="text-buttonSecondary">You get</BodyB2>
                         {connectedWallet && (
@@ -462,7 +462,7 @@ export default function App() {
                             minLength={1}
                             maxLength={30}
                             spellCheck="false"
-                            className="w-full bg-transparent text-[36px] font-semibold outline-none placeholder:text-buttonSecondary"
+                            className="w-full bg-transparent text-[36px] font-semibold text-buttonSecondary outline-none placeholder:text-buttonSecondary"
                             pattern="^[0-9]*[.,]?[0-9]*$"
                             disabled
                             data-tooltip-id="tooltip-input-amount-out"
@@ -554,7 +554,7 @@ export default function App() {
 
                 {fractionalAmountIn && fractionalAmountOut && (
                   <>
-                    <div className="flex flex-col gap-2 rounded-lg border-1 border-buttonSecondary p-3">
+                    <div className="flex flex-col gap-2 rounded-lg border-1 border-[rgba(128,134,139,0.5)] p-3">
                       <div className="flex justify-between">
                         <div className="flex items-center gap-2 overflow-hidden">
                           {isValidatingQuote ? (
