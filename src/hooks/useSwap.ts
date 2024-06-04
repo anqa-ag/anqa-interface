@@ -87,7 +87,7 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
       throw new Error(`Frontend not support ${path.source} yet.`)
     case "obric_v3_abel":
       if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToYor undefined, path = ${JSON.stringify(path)}`)
-      source = 12
+      source = 11
       poolType = 3
       isXToY = path.extra.isXToY ? 0 : 1
       break
