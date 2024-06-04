@@ -1,6 +1,8 @@
 import { useCallback, useMemo, useState } from "react"
 import { martian, petra } from "../../types"
-import { useAppSelector } from "../redux/hooks"
+import { useAppDispatch, useAppSelector } from "../redux/hooks"
+import { NotificationData, addNotification } from "../redux/slices/user"
+import { divpowToFraction } from "../utils/number"
 import { GetRouteResponseDataPath } from "./useQuote"
 
 interface SwapState {
@@ -154,17 +156,37 @@ export default function useSwap() {
     txVersion: undefined,
     success: undefined,
   })
+  const dispatch = useAppDispatch()
   const { walletAddress, provider } = useAppSelector((state) => state.wallet)
+  const { followingTokenData } = useAppSelector((state) => state.token)
 
   const onSwap = useCallback(
     async (args: SwapArgs) => {
       if (!provider || !walletAddress || isSwapping) return
+
+      // dispatch(
+      //   addNotification({
+      //     version: Date.now().toString(),
+      //     isSuccess: true,
+      //     tokenInLogoUrl:
+      //       "https://aptoscan.com/_next/image?url=https%3A%2F%2Fraw.githubusercontent.com%2Fhippospace%2Faptos-coin-list%2Fmain%2Ficons%2FAPT.webp&w=16&q=75",
+      //     tokenOutLogoUrl:
+      //       "https://aptoscan.com/_next/image?url=https%3A%2F%2Fraw.githubusercontent.com%2Fhippospace%2Faptos-coin-list%2Fmain%2Ficons%2FUSDC.svg&w=16&q=75",
+      //     tokenInSymbol: "APT",
+      //     tokenOutSymbol: "zUSDC",
+      //     readableAmountIn: Math.random().toFixed(6),
+      //     readableAmountOut: Math.random().toFixed(6),
+      //     isHide: false,
+      //   }),
+      // )
+      // return
 
       try {
         setSwapState({ isSwapping: true, txVersion: undefined, success: undefined })
         if (provider === "Petra") {
           if (!petra) return
           const swapData = getSwapDataFromPaths(args)
+          // TODO: Simulate transaction.
           const response = await petra.signAndSubmitTransaction({
             payload: {
               function: swapData.function,
@@ -174,6 +196,22 @@ export default function useSwap() {
           })
           console.log(`response`, response)
           setSwapState({ isSwapping: false, txVersion: response.version, success: response.success })
+          const tokenInData = followingTokenData[args.tokenIn]
+          const tokenOutData = followingTokenData[args.tokenOut]
+          if (tokenInData && tokenOutData) {
+            const payload: NotificationData = {
+              version: response.version,
+              isSuccess: response.success,
+              tokenInLogoUrl: tokenInData.logoUrl,
+              tokenOutLogoUrl: tokenOutData.logoUrl,
+              tokenInSymbol: tokenInData.symbol,
+              tokenOutSymbol: tokenOutData.symbol,
+              readableAmountIn: divpowToFraction(args.amountIn, tokenInData.decimals).toSignificant(6),
+              readableAmountOut: divpowToFraction(args.amountOut, tokenOutData.decimals).toSignificant(6),
+              isHide: false,
+            }
+            dispatch(addNotification(payload))
+          }
         } else if (provider === "Martian") {
           if (!martian) return
           const swapData = getSwapDataFromPaths(args)
@@ -195,7 +233,7 @@ export default function useSwap() {
         setSwapState((prev) => ({ ...prev, isSwapping: false }))
       }
     },
-    [isSwapping, provider, walletAddress],
+    [dispatch, followingTokenData, isSwapping, provider, walletAddress],
   )
 
   const res = useMemo(

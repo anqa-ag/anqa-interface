@@ -29,6 +29,7 @@ import {
   truncateValue,
 } from "./utils/number"
 import { useSearchParams } from "react-router-dom"
+import NotificationList from "./components/NotificationList"
 
 function Menu() {
   return (
@@ -711,7 +712,9 @@ export default function App() {
                               </>
                             ) : (
                               <BodyB2>
-                                {minimumReceive ? `${numberWithCommas(minimumReceive.toSignificant(6))} USDC` : "--"}
+                                {minimumReceive && tokenOutInfo
+                                  ? `${numberWithCommas(minimumReceive.toSignificant(6))} ${tokenOutInfo.symbol ?? "--"}`
+                                  : "--"}
                               </BodyB2>
                             )}
                           </div>
@@ -828,30 +831,31 @@ export default function App() {
             </footer>
           </div>
         </div>
+        <NotificationList />
+        <ModalConnectWallet
+          isOpen={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
+          onOpenChange={onOpenChangeModal}
+          onClose={onCloseModal}
+        />
+        <ModalSelectToken
+          isOpen={globalModal === MODAL_LIST.SELECT_TOKEN_IN && isModalOpen}
+          onOpenChange={onOpenChangeModal}
+          onClose={onCloseModal}
+          setToken={setTokenIn}
+        />
+        <ModalSelectToken
+          isOpen={globalModal === MODAL_LIST.SELECT_TOKEN_OUT && isModalOpen}
+          onOpenChange={onOpenChangeModal}
+          onClose={onCloseModal}
+          setToken={setTokenOut}
+        />
+        <ModalUserSetting
+          isOpen={globalModal === MODAL_LIST.USER_SETTING && isModalOpen}
+          onOpenChange={onOpenChangeModal}
+          onClose={onCloseModal}
+        />
+        <Tooltips />
       </div>
-      <ModalConnectWallet
-        isOpen={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
-        onOpenChange={onOpenChangeModal}
-        onClose={onCloseModal}
-      />
-      <ModalSelectToken
-        isOpen={globalModal === MODAL_LIST.SELECT_TOKEN_IN && isModalOpen}
-        onOpenChange={onOpenChangeModal}
-        onClose={onCloseModal}
-        setToken={setTokenIn}
-      />
-      <ModalSelectToken
-        isOpen={globalModal === MODAL_LIST.SELECT_TOKEN_OUT && isModalOpen}
-        onOpenChange={onOpenChangeModal}
-        onClose={onCloseModal}
-        setToken={setTokenOut}
-      />
-      <ModalUserSetting
-        isOpen={globalModal === MODAL_LIST.USER_SETTING && isModalOpen}
-        onOpenChange={onOpenChangeModal}
-        onClose={onCloseModal}
-      />
-      <Tooltips />
     </>
   )
 }

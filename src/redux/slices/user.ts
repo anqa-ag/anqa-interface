@@ -1,11 +1,25 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 
+export interface NotificationData {
+  version: string
+  isSuccess: boolean
+  tokenInLogoUrl: string | undefined
+  tokenOutLogoUrl: string | undefined
+  tokenInSymbol: string | undefined
+  tokenOutSymbol: string | undefined
+  readableAmountIn: string
+  readableAmountOut: string
+  isHide: boolean
+}
+
 export interface UserState {
   slippageBps: number
+  notificationMap: Record<string, NotificationData>
 }
 
 const initialState: UserState = {
   slippageBps: 50,
+  notificationMap: {},
 }
 
 export const userSlice = createSlice({
@@ -15,9 +29,15 @@ export const userSlice = createSlice({
     setSlippage: (state, action: PayloadAction<number>) => {
       state.slippageBps = action.payload
     },
+    addNotification: (state, action: PayloadAction<NotificationData>) => {
+      state.notificationMap[action.payload.version] = action.payload
+    },
+    hideNotification: (state, action: PayloadAction<string>) => {
+      state.notificationMap[action.payload].isHide = true
+    },
   },
 })
 
-export const { setSlippage } = userSlice.actions
+export const { setSlippage, addNotification, hideNotification } = userSlice.actions
 
 export default userSlice.reducer
