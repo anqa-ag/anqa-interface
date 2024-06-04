@@ -1,5 +1,5 @@
 import { APTOS_COIN, Network } from "@aptos-labs/ts-sdk"
-import { Button, Image, Link, Skeleton, Spacer, useDisclosure } from "@nextui-org/react"
+import { Button, Image, Link, Skeleton, Spacer } from "@nextui-org/react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
 import { useDebounceValue } from "usehooks-ts"
@@ -25,6 +25,8 @@ import {
   numberWithCommas,
   truncateValue,
 } from "./utils/number"
+import useModal, { MODAL_LIST } from "./hooks/useModal"
+import ModalUserSetting from "./components/modals/ModalUserSetting"
 
 function Menu() {
   return (
@@ -121,13 +123,6 @@ export default function App() {
   const isSm = useIsSm()
 
   const { walletAddress: connectedWallet, balance } = useAppSelector((state) => state.wallet)
-
-  const {
-    isOpen: isOpenModalConnectWallet,
-    onOpen: onOpenModalConnectWallet,
-    onClose: onCloseModalConnectWallet,
-    onOpenChange: onOpenChangeModalConnectWallet,
-  } = useDisclosure()
 
   const [typedAmountIn, _setTypedAmountIn] = useState("")
   const [shouldUseDebounceAmountIn, setShouldUseDebounceAmountIn] = useState(true)
@@ -242,19 +237,6 @@ export default function App() {
     return { isDisabled: false, text: "Swap" }
   }, [fractionalAmountIn, isSufficientBalance, isValidatingQuote, fractionalAmountOut])
 
-  const {
-    isOpen: isOpenModalSelectTokenIn,
-    onOpen: onOpenModalSelectTokenIn,
-    onClose: onCloseModalSelectTokenIn,
-    onOpenChange: onOpenChangeModalSelectTokenIn,
-  } = useDisclosure()
-  const {
-    isOpen: isOpenModalSelectTokenOut,
-    onOpen: onOpenModalSelectTokenOut,
-    onClose: onCloseModalSelectTokenOut,
-    onOpenChange: onOpenChangeModalSelectTokenOut,
-  } = useDisclosure()
-
   const [tokenInLogoSrc, setTokenInLogoSrc] = useState(tokenInInfo?.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
   const [tokenOutLogoSrc, setTokenOutLogoSrc] = useState(tokenOutInfo?.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
   useEffect(() => {
@@ -293,6 +275,10 @@ export default function App() {
     [switchToken, tokenIn],
   )
 
+  const { globalModal, isModalOpen, onOpenModal, onCloseModal, onOpenChangeModal } = useModal()
+
+  const slippageBps = useAppSelector((state) => state.user.slippageBps)
+
   return (
     <>
       <Updaters />
@@ -320,15 +306,15 @@ export default function App() {
               </div>
               {isSm ? (
                 <ButtonConnectWallet
-                  onOpenModalConnectWallet={onOpenModalConnectWallet}
-                  isOpenModalConnectWallet={isOpenModalConnectWallet}
+                  onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
+                  isOpenModalConnectWallet={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
                 />
               ) : (
                 <>
                   <Menu />
                   <ButtonConnectWallet
-                    onOpenModalConnectWallet={onOpenModalConnectWallet}
-                    isOpenModalConnectWallet={isOpenModalConnectWallet}
+                    onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
+                    isOpenModalConnectWallet={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
                   />
                 </>
               )}
@@ -348,7 +334,12 @@ export default function App() {
                       <TitleT2 className="text-black">Swap</TitleT2>
                     </Button>
                   </div>
-                  <Button isIconOnly variant="light" className="h-[36px] w-[36px] min-w-min">
+                  <Button
+                    isIconOnly
+                    className="h-[36px] w-[36px] min-w-min border-1 border-black bg-black pl-3 data-[hover]:border-black600"
+                    onPress={() => onOpenModal(MODAL_LIST.USER_SETTING)}
+                  >
+                    <BodyB2 className="text-buttonSecondary">{slippageBps / 100}%</BodyB2>
                     <SettingIcon size={36} />
                   </Button>
                 </div>
@@ -396,7 +387,7 @@ export default function App() {
                           className="flex h-[42px] w-fit min-w-fit items-center gap-1 rounded-full border-1 border-buttonDisabled bg-transparent p-2 transition hover:border-buttonSecondary data-[hover]:bg-transparent"
                           disableAnimation
                           disableRipple
-                          onPress={onOpenModalSelectTokenIn}
+                          onPress={() => onOpenModal(MODAL_LIST.SELECT_TOKEN_IN)}
                         >
                           <Image
                             width={20}
@@ -479,7 +470,7 @@ export default function App() {
                           className="flex h-[42px] w-fit min-w-fit items-center gap-1 rounded-full border-1 border-buttonDisabled bg-transparent p-2 transition hover:border-buttonSecondary data-[hover]:bg-transparent"
                           disableAnimation
                           disableRipple
-                          onPress={onOpenModalSelectTokenOut}
+                          onPress={() => onOpenModal(MODAL_LIST.SELECT_TOKEN_OUT)}
                         >
                           <Image
                             width={20}
@@ -545,7 +536,11 @@ export default function App() {
                     <TitleT2>{swapButton.text}</TitleT2>
                   </Button>
                 ) : (
-                  <Button color="primary" className="h-[52px] rounded" onPress={onOpenModalConnectWallet}>
+                  <Button
+                    color="primary"
+                    className="h-[52px] rounded"
+                    onPress={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
+                  >
                     <TitleT2>Connect Wallet</TitleT2>
                   </Button>
                 )}
@@ -806,24 +801,29 @@ export default function App() {
           </div>
         </div>
       </div>
-      <Tooltips />
       <ModalConnectWallet
-        isOpen={isOpenModalConnectWallet}
-        onOpenChange={onOpenChangeModalConnectWallet}
-        onClose={onCloseModalConnectWallet}
+        isOpen={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
+        onOpenChange={onOpenChangeModal}
+        onClose={onCloseModal}
       />
       <ModalSelectToken
-        isOpen={isOpenModalSelectTokenIn}
-        onOpenChange={onOpenChangeModalSelectTokenIn}
-        onClose={onCloseModalSelectTokenIn}
+        isOpen={globalModal === MODAL_LIST.SELECT_TOKEN_IN && isModalOpen}
+        onOpenChange={onOpenChangeModal}
+        onClose={onCloseModal}
         setToken={setTokenIn}
       />
       <ModalSelectToken
-        isOpen={isOpenModalSelectTokenOut}
-        onOpenChange={onOpenChangeModalSelectTokenOut}
-        onClose={onCloseModalSelectTokenOut}
+        isOpen={globalModal === MODAL_LIST.SELECT_TOKEN_OUT && isModalOpen}
+        onOpenChange={onOpenChangeModal}
+        onClose={onCloseModal}
         setToken={setTokenOut}
       />
+      <ModalUserSetting
+        isOpen={globalModal === MODAL_LIST.USER_SETTING && isModalOpen}
+        onOpenChange={onOpenChangeModal}
+        onClose={onCloseModal}
+      />
+      <Tooltips />
     </>
   )
 }

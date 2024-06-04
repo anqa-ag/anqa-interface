@@ -27,9 +27,9 @@ export const tokenSlice = createSlice({
       for (const address of action.payload) set.add(address)
       state.followingTokenAddresses = Array.from(set)
     },
-    updateTokenData: (state, newTokenData: PayloadAction<Record<string, Token>>) => {
-      for (const key of Object.keys(newTokenData.payload)) {
-        state.followingTokenData[key] = newTokenData.payload[key]
+    updateTokenData: (state, action: PayloadAction<Record<string, Token>>) => {
+      for (const key of Object.keys(action.payload)) {
+        state.followingTokenData[key] = action.payload[key]
       }
     },
   },

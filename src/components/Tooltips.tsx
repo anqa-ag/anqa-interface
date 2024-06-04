@@ -43,6 +43,14 @@ export default function Tooltips() {
         delayShow={1000}
         opacity={1}
       />
+      <ReactTooltip
+        id="tooltip-max-slippage"
+        content="During your swap if the price changes by more than this slippage, your transaction will revert."
+        variant="light"
+        place="right"
+        className="!max-w-[min(320px,80%)] !px-2 !py-1 !text-sm"
+        opacity={1}
+        />
     </>
   )
 }

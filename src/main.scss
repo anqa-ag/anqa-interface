@@ -180,3 +180,7 @@ input[type="text"][disabled]::placeholder {
     font-size: 16px;
   }
 }
+
+[id^="tooltip"] {
+  z-index: 999;
+}

@@ -4,3 +4,5 @@ export const MAINNET_CHAIN_ID = 1
 
 export const NOT_FOUND_TOKEN_LOGO_URL =
   "https://png.pngtree.com/png-clipart/20190516/original/pngtree-question-mark-vector-icon-png-image_4236972.jpg"
+
+export const BIP_BASE = 10_000

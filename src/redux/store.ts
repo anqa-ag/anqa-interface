@@ -5,6 +5,7 @@ import storage from "redux-persist/lib/storage" // defaults to localStorage for 
 import walletReducer from "./slices/wallet"
 import tokenReducer from "./slices/token"
 import priceReducer from "./slices/price"
+import userReducer from "./slices/user"
 
 const persistConfig = {
   key: "root",
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   wallet: walletReducer,
   token: tokenReducer,
   price: priceReducer,
+  user: userReducer,
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)

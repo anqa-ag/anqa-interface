@@ -19,9 +19,9 @@ export const priceSlice = createSlice({
     //   for (const address of action.payload) set.add(address)
     //   state.followingPriceAddresses = Array.from(set)
     // },
-    updatePriceData: (state, newPriceData: PayloadAction<Record<string, string>>) => {
-      for (const key of Object.keys(newPriceData.payload)) {
-        state.followingPriceData[key] = newPriceData.payload[key]
+    updatePriceData: (state, action: PayloadAction<Record<string, string>>) => {
+      for (const key of Object.keys(action.payload)) {
+        state.followingPriceData[key] = action.payload[key]
       }
     },
   },
