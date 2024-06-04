@@ -30,27 +30,27 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
       if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToYor undefined, path = ${JSON.stringify(path)}`)
       source = 1
       poolType = 1
-      isXToY = path.extra.isXToY ? 0 : 1
+      isXToY = path.extra.isXToY ? 1 : 0
       break
     case "sushi_swap":
       if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToYor undefined, path = ${JSON.stringify(path)}`)
       source = 2
       poolType = 2
-      isXToY = path.extra.isXToY ? 0 : 1
+      isXToY = path.extra.isXToY ? 1 : 0
       break
     case "liquid_swap_v0":
       if (path.extra?.isStable === undefined) throw new Error(`Error: isStable undefined, path = ${JSON.stringify(path)}`)
       if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToYor undefined, path = ${JSON.stringify(path)}`)
       source = 3
       poolType = path.extra.isStable ? 3 : 2
-      isXToY = path.extra.isXToY ? 0 : 1
+      isXToY = path.extra.isXToY ? 1 : 0
       break
     case "liquid_swap_v0.5":
       if (path.extra?.isStable === undefined) throw new Error(`Error: isStable undefined, path = ${JSON.stringify(path)}`)
       if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToYor undefined, path = ${JSON.stringify(path)}`)
       source = 3
       poolType = path.extra.isStable ? 1 : 0
-      isXToY = path.extra.isXToY ? 0 : 1
+      isXToY = path.extra.isXToY ? 1 : 0
       break
     case "thala_swap_stable":
       throw new Error(`Frontend not support ${path.source} yet.`)
@@ -66,7 +66,7 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
       if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToYor undefined, path = ${JSON.stringify(path)}`)
       source = 6
       poolType = 0
-      isXToY = path.extra.isXToY ? 0 : 1
+      isXToY = path.extra.isXToY ? 1 : 0
       break
     case "cellana_finance":
       throw new Error(`Frontend not support ${path.source} yet. 4 types of pool, ping @matthew.`)
@@ -74,7 +74,7 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
       if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToYor undefined, path = ${JSON.stringify(path)}`)
       source = 8
       poolType = 0
-      isXToY = path.extra.isXToY ? 0 : 1
+      isXToY = path.extra.isXToY ? 1 : 0
       break
     case "aptoswap":
       throw new Error(`Frontend not support ${path.source} yet.`)
@@ -89,7 +89,7 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
       if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToYor undefined, path = ${JSON.stringify(path)}`)
       source = 11
       poolType = 3
-      isXToY = path.extra.isXToY ? 0 : 1
+      isXToY = path.extra.isXToY ? 1 : 0
       break
     default:
       throw new Error(`Frontend not support ${path.source} yet.`)
