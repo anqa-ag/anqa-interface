@@ -12,6 +12,12 @@
             "options": {
                 "printWidth": 100000
             }
+        },
+        {
+            "files": "useSwap.ts",
+            "options": {
+                "printWidth": 150
+            }
         }
     ]
 }

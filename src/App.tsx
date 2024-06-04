@@ -170,7 +170,6 @@ export default function App() {
   const [fractionalAmountIn] = useDebounceValue(_fractionalAmountIn, shouldUseDebounceAmountIn ? 250 : 0)
 
   const [source, setSource] = useState("")
-  const sourceList = useMemo(() => ["", ...SOURCE_LIST], [])
 
   const {
     amountOut,
@@ -284,7 +283,7 @@ export default function App() {
 
   const { globalModal, isModalOpen, onOpenModal, onCloseModal, onOpenChangeModal } = useModal()
 
-  const { hash: swapTxHash, isSwapping, onSwap: _onSwap, status: swapStatus } = useSwap()
+  const { txVersion: swapTxVersion, isSwapping, onSwap: _onSwap, success: isSwapSuccess } = useSwap()
   const onSwap = () => {
     if (fractionalAmountIn && fractionalAmountOut && minimumReceive && paths) {
       void _onSwap({
@@ -305,14 +304,27 @@ export default function App() {
         <div className="h-full w-screen">
           <div className="fixed top-0 h-full w-screen bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
           <div className="isolate flex min-h-screen flex-col">
-            <div className="absolute right-0 top-1/2 w-[300px] -translate-y-1/2 border-1 border-red-500 p-4">
+            <div className="absolute right-0 top-1/2 w-[250px] -translate-y-1/2 border-1 border-red-500 p-4">
               <div>⚠️ For debug only. Don&apos;t approve swap yet, currently hardcode swap data.</div>
-              <div className="break-all">hash: {swapTxHash ?? "--"}</div>
-              <div>status: {swapStatus ?? "--"}</div>
+              <a href={`https://aptoscan.com/transaction/${swapTxVersion}`} target="_blank" rel="noreferrer" className="break-all">
+                version: {swapTxVersion ? `https://aptoscan.com/transaction/${swapTxVersion}` : "--"}
+              </a>
+              <div>success: {isSwapSuccess ? "true" : "false"}</div>
               <div>
                 source:
-                <select onChange={(e) => setSource(e.currentTarget.value)}>
-                  {sourceList.map((source) => (
+                <select
+                  className="border-1 border-red-500"
+                  onChange={(e) =>
+                    setSource(
+                      [...e.currentTarget.options]
+                        .filter((op) => op.selected)
+                        .map((op) => op.value)
+                        .join(","),
+                    )
+                  }
+                  multiple
+                >
+                  {SOURCE_LIST.map((source) => (
                     <option key={source}>{source}</option>
                   ))}
                 </select>

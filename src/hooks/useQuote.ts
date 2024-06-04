@@ -51,7 +51,7 @@ const fn = async ({
       tokenIn,
       tokenOut,
       amountIn,
-      includeSources
+      includeSources,
     },
   })
   if (response.status === 200) {
@@ -89,14 +89,23 @@ export function sourceToName(source: string): string {
     .join("")
 }
 
+const swrOptions =
+  import.meta.env.VITE_VERCEL_GIT_COMMIT_SHA === "local"
+    ? {
+        refreshInterval: 0,
+        revalidateIfStale: false,
+        revalidateOnFocus: false,
+        revalidateOnMount: false,
+        revalidateOnReconnect: false,
+      }
+    : { refreshInterval: 10_000 }
+
 export default function useQuote(tokenIn?: string, tokenOut?: string, amountIn?: string, includeSources?: string) {
   const {
     data: response,
     error,
     isValidating,
-  } = useSWR({ key: "useQuote", tokenIn, tokenOut, amountIn, includeSources }, fn, {
-    refreshInterval: 10000_000,
-  })
+  } = useSWR({ key: "useQuote", tokenIn, tokenOut, amountIn, includeSources }, fn, swrOptions)
 
   const sourceInfo = useMemo(() => {
     if (!response?.data.paths) return undefined

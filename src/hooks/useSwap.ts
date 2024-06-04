@@ -3,15 +3,10 @@ import { petra } from "../../types"
 import { useAppSelector } from "../redux/hooks"
 import { GetRouteResponseDataPath } from "./useQuote"
 
-enum TransactionStatus {
-  SUCCESS = "SUCCESS",
-  FAILED = "FAILED",
-}
-
 interface SwapState {
   isSwapping: boolean
-  hash: string | undefined
-  status: TransactionStatus | undefined
+  txVersion: string | undefined
+  success: boolean | undefined
 }
 
 interface SwapArgs {
@@ -23,6 +18,27 @@ interface SwapArgs {
   paths: GetRouteResponseDataPath[][]
 }
 
+const MAX_HOPS = 3
+
+function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, number, string] {
+  let source: number
+  let poolType: number
+  let isXToY: number
+
+  switch (path.source) {
+    case "liquid_swap_v0":
+      if (path.extra?.isStable === undefined) throw new Error(`Error: isStable undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToY undefined, path = ${JSON.stringify(path)}`)
+      source = 3
+      poolType = path.extra.isStable ? 3 : 2
+      isXToY = path.extra.isXToY ? 0 : 1
+      break
+    default:
+      throw new Error("Frontend not support this source yet.")
+  }
+  return [source, poolType, isXToY, path.amountIn]
+}
+
 function getSwapDataFromPaths(args: SwapArgs): {
   function: string
   arguments: ((number | string)[] | string)[]
@@ -32,21 +48,21 @@ function getSwapDataFromPaths(args: SwapArgs): {
   const data = {
     function: "2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::swap",
     arguments: [
-      [3, 3, 1, "10000000"],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      "0",
+      [0, 0, 0, "0"],
+      [0, 0, 0, "0"],
+      [0, 0, 0, "0"],
+      [0, 0, 0, "0"],
+      [0, 0, 0, "0"],
+      [0, 0, 0, "0"],
+      [0, 0, 0, "0"],
+      [0, 0, 0, "0"],
+      [0, 0, 0, "0"],
+      args.minAmountOut,
     ],
     typeArguments: [
-      "0x1::aptos_coin::AptosCoin",
-      "0xf22bede237a07e121b56d91a491eb7bcdfd1f5907926a9e58338f964a01b17fa::asset::USDC",
-      "0xf22bede237a07e121b56d91a491eb7bcdfd1f5907926a9e58338f964a01b17fa::asset::USDC",
+      args.tokenIn,
+      args.tokenOut,
+      "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::Null",
       "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::Null",
       "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::Null",
       "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::Null",
@@ -54,49 +70,71 @@ function getSwapDataFromPaths(args: SwapArgs): {
       "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::Null",
     ],
   }
+  // Fill arguments.
+  for (let i = 0; i < args.paths.length; i++) {
+    for (let j = 0; j < args.paths[i].length; j++) {
+      data.arguments[i * MAX_HOPS + j] = pathToSwapArgument(args.paths[i][j])
+    }
+  }
+  // Fill typeArguments.
+  for (let i = 0; i < args.paths.length; i++) {
+    if (args.paths[i].length === 1) {
+      data.typeArguments[2 + i * (MAX_HOPS - 1)] = args.tokenOut
+      continue
+    }
+    for (let j = 0; j < args.paths[i].length; j++) {
+      data.typeArguments[2 + i * (MAX_HOPS - 1) + j] = args.paths[i][j].tokenOut
+    }
+  }
+  console.log(`data`, data)
   return data
 }
 
 export default function useSwap() {
-  const [{ isSwapping, hash, status }, setSwapState] = useState<SwapState>({
+  const [{ isSwapping, txVersion, success }, setSwapState] = useState<SwapState>({
     isSwapping: false,
-    hash: undefined,
-    status: undefined,
+    txVersion: undefined,
+    success: undefined,
   })
   const { walletAddress, provider } = useAppSelector((state) => state.wallet)
 
-  const onSwap = useCallback(async (args: SwapArgs) => {
-    if (!provider || !walletAddress || isSwapping) return
+  const onSwap = useCallback(
+    async (args: SwapArgs) => {
+      if (!provider || !walletAddress || isSwapping) return
 
-    try {
-      setSwapState({ isSwapping: true, hash: undefined, status: undefined })
-      if (provider === "Petra") {
-        if (!petra) return
-        const swapData = getSwapDataFromPaths(args)
-        const response = await petra.signAndSubmitTransaction({
-          payload: {
-            function: swapData.function,
-            arguments: swapData.arguments,
-            type_arguments: swapData.typeArguments,
-          },
-        })
-        console.log(`response`, response)
-      } else if (provider === "Martian") {
-        throw new Error("Not support swap with Martian yet.")
+      try {
+        setSwapState({ isSwapping: true, txVersion: undefined, success: undefined })
+        if (provider === "Petra") {
+          if (!petra) return
+          const swapData = getSwapDataFromPaths(args)
+          const response = await petra.signAndSubmitTransaction({
+            payload: {
+              function: swapData.function,
+              arguments: swapData.arguments,
+              type_arguments: swapData.typeArguments,
+            },
+          })
+          console.log(`response`, response)
+          setSwapState({ isSwapping: false, txVersion: response.version, success: response.success })
+        } else if (provider === "Martian") {
+          throw new Error("Not support swap with Martian yet.")
+        }
+      } catch (err) {
+        console.error(err)
+        setSwapState((prev) => ({ ...prev, isSwapping: false }))
       }
-    } finally {
-      setSwapState((prev) => ({ ...prev, isSwapping: false }))
-    }
-  }, [isSwapping, provider, walletAddress])
+    },
+    [isSwapping, provider, walletAddress],
+  )
 
   const res = useMemo(
     () => ({
       isSwapping,
-      hash,
-      status,
+      txVersion,
+      success,
       onSwap,
     }),
-    [hash, isSwapping, onSwap, status],
+    [isSwapping, onSwap, success, txVersion],
   )
   return res
 }
