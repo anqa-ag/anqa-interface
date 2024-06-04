@@ -306,14 +306,19 @@ export default function App() {
           <div className="isolate flex min-h-screen flex-col">
             <div className="absolute right-0 top-1/2 w-[250px] -translate-y-1/2 border-1 border-red-500 p-4">
               <div>⚠️ For debug only. Don&apos;t approve swap yet, currently hardcode swap data.</div>
-              <a href={`https://aptoscan.com/transaction/${swapTxVersion}`} target="_blank" rel="noreferrer" className="break-all">
+              <a
+                href={`https://aptoscan.com/transaction/${swapTxVersion}`}
+                target="_blank"
+                rel="noreferrer"
+                className="break-all"
+              >
                 version: {swapTxVersion ? `https://aptoscan.com/transaction/${swapTxVersion}` : "--"}
               </a>
               <div>success: {isSwapSuccess ? "true" : "false"}</div>
               <div>
                 source:
                 <select
-                  className="border-1 border-red-500"
+                  className="h-[50vh] border-1 border-red-500"
                   onChange={(e) =>
                     setSource(
                       [...e.currentTarget.options]

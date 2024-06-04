@@ -33,6 +33,13 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
       poolType = path.extra.isStable ? 3 : 2
       isXToY = path.extra.isXToY ? 0 : 1
       break
+    case "liquid_swap_v0.5":
+      if (path.extra?.isStable === undefined) throw new Error(`Error: isStable undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToY undefined, path = ${JSON.stringify(path)}`)
+      source = 3
+      poolType = path.extra.isStable ? 1 : 0
+      isXToY = path.extra.isXToY ? 0 : 1
+      break
     default:
       throw new Error("Frontend not support this source yet.")
   }
