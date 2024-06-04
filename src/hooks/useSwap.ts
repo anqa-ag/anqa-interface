@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react"
-import { petra } from "../../types"
+import { martian, petra } from "../../types"
 import { useAppSelector } from "../redux/hooks"
 import { GetRouteResponseDataPath } from "./useQuote"
 
@@ -175,7 +175,20 @@ export default function useSwap() {
           console.log(`response`, response)
           setSwapState({ isSwapping: false, txVersion: response.version, success: response.success })
         } else if (provider === "Martian") {
-          throw new Error("Not support swap with Martian yet.")
+          if (!martian) return
+          const swapData = getSwapDataFromPaths(args)
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          const response = await martian.generateSignAndSubmitTransaction(walletAddress, {
+            function: swapData.function,
+            arguments: swapData.arguments,
+            type_arguments: swapData.typeArguments,
+            // function: "0x1::coin::transfer",
+            // arguments: ["0x57b057e189f60ed079bbfe11b88b187cc6bea5016d1bc58aee5ec087f76ce44e", 50],
+            // type_arguments: ["0x1::aptos_coin::AptosCoin"],
+          })
+          console.log(`response`, response)
+          setSwapState({ isSwapping: false, txVersion: response.version, success: response.success })
         }
       } catch (err) {
         console.error(err)
