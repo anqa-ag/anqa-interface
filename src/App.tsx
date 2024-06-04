@@ -309,7 +309,7 @@ export default function App() {
           <div className="fixed top-0 h-full w-screen bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
           <div className="isolate flex min-h-screen flex-col">
             {isDebug && (
-              <div className="absolute right-0 top-1/2 w-[250px] -translate-y-1/2 border-1 border-red-500 p-4">
+              <div className="absolute left-0 top-1/2 w-[250px] -translate-y-1/2 border-1 border-red-500 p-4">
                 <div>💡 Press cmd and click to multiple select source.</div>
                 <a
                   href={`https://aptoscan.com/transaction/${swapTxVersion}`}
