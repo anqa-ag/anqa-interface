@@ -20,21 +20,6 @@ export default function Tooltips() {
         opacity={1}
       />
       <ReactTooltip
-        id="tooltip-estimated-gas-fee"
-        content="Lorem Ipsum is simply dummy text of the printing and typesetting industry."
-        variant="light"
-        place="right"
-        className="!max-w-[min(320px,80%)] !px-2 !py-1 !text-sm"
-        opacity={1}
-        />
-      <ReactTooltip
-        id="tooltip-estimated-gas-fee-value"
-        variant="light"
-        place="right"
-        className="!max-w-[min(320px,80%)] !px-2 !py-1 !text-sm"
-        opacity={1}
-        />
-      <ReactTooltip
         id="tooltip-input-amount-out"
         content="We only support type amount in."
         variant="light"

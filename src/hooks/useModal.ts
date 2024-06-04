@@ -1,11 +1,11 @@
 import { useDisclosure } from "@nextui-org/react"
-import { useCallback, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 
 export enum MODAL_LIST {
-  CONNECT_WALLET,
-  SELECT_TOKEN_IN,
-  SELECT_TOKEN_OUT,
-  USER_SETTING,
+  CONNECT_WALLET = "CONNECT_WALLET",
+  SELECT_TOKEN_IN = "SELECT_TOKEN_IN",
+  SELECT_TOKEN_OUT = "SELECT_TOKEN_OUT",
+  USER_SETTING = "USER_SETTING",
 }
 
 export default function useModal() {
@@ -19,11 +19,16 @@ export default function useModal() {
     },
     [_onOpen, onClose],
   )
-  return {
-    globalModal,
-    isModalOpen: isOpen,
-    onOpenModal: onOpen,
-    onCloseModal: onClose,
-    onOpenChangeModal: onOpenChange,
-  }
+
+  const res = useMemo(
+    () => ({
+      globalModal,
+      isModalOpen: isOpen,
+      onOpenModal: onOpen,
+      onCloseModal: onClose,
+      onOpenChangeModal: onOpenChange,
+    }),
+    [globalModal, isOpen, onClose, onOpen, onOpenChange],
+  )
+  return res
 }

@@ -25,36 +25,35 @@ export interface GetRouteResponseDataPath {
   tokenOut: string
   amountIn: string
   amountOut: string
+  extra: {
+    isXToY?: boolean
+    isStable?: boolean
+    tokenInIndex?: number
+    tokenOutIndex?: number
+  }
 }
 
 const fn = async ({
   tokenIn,
   tokenOut,
   amountIn,
+  includeSources,
 }: {
   key: string
   tokenIn?: string
   tokenOut?: string
   amountIn?: string
+  includeSources?: string
 }) => {
-  console.log('x', {
-    tokenIn,
-    tokenOut,
-    amountIn,
-  })
   if (!tokenIn || !tokenOut || !amountIn || parseFloat(amountIn) == 0) return
   const response = await axios<GetRouteResponse>("https://apt-aggregator-api.tin-zin.com/v1/quote", {
     params: {
       tokenIn,
       tokenOut,
       amountIn,
+      includeSources
     },
   })
-  // console.log('y', {
-  //   tokenIn,
-  //   tokenOut,
-  //   amountIn,
-  // })
   if (response.status === 200) {
     return response.data
   }
@@ -78,21 +77,24 @@ export function sourceToName(source: string): string {
     aptoswap: "Aptoswap",
   }
   if (list[source]) return list[source]
-  return source.split("_").map(word => {
-    if (word.length) {
-      word = word[0].toUpperCase() + word.slice(1)
+  return source
+    .split("_")
+    .map((word) => {
+      if (word.length) {
+        word = word[0].toUpperCase() + word.slice(1)
+        return word
+      }
       return word
-    }
-    return word
-  }).join("")
+    })
+    .join("")
 }
 
-export default function useQuote(tokenIn?: string, tokenOut?: string, amountIn?: string) {
+export default function useQuote(tokenIn?: string, tokenOut?: string, amountIn?: string, includeSources?: string) {
   const {
     data: response,
     error,
     isValidating,
-  } = useSWR({ key: "useQuote", tokenIn, tokenOut, amountIn }, fn, {
+  } = useSWR({ key: "useQuote", tokenIn, tokenOut, amountIn, includeSources }, fn, {
     refreshInterval: 10000_000,
   })
 
@@ -118,11 +120,10 @@ export default function useQuote(tokenIn?: string, tokenOut?: string, amountIn?:
       isValidating,
       error,
       amountOut: response?.data.amountOut,
-      path: response?.data.paths,
+      paths: response?.data.paths,
       sourceInfo,
     }),
     [error, isValidating, response?.data.amountOut, response?.data.paths, sourceInfo],
   )
-
   return res
 }

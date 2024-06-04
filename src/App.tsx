@@ -8,9 +8,12 @@ import { BodyB2, BodyB3, TitleT1, TitleT2 } from "./components/Texts"
 import Tooltips from "./components/Tooltips"
 import ModalConnectWallet from "./components/modals/ModalConnectWallet"
 import ModalSelectToken from "./components/modals/ModalSelectToken"
-import { NOT_FOUND_TOKEN_LOGO_URL, ZUSDC } from "./constants"
+import ModalUserSetting from "./components/modals/ModalUserSetting"
+import { BIP_BASE, NOT_FOUND_TOKEN_LOGO_URL, SOURCE_LIST, ZUSDC } from "./constants"
 import { useIsSm } from "./hooks/useMedia"
+import useModal, { MODAL_LIST } from "./hooks/useModal"
 import useQuote from "./hooks/useQuote"
+import useSwap from "./hooks/useSwap"
 import { useAppSelector } from "./redux/hooks"
 import useMartian from "./redux/hooks/useMartian"
 import usePetra from "./redux/hooks/usePetra"
@@ -25,8 +28,6 @@ import {
   numberWithCommas,
   truncateValue,
 } from "./utils/number"
-import useModal, { MODAL_LIST } from "./hooks/useModal"
-import ModalUserSetting from "./components/modals/ModalUserSetting"
 
 function Menu() {
   return (
@@ -107,14 +108,6 @@ function ButtonConnectWallet({
 }
 
 export default function App() {
-  const [isSwapping, setIsSwapping] = useState(false)
-  const onSwap = () => {
-    setIsSwapping(true)
-    setTimeout(() => {
-      setIsSwapping(false)
-    }, 1000)
-  }
-
   const [isMoreInfo, setIsMoreInfo] = useState(false)
   const onToggleMoreInfo = () => {
     setIsMoreInfo((prev) => !prev)
@@ -176,11 +169,15 @@ export default function App() {
   )
   const [fractionalAmountIn] = useDebounceValue(_fractionalAmountIn, shouldUseDebounceAmountIn ? 250 : 0)
 
+  const [source, setSource] = useState("")
+  const sourceList = useMemo(() => ["", ...SOURCE_LIST], [])
+
   const {
     amountOut,
     isValidating: isValidatingQuote,
     sourceInfo,
-  } = useQuote(tokenIn, tokenOut, fractionalAmountIn?.numerator?.toString())
+    paths,
+  } = useQuote(tokenIn, tokenOut, fractionalAmountIn?.numerator?.toString(), source)
   const fractionalAmountOut = useMemo(
     () => (amountOut && tokenOutDecimals ? new Fraction(amountOut, Math.pow(10, tokenOutDecimals)) : undefined),
     [tokenOutDecimals, amountOut],
@@ -199,7 +196,17 @@ export default function App() {
   if (priceImpact?.lessThan(0)) {
     priceImpact = priceImpact.multiply(-1)
   }
-  const minimumReceive = fractionalAmountOut ? fractionalAmountOut.multiply(995).divide(1000) : undefined // TODO: Add slippage later.
+  const slippageBps = useAppSelector((state) => state.user.slippageBps)
+  const minimumReceive = useMemo(() => {
+    if (!fractionalAmountOut) return undefined
+    // If any tokens has more than 8 decimals, this assignment will break. I assume 8 is the max decimals in aptos chain? Nevermind, I will use 18.
+    const str = fractionalAmountOut
+      .multiply(BIP_BASE - slippageBps)
+      .divide(BIP_BASE)
+      .toFixed(18)
+    const res = mulpowToFraction(str, tokenOutDecimals) // To cut redundant decimals.
+    return res
+  }, [fractionalAmountOut, slippageBps, tokenOutDecimals])
 
   const [isInvert, setIsInvert] = useState(false)
 
@@ -219,7 +226,7 @@ export default function App() {
     if (fractionalBalanceTokenIn && fractionalFeeAmount) {
       const newTypedAmountIn = fractionalBalanceTokenIn.subtract(fractionalFeeAmount)
       if (newTypedAmountIn.greaterThan(0)) {
-        const newTypedAmountInStr = newTypedAmountIn.toSignificant(18)
+        const newTypedAmountInStr = newTypedAmountIn.toFixed(18)
         setTypedAmountIn(newTypedAmountInStr, tokenInDecimals, false)
       } else {
         setTypedAmountIn("", tokenInDecimals, false)
@@ -246,7 +253,7 @@ export default function App() {
 
   const switchToken = useCallback(() => {
     if (fractionalAmountOut && tokenOutDecimals) {
-      setTypedAmountIn(truncateValue(fractionalAmountOut.toSignificant(18), tokenOutDecimals), tokenOutDecimals, false)
+      setTypedAmountIn(truncateValue(fractionalAmountOut.toFixed(18), tokenOutDecimals), tokenOutDecimals, false)
     } else {
       setTypedAmountIn("")
     }
@@ -277,7 +284,19 @@ export default function App() {
 
   const { globalModal, isModalOpen, onOpenModal, onCloseModal, onOpenChangeModal } = useModal()
 
-  const slippageBps = useAppSelector((state) => state.user.slippageBps)
+  const { hash: swapTxHash, isSwapping, onSwap: _onSwap, status: swapStatus } = useSwap()
+  const onSwap = () => {
+    if (fractionalAmountIn && fractionalAmountOut && minimumReceive && paths) {
+      void _onSwap({
+        tokenIn,
+        tokenOut,
+        amountIn: fractionalAmountIn.numerator.toString(),
+        amountOut: fractionalAmountOut.numerator.toString(),
+        minAmountOut: minimumReceive.numerator.toString(),
+        paths,
+      })
+    }
+  }
 
   return (
     <>
@@ -286,6 +305,19 @@ export default function App() {
         <div className="h-full w-screen">
           <div className="fixed top-0 h-full w-screen bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
           <div className="isolate flex min-h-screen flex-col">
+            <div className="absolute right-0 top-1/2 w-[300px] -translate-y-1/2 border-1 border-red-500 p-4">
+              <div>⚠️ For debug only. Don&apos;t approve swap yet, currently hardcode swap data.</div>
+              <div className="break-all">hash: {swapTxHash ?? "--"}</div>
+              <div>status: {swapStatus ?? "--"}</div>
+              <div>
+                source:
+                <select onChange={(e) => setSource(e.currentTarget.value)}>
+                  {sourceList.map((source) => (
+                    <option key={source}>{source}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
             {/*
           ###############################################################################
           #
@@ -336,7 +368,7 @@ export default function App() {
                   </div>
                   <Button
                     isIconOnly
-                    className="h-[36px] w-[36px] min-w-min border-1 border-black bg-black pl-3 data-[hover]:border-black600"
+                    className="data-[hover]:border-black600 h-[36px] w-[36px] min-w-min border-1 border-black bg-black pl-3"
                     onPress={() => onOpenModal(MODAL_LIST.USER_SETTING)}
                   >
                     <BodyB2 className="text-buttonSecondary">{slippageBps / 100}%</BodyB2>
@@ -459,9 +491,7 @@ export default function App() {
                             data-tooltip-id="tooltip-input-amount-out"
                             value={
                               fractionalAmountOut && tokenOutDecimals
-                                ? numberWithCommas(
-                                    truncateValue(fractionalAmountOut.toSignificant(18), tokenOutDecimals),
-                                  )
+                                ? numberWithCommas(truncateValue(fractionalAmountOut.toFixed(18), tokenOutDecimals))
                                 : ""
                             }
                           />
@@ -659,31 +689,6 @@ export default function App() {
                             ) : (
                               <BodyB2>
                                 {minimumReceive ? `${numberWithCommas(minimumReceive.toSignificant(6))} USDC` : "--"}
-                              </BodyB2>
-                            )}
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <BodyB2
-                              className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
-                              tabIndex={0}
-                              data-tooltip-id="tooltip-estimated-gas-fee"
-                            >
-                              Estimated gas fee
-                            </BodyB2>
-                            {isValidatingQuote ? (
-                              <>
-                                <div className="flex h-[20px] w-[50px] items-center">
-                                  <Skeleton className="h-[20px] w-full rounded" />
-                                </div>
-                              </>
-                            ) : (
-                              <BodyB2
-                                className="border-b-1 border-dashed border-white"
-                                tabIndex={0}
-                                data-tooltip-id="tooltip-estimated-gas-fee-value"
-                                data-tooltip-content="0.000123 APT"
-                              >
-                                TODO
                               </BodyB2>
                             )}
                           </div>

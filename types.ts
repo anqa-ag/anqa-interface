@@ -1,10 +1,16 @@
-import { GetAccountCoinsDataResponse, Network } from "@aptos-labs/ts-sdk"
+import { GetAccountCoinsDataResponse, Network, UserTransactionResponse } from "@aptos-labs/ts-sdk"
 
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[]
   ? ElementType
   : never
 export type AccountCoinData = Omit<ArrayElement<GetAccountCoinsDataResponse>, "amount"> & { amount: string }
 export type WalletBalance = Record<string, AccountCoinData | undefined>
+
+// ###############################################################################
+// #
+// #                                                                       MARTIAN
+// #
+// ###############################################################################
 
 export interface IMartianConnectResponse {
   address: string
@@ -28,6 +34,12 @@ interface IMartian {
   onAccountChange: (fn: (walletAddress: string) => void) => void
 }
 
+// ###############################################################################
+// #
+// #                                                                         PETRA
+// #
+// ###############################################################################
+
 export interface IPetraConnectResponse {
   address: string
   publicKey: string
@@ -39,6 +51,14 @@ export interface IPetraNetwork {
   url: string
 }
 
+export interface IPetraSignAndSubmitTransactionData {
+  payload: {
+    function: string
+    arguments: ((number | string)[] | string)[]
+    type_arguments: string[]
+  }
+}
+
 interface IPetra {
   connect: () => Promise<IPetraConnectResponse>
   account: () => Promise<IPetraConnectResponse>
@@ -46,6 +66,9 @@ interface IPetra {
   network: () => Promise<Network>
   onNetworkChange: (fn: (network: IPetraNetwork) => void) => void
   onAccountChange: (fn: (response: IPetraConnectResponse) => void) => void
+  signAndSubmitTransaction: (
+    data: IPetraSignAndSubmitTransactionData,
+  ) => Promise<UserTransactionResponse>
 }
 
 declare global {
