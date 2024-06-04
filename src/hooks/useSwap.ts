@@ -26,22 +26,73 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
   let isXToY: number
 
   switch (path.source) {
+    case "pancake_swap":
+      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToYor undefined, path = ${JSON.stringify(path)}`)
+      source = 1
+      poolType = 1
+      isXToY = path.extra.isXToY ? 0 : 1
+      break
+    case "sushi_swap":
+      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToYor undefined, path = ${JSON.stringify(path)}`)
+      source = 2
+      poolType = 2
+      isXToY = path.extra.isXToY ? 0 : 1
+      break
     case "liquid_swap_v0":
       if (path.extra?.isStable === undefined) throw new Error(`Error: isStable undefined, path = ${JSON.stringify(path)}`)
-      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToY undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToYor undefined, path = ${JSON.stringify(path)}`)
       source = 3
       poolType = path.extra.isStable ? 3 : 2
       isXToY = path.extra.isXToY ? 0 : 1
       break
     case "liquid_swap_v0.5":
       if (path.extra?.isStable === undefined) throw new Error(`Error: isStable undefined, path = ${JSON.stringify(path)}`)
-      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToY undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToYor undefined, path = ${JSON.stringify(path)}`)
       source = 3
       poolType = path.extra.isStable ? 1 : 0
       isXToY = path.extra.isXToY ? 0 : 1
       break
+    case "thala_swap_stable":
+      throw new Error(`Frontend not support ${path.source} yet.`)
+    case "thala_swap_weighted":
+      throw new Error(`Frontend not support ${path.source} yet.`)
+    case "bapt_swap_v1":
+      throw new Error(`Frontend not support ${path.source} yet.`)
+    case "bapt_swap_v2":
+      throw new Error(`Frontend not support ${path.source} yet.`)
+    case "bapt_swap_v2.1":
+      throw new Error(`Frontend not support ${path.source} yet.`)
+    case "aux_exchange":
+      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToYor undefined, path = ${JSON.stringify(path)}`)
+      source = 6
+      poolType = 0
+      isXToY = path.extra.isXToY ? 0 : 1
+      break
+    case "cellana_finance":
+      throw new Error(`Frontend not support ${path.source} yet. 4 types of pool, ping @matthew.`)
+    case "cetus_amm":
+      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToYor undefined, path = ${JSON.stringify(path)}`)
+      source = 8
+      poolType = 0
+      isXToY = path.extra.isXToY ? 0 : 1
+      break
+    case "aptoswap":
+      throw new Error(`Frontend not support ${path.source} yet.`)
+    case "anime_swap":
+      source = 10
+      poolType = 0 // Can be anything.
+      isXToY = 0 // Can be anything.
+      break
+    case "econia":
+      throw new Error(`Frontend not support ${path.source} yet.`)
+    case "obric_v3_abel":
+      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToYor undefined, path = ${JSON.stringify(path)}`)
+      source = 12
+      poolType = 3
+      isXToY = path.extra.isXToY ? 0 : 1
+      break
     default:
-      throw new Error("Frontend not support this source yet.")
+      throw new Error(`Frontend not support ${path.source} yet.`)
   }
   return [source, poolType, isXToY, path.amountIn]
 }
