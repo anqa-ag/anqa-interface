@@ -20,7 +20,9 @@ interface SwapArgs {
   paths: GetRouteResponseDataPath[][]
 }
 
-const MAX_HOPS = 3
+const MAX_PATH = 15
+const MAX_HOPS_PER_PATH = 3
+const COIN_NULL = "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::Null"
 
 function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, number, string] {
   let source: number
@@ -137,44 +139,24 @@ function getSwapDataFromPaths(args: SwapArgs): {
 } {
   console.log(`args`, args)
   const data = {
-    function: "2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::swap",
-    arguments: [
-      [0, 0, 0, "0"],
-      [0, 0, 0, "0"],
-      [0, 0, 0, "0"],
-      [0, 0, 0, "0"],
-      [0, 0, 0, "0"],
-      [0, 0, 0, "0"],
-      [0, 0, 0, "0"],
-      [0, 0, 0, "0"],
-      [0, 0, 0, "0"],
-      args.minAmountOut,
-    ],
-    typeArguments: [
-      args.tokenIn,
-      args.tokenOut,
-      "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::Null",
-      "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::Null",
-      "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::Null",
-      "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::Null",
-      "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::Null",
-      "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::Null",
-    ],
+    function: "2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::swap_generic",
+    arguments: [...Array(MAX_PATH * MAX_HOPS_PER_PATH).fill([0, 0, 0, "0"]), args.minAmountOut],
+    typeArguments: [args.tokenIn, args.tokenOut, ...Array(MAX_PATH * (MAX_HOPS_PER_PATH - 1)).fill(COIN_NULL)],
   }
   // Fill arguments.
   for (let i = 0; i < args.paths.length; i++) {
     for (let j = 0; j < args.paths[i].length; j++) {
-      data.arguments[i * MAX_HOPS + j] = pathToSwapArgument(args.paths[i][j])
+      data.arguments[i * MAX_HOPS_PER_PATH + j] = pathToSwapArgument(args.paths[i][j])
     }
   }
   // Fill typeArguments.
   for (let i = 0; i < args.paths.length; i++) {
     if (args.paths[i].length === 1) {
-      data.typeArguments[2 + i * (MAX_HOPS - 1)] = args.tokenOut
+      data.typeArguments[2 + i * (MAX_HOPS_PER_PATH - 1)] = args.tokenOut
       continue
     }
     for (let j = 0; j < args.paths[i].length; j++) {
-      data.typeArguments[2 + i * (MAX_HOPS - 1) + j] = args.paths[i][j].tokenOut
+      data.typeArguments[2 + i * (MAX_HOPS_PER_PATH - 1) + j] = args.paths[i][j].tokenOut
     }
   }
   console.log(`data`, data)
