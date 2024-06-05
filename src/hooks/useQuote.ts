@@ -49,13 +49,14 @@ const fn = async ({
   includeSources?: string
 }) => {
   if (!tokenIn || !tokenOut || !amountIn || parseFloat(amountIn) == 0) return
+  const excludeSources = ["bapt_swap_v1", "bapt_swap_v2", "bapt_swap_v2.1", "cellana_finance"]
   const response = await axios<GetRouteResponse>("https://apt-aggregator-api.tin-zin.com/v1/quote", {
     params: {
       tokenIn,
       tokenOut,
       amountIn,
       includeSources,
-      excludeSources: "bapt_swap_v1,bapt_swap_v2,bapt_swap_v2.1",
+      excludeSources: excludeSources.join(","),
     },
   })
   if (response.status === 200) {
