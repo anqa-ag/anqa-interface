@@ -89,7 +89,11 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
       isXToY = path.extra.isXToY ? 1 : 0
       break
     case "cellana_finance":
-      throw new Error(`Frontend not support ${path.source} yet. 4 types of pool, ping @matthew.`)
+      if (path.extra?.isStable === undefined) throw new Error(`Error: isStable undefined, path = ${JSON.stringify(path)}`)
+      source = 7
+      poolType = 0
+      isXToY = path.extra.isStable ? 1 : 0 // isXToY is actually isStable.
+      break
     case "cetus_amm":
       if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToY undefined, path = ${JSON.stringify(path)}`)
       source = 8

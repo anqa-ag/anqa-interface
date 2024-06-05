@@ -18,7 +18,7 @@ export const SOURCE_LIST = [
   // "bapt_swap_v2",
   // "bapt_swap_v2.1",
   "aux_exchange",
-  // "cellana_finance",
+  "cellana_finance",
   "cetus_amm",
   "aptoswap",
   "anime_swap",
