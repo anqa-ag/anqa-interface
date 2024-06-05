@@ -805,18 +805,18 @@ export default function App() {
                   <div className="flex items-center gap-5 md:gap-0">
                     <Link
                       isBlock
-                      href="#"
+                      href="/docs/Terms_of_Use.pdf"
                       color="primary"
                       className="text-buttonSecondary"
                       size="sm"
                       isExternal
                       showAnchorIcon
                     >
-                      <BodyB2>Term & Condition</BodyB2>
+                      <BodyB2>Terms & Conditions</BodyB2>
                     </Link>
                     <Link
                       isBlock
-                      href="#"
+                      href="/docs/Privacy_and_Policy.pdf"
                       color="primary"
                       className="text-buttonSecondary"
                       size="sm"
