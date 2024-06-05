@@ -198,7 +198,7 @@ export default function App() {
     priceImpact = priceImpact.multiply(-1)
   }
   const slippageBps = useAppSelector((state) => state.user.slippageBps)
-  const minimumReceive = useMemo(() => {
+  const minimumReceived = useMemo(() => {
     if (!fractionalAmountOut) return undefined
     // If any tokens has more than 8 decimals, this assignment will break. I assume 8 is the max decimals in aptos chain? Nevermind, I will use 18.
     const str = fractionalAmountOut
@@ -287,13 +287,13 @@ export default function App() {
 
   const { txVersion: swapTxVersion, isSwapping, onSwap: _onSwap, success: isSwapSuccess } = useSwap()
   const onSwap = () => {
-    if (fractionalAmountIn && fractionalAmountOut && minimumReceive && paths) {
+    if (fractionalAmountIn && fractionalAmountOut && minimumReceived && paths) {
       void _onSwap({
         tokenIn,
         tokenOut,
         amountIn: fractionalAmountIn.numerator.toString(),
         amountOut: fractionalAmountOut.numerator.toString(),
-        minAmountOut: minimumReceive.numerator.toString(),
+        minAmountOut: minimumReceived.numerator.toString(),
         paths,
       })
     }
@@ -407,7 +407,7 @@ export default function App() {
                   <>
                     <div className="border-black900 bg-black900 focus-within:border-black600 flex flex-col gap-2 rounded border-1 p-3 transition">
                       <div className="flex items-center justify-between">
-                        <BodyB2 className="text-buttonSecondary">You pay</BodyB2>
+                        <BodyB2 className="text-buttonSecondary">You're paying</BodyB2>
                         {connectedWallet && (
                           <Button
                             className="anqa-hover-white-all flex h-fit w-fit min-w-fit items-center gap-1 bg-transparent p-0"
@@ -478,7 +478,7 @@ export default function App() {
                   <>
                     <div className="border-black900 bg-black900 flex flex-col gap-2 rounded border-1 p-3 transition">
                       <div className="flex items-center justify-between">
-                        <BodyB2 className="text-buttonSecondary">You get</BodyB2>
+                        <BodyB2 className="text-buttonSecondary">To Receive</BodyB2>
                         {connectedWallet && (
                           <Button
                             className="anqa-hover-white-all flex h-fit w-fit min-w-fit items-center gap-1 bg-transparent p-0"
@@ -700,9 +700,9 @@ export default function App() {
                             <BodyB2
                               className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
                               tabIndex={0}
-                              data-tooltip-id="tooltip-minimum-receive"
+                              data-tooltip-id="tooltip-minimum-received"
                             >
-                              Minimum Receive
+                              Minimum Received
                             </BodyB2>
                             {isValidatingQuote ? (
                               <>
@@ -712,8 +712,8 @@ export default function App() {
                               </>
                             ) : (
                               <BodyB2>
-                                {minimumReceive && tokenOutInfo
-                                  ? `${numberWithCommas(minimumReceive.toSignificant(6))} ${tokenOutInfo.symbol ?? "--"}`
+                                {minimumReceived && tokenOutInfo
+                                  ? `${numberWithCommas(minimumReceived.toSignificant(6))} ${tokenOutInfo.symbol ?? "--"}`
                                   : "--"}
                               </BodyB2>
                             )}

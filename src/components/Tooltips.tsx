@@ -12,8 +12,8 @@ export default function Tooltips() {
         opacity={1}
       />
       <ReactTooltip
-        id="tooltip-minimum-receive"
-        content="Minimum receive amount after slippage."
+        id="tooltip-minimum-received"
+        content="Minimum received amount after slippage."
         variant="light"
         place="right"
         className="!max-w-[min(320px,80%)] !px-2 !py-1 !text-sm"
@@ -30,7 +30,7 @@ export default function Tooltips() {
       />
       <ReactTooltip
         id="tooltip-max-slippage"
-        content="During your swap if the price changes by more than this slippage, your transaction will revert."
+        content="If the price changes by more than the designated slippage during your swap, your transaction will be reverted."
         variant="light"
         place="right"
         className="!max-w-[min(320px,80%)] !px-2 !py-1 !text-sm"
