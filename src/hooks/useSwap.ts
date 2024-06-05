@@ -55,7 +55,14 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
       isXToY = path.extra.isXToY ? 1 : 0
       break
     case "thala_swap_stable":
-      throw new Error(`Frontend not support ${path.source} yet.`)
+      if (path.extra?.tokenInIndex === undefined) throw new Error(`Error: tokenInIndex undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra?.tokenOutIndex === undefined) throw new Error(`Error: tokenOutIndex undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra.tokenInIndex > 1) throw new Error(`Error: Not support tokenInIndex > 1 yet, path = ${JSON.stringify(path)}`)
+      if (path.extra.tokenOutIndex > 1) throw new Error(`Error: Not support tokenOutIndex > 1 yet, path = ${JSON.stringify(path)}`)
+      source = 4
+      poolType = 0
+      isXToY = path.extra.tokenInIndex === 0 ? 1 : 0
+      break
     case "thala_swap_weighted":
       throw new Error(`Frontend not support ${path.source} yet.`)
     case "bapt_swap_v1":
