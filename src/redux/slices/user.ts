@@ -3,8 +3,6 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 export interface NotificationData {
   version: string
   isSuccess: boolean
-  tokenInLogoUrl: string | undefined
-  tokenOutLogoUrl: string | undefined
   tokenInSymbol: string | undefined
   tokenOutSymbol: string | undefined
   readableAmountIn: string

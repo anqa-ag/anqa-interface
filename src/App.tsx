@@ -2,6 +2,7 @@ import { APTOS_COIN, Network } from "@aptos-labs/ts-sdk"
 import { Button, Image, Link, Skeleton, Spacer } from "@nextui-org/react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
+import { useSearchParams } from "react-router-dom"
 import { useDebounceValue } from "usehooks-ts"
 import { AnqaWithTextIcon, ArrowFilledDownIcon, SettingIcon, SwapIcon, WalletIcon } from "./components/Icons"
 import { BodyB2, BodyB3, TitleT1, TitleT2 } from "./components/Texts"
@@ -13,7 +14,6 @@ import { BIP_BASE, NOT_FOUND_TOKEN_LOGO_URL, SOURCE_LIST, ZUSDC } from "./consta
 import { useIsSm } from "./hooks/useMedia"
 import useModal, { MODAL_LIST } from "./hooks/useModal"
 import useQuote from "./hooks/useQuote"
-import useSwap from "./hooks/useSwap"
 import { useAppSelector } from "./redux/hooks"
 import useMartian from "./redux/hooks/useMartian"
 import usePetra from "./redux/hooks/usePetra"
@@ -28,8 +28,8 @@ import {
   numberWithCommas,
   truncateValue,
 } from "./utils/number"
-import { useSearchParams } from "react-router-dom"
-import NotificationList from "./components/NotificationList"
+import { ToastContainer } from "react-toastify"
+import useSwap from "./hooks/useSwap"
 
 function Menu() {
   return (
@@ -392,7 +392,7 @@ export default function App() {
                   </div>
                   <Button
                     isIconOnly
-                    className="data-[hover]:border-black600 h-[36px] w-[36px] min-w-min border-1 border-black bg-black pl-3"
+                    className="h-[36px] w-[36px] min-w-min border-1 border-black bg-black pl-3 data-[hover]:border-black600"
                     onPress={() => onOpenModal(MODAL_LIST.USER_SETTING)}
                   >
                     <BodyB2 className="text-buttonSecondary">{slippageBps / 100}%</BodyB2>
@@ -405,7 +405,7 @@ export default function App() {
                 <div className="relative flex flex-col gap-1">
                   {/* INPUT */}
                   <>
-                    <div className="border-black900 bg-black900 focus-within:border-black600 flex flex-col gap-2 rounded border-1 p-3 transition">
+                    <div className="flex flex-col gap-2 rounded border-1 border-black900 bg-black900 p-3 transition focus-within:border-black600">
                       <div className="flex items-center justify-between">
                         <BodyB2 className="text-buttonSecondary">You&apos;re paying</BodyB2>
                         {connectedWallet && (
@@ -476,7 +476,7 @@ export default function App() {
                   </div>
                   {/* OUTPUT */}
                   <>
-                    <div className="border-black900 bg-black900 flex flex-col gap-2 rounded border-1 p-3 transition">
+                    <div className="flex flex-col gap-2 rounded border-1 border-black900 bg-black900 p-3 transition">
                       <div className="flex items-center justify-between">
                         <BodyB2 className="text-buttonSecondary">To Receive</BodyB2>
                         {connectedWallet && (
@@ -831,7 +831,12 @@ export default function App() {
             </footer>
           </div>
         </div>
-        <NotificationList />
+        <ToastContainer
+          autoClose={5000}
+          theme="dark"
+          position="top-right"
+          closeButton={false}
+        />
         <ModalConnectWallet
           isOpen={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
           onOpenChange={onOpenChangeModal}

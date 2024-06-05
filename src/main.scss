@@ -184,3 +184,20 @@ input[type="text"][disabled]::placeholder {
 [id^="tooltip"] {
   z-index: 999;
 }
+
+.z-toast {
+  padding: 0;
+  top: 160px;
+  @media only screen and (max-width: 639px) {
+    top: 0;
+  }
+}
+.z-toast-body {
+  padding: 0;
+}
+.z-toast-progress-success {
+  background: rgba(24, 207, 106, 0.2);
+}
+.z-toast-progress-failed {
+  background: rgba(244, 70, 70, 0.2);
+}
