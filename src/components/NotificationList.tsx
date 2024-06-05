@@ -28,7 +28,7 @@ function Notification({ data }: { data: NotificationData }) {
 
 export default function NotificationList() {
   const map = useAppSelector((state) => state.user.notificationMap)
-  const list = useMemo(() => Object.values(map), [map])
+  const list = useMemo(() => Object.values(map ?? {}), [map])
   return (
     <>
       <div className="absolute right-[60px] top-[160px] flex flex-col gap-5">
