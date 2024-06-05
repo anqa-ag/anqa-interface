@@ -30,7 +30,12 @@ export const userSlice = createSlice({
       state.slippageBps = action.payload
     },
     addNotification: (state, action: PayloadAction<NotificationData>) => {
-      state.notificationMap[action.payload.version] = action.payload
+      if (state.notificationMap) {
+        state.notificationMap[action.payload.version] = action.payload
+      }
+      state.notificationMap = {
+        [action.payload.version]: action.payload,
+      }
     },
     hideNotification: (state, action: PayloadAction<string>) => {
       state.notificationMap[action.payload].isHide = true
