@@ -407,7 +407,7 @@ export default function App() {
                   <>
                     <div className="border-black900 bg-black900 focus-within:border-black600 flex flex-col gap-2 rounded border-1 p-3 transition">
                       <div className="flex items-center justify-between">
-                        <BodyB2 className="text-buttonSecondary">You're paying</BodyB2>
+                        <BodyB2 className="text-buttonSecondary">You&apos;re paying</BodyB2>
                         {connectedWallet && (
                           <Button
                             className="anqa-hover-white-all flex h-fit w-fit min-w-fit items-center gap-1 bg-transparent p-0"

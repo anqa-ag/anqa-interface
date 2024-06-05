@@ -30,6 +30,9 @@ export interface GetRouteResponseDataPath {
     isStable?: boolean
     tokenInIndex?: number
     tokenOutIndex?: number
+    marketId?: number
+    tokenInWeight?: number
+    tokenOutWeight?: number
   }
 }
 
@@ -52,6 +55,7 @@ const fn = async ({
       tokenOut,
       amountIn,
       includeSources,
+      excludeSources: "bapt_swap_v1,bapt_swap_v2,bapt_swap_v2.1",
     },
   })
   if (response.status === 200) {
