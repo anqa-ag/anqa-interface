@@ -79,7 +79,11 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
       isXToY = path.extra.isXToY ? 1 : 0
       break
     case "aptoswap":
-      throw new Error(`Frontend not support ${path.source} yet.`)
+      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToYor undefined, path = ${JSON.stringify(path)}`)
+      source = 9
+      poolType = 0
+      isXToY = path.extra.isXToY ? 1 : 0
+      break
     case "anime_swap":
       source = 10
       poolType = 0 // Can be anything.

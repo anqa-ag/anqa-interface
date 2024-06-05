@@ -16,7 +16,7 @@ function Notification({ data }: { data: NotificationData }) {
 
   return (
     <div className="w-[350px] rounded bg-buttonDisabled p-4">
-      <Link href="https://aptoscan.com/transaction/964881358" isExternal>
+      <Link href={`https://aptoscan.com/transaction/${data.version}`} isExternal>
         <TitleT2>
           {data.isSuccess ? "✅" : "❌"} Swap {data.readableAmountIn} {data.tokenInSymbol ?? "--"} to{" "}
           {data.readableAmountOut} {data.tokenOutSymbol ?? "--"}
