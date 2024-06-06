@@ -27,7 +27,7 @@ export function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") // $& means the whole matched string
 }
 
-export function numberWithCommas(x: string, keepDot = true) {
+export function numberWithCommas(x: string, keepDot = true, truncateDecimals: number | undefined = undefined) {
   const whole = x.split(".")[0]
   const fraction = x.split(".")[1]
   let res = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
@@ -35,6 +35,9 @@ export function numberWithCommas(x: string, keepDot = true) {
     res += "." + fraction
   } else if (keepDot && x.includes(".")) {
     res += "."
+  }
+  if (truncateDecimals) {
+    res = truncateValue(res, truncateDecimals)
   }
   return res
 }

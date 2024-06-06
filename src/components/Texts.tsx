@@ -26,6 +26,11 @@ export const TitleT5 = forwardRef<HTMLDivElement, TextProps>(({ className, ...pr
 ))
 TitleT5.displayName = "TitleT5"
 
+export const BodyB1 = forwardRef<HTMLDivElement, TextProps>(({ className, ...props }, ref) => (
+  <div ref={ref} className={`text-base font-normal ${className ?? ""}`} {...props} />
+))
+BodyB1.displayName = "BodyB1"
+
 export const BodyB2 = forwardRef<HTMLDivElement, TextProps>(({ className, ...props }, ref) => (
   <div ref={ref} className={`text-sm font-normal ${className ?? ""}`} {...props} />
 ))

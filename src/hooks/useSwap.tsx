@@ -34,59 +34,59 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
 
   switch (path.source) {
     case "pancake_swap":
-      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToY undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra?.isXToY === undefined) throw new Error(`isXToY undefined, path = ${JSON.stringify(path)}`)
       source = 1
       poolType = 1
       isXToY = path.extra.isXToY ? 1 : 0
       break
     case "sushi_swap":
-      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToY undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra?.isXToY === undefined) throw new Error(`isXToY undefined, path = ${JSON.stringify(path)}`)
       source = 2
       poolType = 2
       isXToY = path.extra.isXToY ? 1 : 0
       break
     case "liquid_swap_v0":
       if (path.extra?.isStable === undefined)
-        throw new Error(`Error: isStable undefined, path = ${JSON.stringify(path)}`)
-      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToY undefined, path = ${JSON.stringify(path)}`)
+        throw new Error(`isStable undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra?.isXToY === undefined) throw new Error(`isXToY undefined, path = ${JSON.stringify(path)}`)
       source = 3
       poolType = path.extra.isStable ? 3 : 2
       isXToY = path.extra.isXToY ? 1 : 0
       break
     case "liquid_swap_v0.5":
       if (path.extra?.isStable === undefined)
-        throw new Error(`Error: isStable undefined, path = ${JSON.stringify(path)}`)
-      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToY undefined, path = ${JSON.stringify(path)}`)
+        throw new Error(`isStable undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra?.isXToY === undefined) throw new Error(`isXToY undefined, path = ${JSON.stringify(path)}`)
       source = 3
       poolType = path.extra.isStable ? 1 : 0
       isXToY = path.extra.isXToY ? 1 : 0
       break
     case "thala_swap_stable":
       if (path.extra?.tokenInIndex === undefined)
-        throw new Error(`Error: tokenInIndex undefined, path = ${JSON.stringify(path)}`)
+        throw new Error(`tokenInIndex undefined, path = ${JSON.stringify(path)}`)
       if (path.extra?.tokenOutIndex === undefined)
-        throw new Error(`Error: tokenOutIndex undefined, path = ${JSON.stringify(path)}`)
+        throw new Error(`tokenOutIndex undefined, path = ${JSON.stringify(path)}`)
       if (path.extra.tokenInIndex > 1)
-        throw new Error(`Error: Not support tokenInIndex > 1 yet, path = ${JSON.stringify(path)}`)
+        throw new Error(`Not support tokenInIndex > 1 yet, path = ${JSON.stringify(path)}`)
       if (path.extra.tokenOutIndex > 1)
-        throw new Error(`Error: Not support tokenOutIndex > 1 yet, path = ${JSON.stringify(path)}`)
+        throw new Error(`Not support tokenOutIndex > 1 yet, path = ${JSON.stringify(path)}`)
       source = 4
       poolType = 0
       isXToY = path.extra.tokenInIndex === 0 ? 1 : 0
       break
     case "thala_swap_weighted": {
       if (path.extra?.tokenInIndex === undefined)
-        throw new Error(`Error: tokenInIndex undefined, path = ${JSON.stringify(path)}`)
+        throw new Error(`tokenInIndex undefined, path = ${JSON.stringify(path)}`)
       if (path.extra?.tokenOutIndex === undefined)
-        throw new Error(`Error: tokenOutIndex undefined, path = ${JSON.stringify(path)}`)
+        throw new Error(`tokenOutIndex undefined, path = ${JSON.stringify(path)}`)
       if (path.extra?.tokenInIndex > 1)
-        throw new Error(`Error: Not support tokenInIndex > 1 yet, path = ${JSON.stringify(path)}`)
+        throw new Error(`Not support tokenInIndex > 1 yet, path = ${JSON.stringify(path)}`)
       if (path.extra?.tokenOutIndex > 1)
-        throw new Error(`Error: Not support tokenOutIndex > 1 yet, path = ${JSON.stringify(path)}`)
+        throw new Error(`Not support tokenOutIndex > 1 yet, path = ${JSON.stringify(path)}`)
       if (path.extra?.tokenInWeight === undefined)
-        throw new Error(`Error: tokenInWeight undefined, path = ${JSON.stringify(path)}`)
+        throw new Error(`tokenInWeight undefined, path = ${JSON.stringify(path)}`)
       if (path.extra?.tokenOutWeight === undefined)
-        throw new Error(`Error: tokenOutWeight undefined, path = ${JSON.stringify(path)}`)
+        throw new Error(`tokenOutWeight undefined, path = ${JSON.stringify(path)}`)
       const weight = path.extra.tokenInIndex === 0 ? path.extra.tokenInWeight : path.extra.tokenOutWeight
       source = 4
       poolType = (1 << 20) + (1 << (weight / 5 - 1))
@@ -100,26 +100,26 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
     // case "bapt_swap_v2.1":
     //   throw new Error(`Frontend not support ${path.source} yet.`)
     case "aux_exchange":
-      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToY undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra?.isXToY === undefined) throw new Error(`isXToY undefined, path = ${JSON.stringify(path)}`)
       source = 6
       poolType = 0
       isXToY = path.extra.isXToY ? 1 : 0
       break
     case "cellana_finance":
       if (path.extra?.isStable === undefined)
-        throw new Error(`Error: isStable undefined, path = ${JSON.stringify(path)}`)
+        throw new Error(`isStable undefined, path = ${JSON.stringify(path)}`)
       source = 7
       poolType = 0
       isXToY = path.extra.isStable ? 1 : 0 // isXToY is actually isStable.
       break
     case "cetus_amm":
-      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToY undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra?.isXToY === undefined) throw new Error(`isXToY undefined, path = ${JSON.stringify(path)}`)
       source = 8
       poolType = 0
       isXToY = path.extra.isXToY ? 1 : 0
       break
     case "aptoswap":
-      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToY undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra?.isXToY === undefined) throw new Error(`isXToY undefined, path = ${JSON.stringify(path)}`)
       source = 9
       poolType = 0
       isXToY = path.extra.isXToY ? 1 : 0
@@ -130,15 +130,15 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
       isXToY = 0 // Can be anything.
       break
     case "econia":
-      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToY undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra?.isXToY === undefined) throw new Error(`isXToY undefined, path = ${JSON.stringify(path)}`)
       if (path.extra?.marketId === undefined)
-        throw new Error(`Error: marketId undefined, path = ${JSON.stringify(path)}`)
+        throw new Error(`marketId undefined, path = ${JSON.stringify(path)}`)
       source = 12
       poolType = path.extra.marketId
       isXToY = path.extra.isXToY ? 1 : 0
       break
     case "obric_v3_abel":
-      if (path.extra?.isXToY === undefined) throw new Error(`Error: isXToY undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra?.isXToY === undefined) throw new Error(`isXToY undefined, path = ${JSON.stringify(path)}`)
       source = 11
       poolType = 3
       isXToY = path.extra.isXToY ? 1 : 0
