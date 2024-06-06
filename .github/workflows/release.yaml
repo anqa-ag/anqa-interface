@@ -52,7 +52,7 @@ jobs:
             exit 1
           fi
 
-          echo "::set-output name=IMAGE_URL::${SERVICE}:${INPUT_TAG}"
+          echo "::set-output name=IMAGE_URL::${SERVICE}:release-${INPUT_TAG}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
