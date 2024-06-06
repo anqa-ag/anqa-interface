@@ -116,7 +116,7 @@ jobs:
       - name: Create tag
         run: |
           git tag -d "$VERSION_TAG" 2> /dev/null || echo "Release tag '$VERSION_TAG' does NOT exist"
-          git tag --annotate --message "Anqa Aggregator $VERSION_TAG" "$VERSION_TAG"
+          git tag --annotate --message "Anqa Interface $VERSION_TAG" "$VERSION_TAG"
           git push origin "refs/tags/$VERSION_TAG"
 
       - name: Create release
@@ -125,4 +125,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ env.VERSION_TAG }}
           prerelease: false
-          name: "Anqa Aggregator ${{ env.VERSION_TAG }}"
+          name: "Anqa Interface ${{ env.VERSION_TAG }}"
