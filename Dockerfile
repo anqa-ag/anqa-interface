@@ -1,6 +1,18 @@
+FROM node:20.12.2 AS build
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN yarn install
+
+COPY . .
+
+RUN yarn build
+
 FROM nginx:alpine
 
-COPY ./dist /var/www
+COPY --from=build /app/dist /var/www
 
 COPY ./etc/nginx.conf /etc/nginx/conf.d/default.conf
 
