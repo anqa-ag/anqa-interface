@@ -27,4 +27,3 @@ export const SOURCE_LIST = [
 ]
 
 export const AGGREGATOR_URL = import.meta.env.VITE_AGGREGATOR_URL
-export const GIT_COMMIT_SHA = import.meta.env.VITE_GIT_COMMIT_SHA

@@ -1,7 +1,7 @@
 import axios from "axios"
 import { useMemo } from "react"
 import useSWR from "swr"
-import { AGGREGATOR_URL, GIT_COMMIT_SHA } from "../constants"
+import { AGGREGATOR_URL } from "../constants"
 
 export interface GetRouteResponse {
   code: number
@@ -96,7 +96,7 @@ export function sourceToName(source: string): string {
 }
 
 const swrOptions =
-  GIT_COMMIT_SHA === "local"
+  import.meta.env.MODE === "development"
     ? {
         refreshInterval: 0,
         revalidateIfStale: false,
