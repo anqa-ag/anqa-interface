@@ -8,7 +8,7 @@ RUN yarn install
 
 COPY . .
 
-RUN yarn build:production
+RUN yarn build:prod
 
 FROM nginx:alpine
 
