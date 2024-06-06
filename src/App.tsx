@@ -459,7 +459,7 @@ export default function App() {
                       <div className="flex items-center justify-between gap-3">
                         <BodyB2 className="text-buttonSecondary">
                           {fractionalAmountInUsd
-                            ? "~$" + numberWithCommas(fractionalAmountInUsd.toSignificant(6))
+                            ? "~$" + numberWithCommas(fractionalAmountInUsd.toSignificant(6), false, 2)
                             : "--"}
                         </BodyB2>
                       </div>
@@ -540,7 +540,7 @@ export default function App() {
                       <div className="flex items-center justify-between gap-3">
                         <BodyB2 className="text-buttonSecondary">
                           {fractionalAmountOutUsd
-                            ? "~$" + numberWithCommas(fractionalAmountOutUsd.toSignificant(6))
+                            ? "~$" + numberWithCommas(fractionalAmountOutUsd.toSignificant(6), false, 2)
                             : "--"}
                         </BodyB2>
                       </div>
