@@ -25,3 +25,6 @@ export const SOURCE_LIST = [
   "econia",
   "obric_v3_abel",
 ]
+
+export const AGGREGATOR_URL = import.meta.env.VITE_AGGREGATOR_URL
+export const GIT_COMMIT_SHA = import.meta.env.VITE_GIT_COMMIT_SHA

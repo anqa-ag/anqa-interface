@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks/index.ts"
 import { setSlippage } from "../../redux/slices/user.ts"
 import { mulpowToFraction } from "../../utils/number.ts"
 import { CloseIcon } from "../Icons.tsx"
-import { BodyB2, TitleT1 } from "../Texts.tsx"
+import { BodyB1, BodyB2, TitleT1 } from "../Texts.tsx"
 
 function ButtonSlippage({ value, onClose }: { value: number; onClose: () => void }) {
   const dispatch = useAppDispatch()
@@ -23,9 +23,9 @@ function ButtonSlippage({ value, onClose }: { value: number; onClose: () => void
       disableAnimation
       onPress={onPress}
     >
-      <BodyB2 className={"text-buttonSecondary" + " " + (value === slippageBps ? "!text-black" : "")}>
+      <BodyB1 className={"text-buttonSecondary" + " " + (value === slippageBps ? "!text-black" : "")}>
         {value / 100}%
-      </BodyB2>
+      </BodyB1>
     </Button>
   )
 }
@@ -105,7 +105,7 @@ export default function ModalUserSetting({
               <ButtonSlippage value={100} onClose={_onClose} />
               <div className="flex h-[40px] items-center gap-1 bg-background pr-3">
                 <input
-                  className="w-full bg-transparent text-end text-[14px] font-normal text-disable outline-none placeholder:text-disable"
+                  className="w-full bg-transparent text-end text-base font-normal text-disable outline-none placeholder:text-disable"
                   inputMode="decimal"
                   autoComplete="off"
                   autoCorrect="off"
@@ -119,7 +119,7 @@ export default function ModalUserSetting({
                   onChange={(e) => setInput(e.currentTarget.value)}
                   onBlur={onInputBlur}
                 />
-                <BodyB2 className="text-disable">%</BodyB2>
+                <BodyB1 className="text-disable">%</BodyB1>
               </div>
             </div>
           </>

@@ -1,6 +1,7 @@
 import axios from "axios"
 import { useMemo } from "react"
 import useSWR from "swr"
+import { AGGREGATOR_URL, GIT_COMMIT_SHA } from "../constants"
 
 export interface GetRouteResponse {
   code: number
@@ -50,7 +51,7 @@ const fn = async ({
 }) => {
   if (!tokenIn || !tokenOut || !amountIn || parseFloat(amountIn) == 0) return
   const excludeSources = ["bapt_swap_v1", "bapt_swap_v2", "bapt_swap_v2.1"]
-  const response = await axios<GetRouteResponse>("https://apt-aggregator-api.tin-zin.com/v1/quote", {
+  const response = await axios<GetRouteResponse>(`${AGGREGATOR_URL}/v1/quote`, {
     params: {
       tokenIn,
       tokenOut,
@@ -95,7 +96,7 @@ export function sourceToName(source: string): string {
 }
 
 const swrOptions =
-  import.meta.env.VITE_VERCEL_GIT_COMMIT_SHA === "local"
+  GIT_COMMIT_SHA === "local"
     ? {
         refreshInterval: 0,
         revalidateIfStale: false,

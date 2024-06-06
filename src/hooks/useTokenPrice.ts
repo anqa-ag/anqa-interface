@@ -1,6 +1,7 @@
 import axios from "axios"
 import { useMemo } from "react"
 import useSWR from "swr"
+import { AGGREGATOR_URL } from "../constants"
 
 export interface GetTokenPriceResponse {
   code: number
@@ -24,7 +25,7 @@ export interface TokenPrice {
 
 const fn = async ({ tokens }: { key: string; tokens: string[] }) => {
   if (!tokens) return
-  const url = "https://apt-aggregator-api.tin-zin.com/v1/prices?" + tokens.map((t) => `ids[]=${t}`).join("&")
+  const url = `${AGGREGATOR_URL}/v1/prices?` + tokens.map((t) => `ids[]=${t}`).join("&")
   const response = await axios<GetTokenPriceResponse>(url)
   if (response.status === 200) {
     return response.data

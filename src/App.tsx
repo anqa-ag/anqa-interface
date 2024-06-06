@@ -10,7 +10,7 @@ import Tooltips from "./components/Tooltips"
 import ModalConnectWallet from "./components/modals/ModalConnectWallet"
 import ModalSelectToken from "./components/modals/ModalSelectToken"
 import ModalUserSetting from "./components/modals/ModalUserSetting"
-import { BIP_BASE, NOT_FOUND_TOKEN_LOGO_URL, SOURCE_LIST, ZUSDC } from "./constants"
+import { BIP_BASE, GIT_COMMIT_SHA, NOT_FOUND_TOKEN_LOGO_URL, SOURCE_LIST, ZUSDC } from "./constants"
 import { useIsSm } from "./hooks/useMedia"
 import useModal, { MODAL_LIST } from "./hooks/useModal"
 import useQuote from "./hooks/useQuote"
@@ -795,9 +795,7 @@ export default function App() {
           */}
             <footer className="flex w-full flex-1 items-end">
               <div className="flex h-[84px] w-full content-center items-center justify-between px-[60px] lg:px-[30px] md:static md:px-[16px] sm:justify-center">
-                <BodyB2 className="text-buttonSecondary">
-                  © Anqa 2024 [version: {import.meta.env.VITE_VERCEL_GIT_COMMIT_SHA.slice(0, 7)}]
-                </BodyB2>
+                <BodyB2 className="text-buttonSecondary">© Anqa 2024 [version: beta-{GIT_COMMIT_SHA.slice(0, 7)}]</BodyB2>
 
                 {isSm ? (
                   <div />
@@ -831,12 +829,7 @@ export default function App() {
             </footer>
           </div>
         </div>
-        <ToastContainer
-          autoClose={5000}
-          theme="dark"
-          position="top-right"
-          closeButton={false}
-        />
+        <ToastContainer autoClose={5000} theme="dark" position="top-right" closeButton={false} />
         <ModalConnectWallet
           isOpen={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
           onOpenChange={onOpenChangeModal}
