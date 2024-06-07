@@ -849,7 +849,7 @@ export default function App() {
             </footer>
           </div>
         </div>
-        <ToastContainer autoClose={5000} theme="dark" position="top-right" closeButton={false} />
+        <ToastContainer autoClose={4000} theme="dark" position="top-right" closeButton={false} pauseOnHover={false} />
         <ModalConnectWallet
           isOpen={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
           onOpenChange={onOpenChangeModal}
