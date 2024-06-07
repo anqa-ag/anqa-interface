@@ -245,7 +245,6 @@ export default function App() {
 
   const onSetPercentAmountIn = (percent: number) => {
     if (fractionalBalanceTokenIn && fractionalFeeAmount) {
-      console.log(`fractionalBalanceTokenIn`, fractionalBalanceTokenIn.toSignificant(18))
       let newTypedAmountIn = fractionalBalanceTokenIn.multiply(percent).divide(100)
       if (fractionalBalanceTokenIn.subtract(fractionalFeeAmount).lessThan(newTypedAmountIn)) {
         newTypedAmountIn = newTypedAmountIn.subtract(fractionalFeeAmount)
