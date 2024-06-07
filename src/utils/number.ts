@@ -14,11 +14,10 @@ export function mulpowToFraction(s: string, multiplier = 18): Fraction {
 }
 
 export function truncateValue(value: string, decimals: number): string {
-  const parts = value.split(/[.,]/)
-  const symbol = value.includes(".") ? "." : ","
+  const parts = value.split(/[.]/)
   if (parts.length > 1 && parts[1].length > decimals) {
     parts[0] = parts[0].replace(/^0+(?=\d)/, "") // Remove leading zeros.
-    const res = parts[0] + symbol + parts[1].slice(0, decimals)
+    const res = parts[0] + "." + parts[1].slice(0, decimals)
     if (res.endsWith(".")) return res.slice(0, res.length - 1)
     return res
   }
