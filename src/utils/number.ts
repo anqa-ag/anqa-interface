@@ -18,7 +18,9 @@ export function truncateValue(value: string, decimals: number): string {
   const symbol = value.includes(".") ? "." : ","
   if (parts.length > 1 && parts[1].length > decimals) {
     parts[0] = parts[0].replace(/^0+(?=\d)/, "") // Remove leading zeros.
-    return parts[0] + symbol + parts[1].slice(0, decimals)
+    const res = parts[0] + symbol + parts[1].slice(0, decimals)
+    if (res.endsWith(".")) return res.slice(0, res.length - 1)
+    return res
   }
   value = value.replace(/^0+(?=\d)/, "") // Remove leading zeros.
   return value

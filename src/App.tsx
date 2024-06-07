@@ -157,14 +157,18 @@ export default function App() {
 
   const balanceTokenIn = balance[tokenIn]
   const fractionalBalanceTokenIn =
-    balanceTokenIn && tokenInDecimals ? divpowToFraction(balanceTokenIn.amount, tokenInDecimals) : undefined
+    balanceTokenIn && tokenInDecimals !== undefined
+      ? divpowToFraction(balanceTokenIn.amount, tokenInDecimals)
+      : undefined
   const balanceTokenOut = balance[tokenOut]
   const fractionalBalanceTokenOut =
-    balanceTokenOut && tokenOutDecimals ? divpowToFraction(balanceTokenOut.amount, tokenOutDecimals) : undefined
+    balanceTokenOut && tokenOutDecimals !== undefined
+      ? divpowToFraction(balanceTokenOut.amount, tokenOutDecimals)
+      : undefined
 
   const _fractionalAmountIn = useMemo(
     () =>
-      typedAmountIn && tokenInDecimals
+      typedAmountIn && tokenInDecimals !== undefined
         ? mulpowToFraction(typedAmountIn.replaceAll(",", ""), tokenInDecimals)
         : undefined,
     [tokenInDecimals, typedAmountIn],
@@ -180,23 +184,39 @@ export default function App() {
     paths,
   } = useQuote(tokenIn, tokenOut, fractionalAmountIn?.numerator?.toString(), source)
   const fractionalAmountOut = useMemo(
-    () => (amountOut && tokenOutDecimals ? new Fraction(amountOut, Math.pow(10, tokenOutDecimals)) : undefined),
+    () =>
+      amountOut && tokenOutDecimals != undefined ? new Fraction(amountOut, Math.pow(10, tokenOutDecimals)) : undefined,
     [tokenOutDecimals, amountOut],
   )
 
-  const fractionalAmountInUsd =
-    fractionalAmountIn && fractionalPriceTokenIn ? fractionalAmountIn.multiply(fractionalPriceTokenIn) : undefined
-  const fractionalAmountOutUsd =
-    fractionalAmountOut && fractionalPriceTokenOut ? fractionalAmountOut.multiply(fractionalPriceTokenOut) : undefined
+  const fractionalAmountInUsd = useMemo(
+    () =>
+      fractionalAmountIn && fractionalPriceTokenIn ? fractionalAmountIn.multiply(fractionalPriceTokenIn) : undefined,
+    [fractionalAmountIn, fractionalPriceTokenIn],
+  )
+  const fractionalAmountOutUsd = useMemo(
+    () =>
+      fractionalAmountOut && fractionalPriceTokenOut
+        ? fractionalAmountOut.multiply(fractionalPriceTokenOut)
+        : undefined,
+    [fractionalAmountOut, fractionalPriceTokenOut],
+  )
 
-  const rate = fractionalAmountIn && fractionalAmountOut ? fractionalAmountOut.divide(fractionalAmountIn) : undefined
-  let priceImpact =
-    fractionalAmountInUsd && fractionalAmountOutUsd
-      ? fractionalAmountOutUsd.subtract(fractionalAmountInUsd).divide(fractionalAmountInUsd).multiply(100)
-      : undefined
-  if (priceImpact?.lessThan(0)) {
-    priceImpact = priceImpact.multiply(-1)
-  }
+  const rate = useMemo(
+    () => (fractionalAmountIn && fractionalAmountOut ? fractionalAmountOut.divide(fractionalAmountIn) : undefined),
+    [fractionalAmountIn, fractionalAmountOut],
+  )
+  const priceImpact = useMemo(() => {
+    let res =
+      fractionalAmountInUsd && fractionalAmountOutUsd
+        ? fractionalAmountOutUsd.subtract(fractionalAmountInUsd).divide(fractionalAmountInUsd).multiply(100)
+        : undefined
+    if (res?.lessThan(0)) {
+      res = res.multiply(-1)
+    }
+    return res
+  }, [fractionalAmountInUsd, fractionalAmountOutUsd])
+
   const slippageBps = useAppSelector((state) => state.user.slippageBps)
   const minimumReceived = useMemo(() => {
     if (!fractionalAmountOut) return undefined
@@ -253,7 +273,7 @@ export default function App() {
   }, [tokenInInfo?.logoUrl, tokenOutInfo?.logoUrl])
 
   const switchToken = useCallback(() => {
-    if (fractionalAmountOut && tokenOutDecimals) {
+    if (fractionalAmountOut && tokenOutDecimals !== undefined) {
       setTypedAmountIn(truncateValue(fractionalAmountOut.toFixed(18), tokenOutDecimals), tokenOutDecimals, false)
     } else {
       setTypedAmountIn("")
@@ -514,7 +534,7 @@ export default function App() {
                             disabled
                             data-tooltip-id="tooltip-input-amount-out"
                             value={
-                              fractionalAmountOut && tokenOutDecimals
+                              fractionalAmountOut && tokenOutDecimals !== undefined
                                 ? numberWithCommas(truncateValue(fractionalAmountOut.toFixed(18), tokenOutDecimals))
                                 : ""
                             }
