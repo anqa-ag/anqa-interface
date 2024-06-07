@@ -516,7 +516,6 @@ export default function App() {
                           </Button>
                         </div>
                       </div>
-                      <Spacer y={4} />
                     </div>
                   </>
                   <div className="absolute left-1/2 top-1/2 z-[1] mt-3 -translate-x-1/2 -translate-y-1/2">
