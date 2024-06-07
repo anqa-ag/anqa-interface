@@ -243,9 +243,13 @@ export default function App() {
         : false
       : undefined
 
-  const onMaxAmountIn = () => {
+  const onSetPercentAmountIn = (percent: number) => {
     if (fractionalBalanceTokenIn && fractionalFeeAmount) {
-      const newTypedAmountIn = fractionalBalanceTokenIn.subtract(fractionalFeeAmount)
+      console.log(`fractionalBalanceTokenIn`, fractionalBalanceTokenIn.toSignificant(18))
+      let newTypedAmountIn = fractionalBalanceTokenIn.multiply(percent).divide(100)
+      if (fractionalBalanceTokenIn.subtract(fractionalFeeAmount).lessThan(newTypedAmountIn)) {
+        newTypedAmountIn = newTypedAmountIn.subtract(fractionalFeeAmount)
+      }
       if (newTypedAmountIn.greaterThan(0)) {
         const newTypedAmountInStr = newTypedAmountIn.toFixed(18)
         setTypedAmountIn(newTypedAmountInStr, tokenInDecimals, false)
@@ -433,7 +437,7 @@ export default function App() {
                             className="anqa-hover-white-all flex h-fit w-fit min-w-fit items-center gap-1 bg-transparent p-0"
                             disableAnimation
                             disableRipple
-                            onClick={onMaxAmountIn}
+                            onClick={() => onSetPercentAmountIn(100)}
                           >
                             <WalletIcon size={24} />
                             <BodyB2 className="text-buttonSecondary">
@@ -482,10 +486,41 @@ export default function App() {
                             ? "~$" + numberWithCommas(fractionalAmountInUsd.toSignificant(6), false, 2)
                             : "--"}
                         </BodyB2>
+                        <div className="flex gap-1 overflow-hidden">
+                          <Button
+                            className="anqa-hover-white-all h-fit w-fit min-w-fit bg-buttonDisabled px-3 text-buttonSecondary"
+                            disableRipple
+                            onClick={() => onSetPercentAmountIn(25)}
+                          >
+                            25%
+                          </Button>
+                          <Button
+                            className="anqa-hover-white-all h-fit w-fit min-w-fit bg-buttonDisabled px-3 text-buttonSecondary"
+                            disableRipple
+                            onClick={() => onSetPercentAmountIn(50)}
+                          >
+                            50%
+                          </Button>
+                          <Button
+                            className="anqa-hover-white-all h-fit w-fit min-w-fit bg-buttonDisabled px-3 text-buttonSecondary"
+                            disableRipple
+                            onClick={() => onSetPercentAmountIn(75)}
+                          >
+                            75%
+                          </Button>
+                          <Button
+                            className="anqa-hover-white-all h-fit w-fit min-w-fit bg-buttonDisabled px-3 text-buttonSecondary"
+                            disableRipple
+                            onClick={() => onSetPercentAmountIn(100)}
+                          >
+                            100%
+                          </Button>
+                        </div>
                       </div>
+                      <Spacer y={4} />
                     </div>
                   </>
-                  <div className="absolute left-1/2 top-1/2 z-[1] -translate-x-1/2 -translate-y-1/2">
+                  <div className="absolute left-1/2 top-1/2 z-[1] mt-3 -translate-x-1/2 -translate-y-1/2">
                     <Button
                       isIconOnly
                       className="rounded-full border-2 border-background bg-buttonDisabled data-[hover]:border-buttonSecondary"
@@ -501,9 +536,10 @@ export default function App() {
                         <BodyB2 className="text-buttonSecondary">To Receive</BodyB2>
                         {connectedWallet && (
                           <Button
-                            className="anqa-hover-white-all flex h-fit w-fit min-w-fit items-center gap-1 bg-transparent p-0"
+                            className="flex h-fit w-fit min-w-fit items-center gap-1 bg-transparent p-0 data-[hover]:opacity-100"
                             disableAnimation
                             disableRipple
+                            disabled
                           >
                             <WalletIcon size={24} />
                             <BodyB2 className="text-buttonSecondary">
