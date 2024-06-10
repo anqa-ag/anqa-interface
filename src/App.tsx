@@ -311,17 +311,12 @@ export default function App() {
   const { txVersion: swapTxVersion, isSwapping, onSwap: _onSwap, success: isSwapSuccess } = useSwap()
   const onSwap = () => {
     if (fractionalAmountIn && fractionalAmountOut && minimumReceived && paths) {
-      const str = fractionalAmountOut
-        .multiply(BIP_BASE - (slippageBps <= 100 ? slippageBps * 10 : slippageBps))
-        .divide(BIP_BASE)
-        .toFixed(18)
-      const fakeMinAmountOut = mulpowToFraction(str, tokenOutDecimals) // To cut redundant decimals.
       void _onSwap({
         tokenIn,
         tokenOut,
         amountIn: fractionalAmountIn.numerator.toString(),
         amountOut: fractionalAmountOut.numerator.toString(),
-        minAmountOut: fakeMinAmountOut.numerator.toString(),
+        minAmountOut: minimumReceived.numerator.toString(),
         paths,
       })
     }
