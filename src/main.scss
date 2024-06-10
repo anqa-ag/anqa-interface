@@ -187,9 +187,14 @@ input[type="text"][disabled]::placeholder {
 
 .z-toast {
   padding: 0;
-  top: 160px;
+  top: 140px;
+  right: 40px;
+  @media only screen and (max-width: 1023px) {
+    right: 10px;
+  }
   @media only screen and (max-width: 639px) {
     top: 0;
+    right: 0;
   }
 }
 .z-toast-body {
