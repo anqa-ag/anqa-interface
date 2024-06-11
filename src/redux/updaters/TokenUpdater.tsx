@@ -18,7 +18,7 @@ function TokenUpdater() {
           name: whitelistedTokenMap[key].name,
           symbol: whitelistedTokenMap[key].symbol,
           decimals: whitelistedTokenMap[key].decimals,
-          logoUrl: whitelistedTokenMap[key].logoUrl,
+          logoUrl: whitelistedTokenMap[key].logo_url,
         }
       }
       dispatch(updateTokenData(newTokenData))
