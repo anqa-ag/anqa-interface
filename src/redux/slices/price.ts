@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
+import { PURGE } from "redux-persist"
 
 export interface PriceState {
   // followingPriceAddresses: string[]
@@ -24,6 +25,11 @@ export const priceSlice = createSlice({
         state.followingPriceData[key] = action.payload[key]
       }
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(PURGE, () => {
+      return initialState
+    })
   },
 })
 
