@@ -9,8 +9,6 @@ import { VERSION } from "../../constants"
 export default function Updaters() {
   const version = useAppSelector((state) => state.user.version)
   useEffect(() => {
-    console.log(`version`, version)
-    console.log(`VERSION`, VERSION)
     if (version !== VERSION) void persistor.purge()
   }, [version])
 
