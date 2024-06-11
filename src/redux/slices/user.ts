@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 import { VERSION } from "../../constants"
+import { PURGE } from "redux-persist"
 
 export interface NotificationData {
   version: string
@@ -41,6 +42,11 @@ export const userSlice = createSlice({
     hideNotification: (state, action: PayloadAction<string>) => {
       state.notificationMap[action.payload].isHide = true
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(PURGE, () => {
+      return initialState
+    })
   },
 })
 

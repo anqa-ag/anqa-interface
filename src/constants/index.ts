@@ -27,4 +27,4 @@ export const SOURCE_LIST = [
 ]
 
 export const AGGREGATOR_URL = import.meta.env.VITE_AGGREGATOR_URL
-export const VERSION = 0 // Pump version to purge state.
+export const VERSION = 1 // Pump version to purge state.

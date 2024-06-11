@@ -2,6 +2,7 @@ import { Network } from "@aptos-labs/ts-sdk"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { createSlice } from "@reduxjs/toolkit"
 import { WalletBalance } from "../../../types"
+import { PURGE } from "redux-persist"
 
 export type WalletProvider = "Martian" | "Petra"
 
@@ -61,6 +62,11 @@ export const walletSlice = createSlice({
       state.balance = {}
       state.network = undefined
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(PURGE, () => {
+      return initialState
+    })
   },
 })
 
