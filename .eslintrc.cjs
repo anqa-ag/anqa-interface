@@ -33,7 +33,8 @@ module.exports = {
     "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/no-unsafe-call": "off",
     "@typescript-eslint/no-unsafe-member-access": "off",
-    "@typescript-eslint/prefer-for-of": "off"
+    "@typescript-eslint/prefer-for-of": "off",
+    "@typescript-eslint/prefer-nullish-coalescing": "off",
   },
   settings: {
     react: {

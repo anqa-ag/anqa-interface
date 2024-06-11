@@ -268,11 +268,11 @@ export default function App() {
     return { isDisabled: false, text: "Swap" }
   }, [fractionalAmountIn, isSufficientBalance, isValidatingQuote, fractionalAmountOut])
 
-  const [tokenInLogoSrc, setTokenInLogoSrc] = useState(tokenInInfo?.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
-  const [tokenOutLogoSrc, setTokenOutLogoSrc] = useState(tokenOutInfo?.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
+  const [tokenInLogoSrc, setTokenInLogoSrc] = useState(tokenInInfo?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL)
+  const [tokenOutLogoSrc, setTokenOutLogoSrc] = useState(tokenOutInfo?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL)
   useEffect(() => {
-    setTokenInLogoSrc(tokenInInfo?.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
-    setTokenOutLogoSrc(tokenOutInfo?.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
+    setTokenInLogoSrc(tokenInInfo?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL)
+    setTokenOutLogoSrc(tokenOutInfo?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL)
   }, [tokenInInfo?.logoUrl, tokenOutInfo?.logoUrl])
 
   const switchToken = useCallback(() => {

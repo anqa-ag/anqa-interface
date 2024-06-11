@@ -35,10 +35,10 @@ function TokenItem({
   const token = useMemo(() => {
     return items[index]
   }, [items, index])
-  const [src, setSrc] = useState(token.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
+  const [src, setSrc] = useState(token.logoUrl || NOT_FOUND_TOKEN_LOGO_URL)
 
   useEffect(() => {
-    setSrc(token.logoUrl ?? NOT_FOUND_TOKEN_LOGO_URL)
+    setSrc(token.logoUrl || NOT_FOUND_TOKEN_LOGO_URL)
   }, [index, items, onCopy, token.logoUrl])
 
   const isCopyingThisToken = useMemo(
