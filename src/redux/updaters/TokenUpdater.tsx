@@ -5,7 +5,6 @@ import { useAppDispatch, useAppSelector } from "../hooks"
 import { Token, addTokensToFollow, updateTokenData } from "../slices/token"
 
 function TokenUpdater() {
-  // console.log("TokenUpdater")
   const dispatch = useAppDispatch()
 
   const whitelistedTokenMap = useWhitelistedTokens()

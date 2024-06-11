@@ -66,7 +66,7 @@ function TokenItem({
           <TitleT2 className="">{token.symbol}</TitleT2>
           <Button
             variant="light"
-            className="h-fit w-fit min-w-fit gap-1 self-center p-0 font-normal data-[hover]:bg-transparent rounded-none"
+            className="h-fit w-fit min-w-fit gap-1 self-center rounded-none p-0 font-normal data-[hover]:bg-transparent"
             onPress={() => onCopy(items[index].id)}
             disableAnimation
             disableRipple
@@ -74,7 +74,7 @@ function TokenItem({
             {isCopyingThisToken ? (
               <>
                 <TitleT5
-                  className="overflow-hidden text-ellipsis whitespace-nowrap text-tooltipBg pt-1"
+                  className="overflow-hidden text-ellipsis whitespace-nowrap pt-1 text-tooltipBg"
                   onClick={() => onCopy(items[index].id)}
                 >
                   {token.id.slice(0, 10) + "..."}
@@ -84,7 +84,7 @@ function TokenItem({
             ) : (
               <>
                 <TitleT5
-                  className="overflow-hidden text-ellipsis whitespace-nowrap text-tooltipBg pt-1"
+                  className="overflow-hidden text-ellipsis whitespace-nowrap pt-1 text-tooltipBg"
                   onClick={() => onCopy(items[index].id)}
                 >
                   {token.id.slice(0, 10) + "..."}
@@ -125,12 +125,12 @@ function ModalSelectToken({
 
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
   const followingPriceData = useAppSelector((state) => state.price.followingPriceData)
-  const balance = useAppSelector((state) => state.wallet.balance)
+  const { balance, walletAddress } = useAppSelector((state) => state.wallet)
   const followingTokenDataWithBalance = useMemo(() => {
     const res: Record<string, TokenWithBalance> = {}
     for (const address of Object.keys(followingTokenData)) {
       let fractionalBalance: Fraction | undefined
-      if (balance[address] && balance[address]?.amount) {
+      if (walletAddress && balance[address] && balance[address]?.amount) {
         fractionalBalance = divpowToFraction(balance[address]!.amount, followingTokenData[address].decimals)
       }
       let fractionalBalanceUsd: Fraction | undefined
@@ -150,7 +150,7 @@ function ModalSelectToken({
       res[address] = newItem
     }
     return res
-  }, [balance, followingPriceData, followingTokenData])
+  }, [balance, followingPriceData, followingTokenData, walletAddress])
   const followingTokenDataWithBalanceList = useMemo(() => {
     const list = Object.values(followingTokenDataWithBalance)
     list.sort((a: TokenWithBalance, b: TokenWithBalance) => {

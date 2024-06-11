@@ -2,14 +2,15 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit"
 import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE, persistReducer, persistStore } from "redux-persist"
 import storage from "redux-persist/lib/storage" // defaults to localStorage for web
 
-import walletReducer from "./slices/wallet"
-import tokenReducer from "./slices/token"
 import priceReducer from "./slices/price"
+import tokenReducer from "./slices/token"
 import userReducer from "./slices/user"
+import walletReducer from "./slices/wallet"
 
 const persistConfig = {
   key: "root",
   storage,
+  debug: true,
 }
 
 const rootReducer = combineReducers({

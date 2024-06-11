@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
+import { VERSION } from "../../constants"
 
 export interface NotificationData {
   version: string
@@ -11,11 +12,13 @@ export interface NotificationData {
 }
 
 export interface UserState {
+  version: number
   slippageBps: number
   notificationMap: Record<string, NotificationData>
 }
 
 const initialState: UserState = {
+  version: VERSION,
   slippageBps: 50,
   notificationMap: {},
 }

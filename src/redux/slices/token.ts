@@ -1,4 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
+import { PURGE } from "redux-persist"
 
 export interface Token {
   id: string
@@ -32,6 +33,11 @@ export const tokenSlice = createSlice({
         state.followingTokenData[key] = action.payload[key]
       }
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(PURGE, () => {
+      return initialState
+    })
   },
 })
 
