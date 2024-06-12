@@ -4,7 +4,7 @@ import { CSSProperties, memo, useCallback, useEffect, useMemo, useState } from "
 import { FixedSizeList } from "react-window"
 import { useCopyToClipboard, useDebounceValue, useWindowSize } from "usehooks-ts"
 import { NOT_FOUND_TOKEN_LOGO_URL } from "../../constants"
-import { useIsSm } from "../../hooks/useMedia"
+import useFullTokens from "../../hooks/useFullTokens"
 import { useAppDispatch, useAppSelector } from "../../redux/hooks"
 import { Token, addTokensToFollow } from "../../redux/slices/token"
 import { Fraction } from "../../utils/fraction"
@@ -13,6 +13,7 @@ import { CloseIcon, SearchIcon } from "../Icons"
 import { BodyB3, TitleT1, TitleT2, TitleT5 } from "../Texts"
 
 export interface TokenWithBalance extends Token {
+  isFollowing: boolean
   fractionalBalance?: Fraction
   fractionalBalanceUsd?: Fraction
 }
@@ -48,7 +49,11 @@ function TokenItem({
 
   return (
     <div
-      className="flex h-fit w-full cursor-pointer items-center gap-2 rounded-none bg-buttonDisabled px-4 py-3 font-normal hover:bg-background"
+      className={
+        "flex h-fit w-full cursor-pointer items-center gap-2 rounded-none bg-buttonDisabled px-4 py-3 font-normal hover:bg-background" +
+        " " +
+        (token.isFollowing ? "opacity-100" : "opacity-20")
+      }
       tabIndex={0}
       style={style}
       onClick={() => setToken(items[index].id)}
@@ -112,8 +117,8 @@ function TokenItem({
 
 function ModalSelectToken({
   isOpen,
-  onClose,
-  onOpenChange,
+  onClose: _onClose,
+  onOpenChange: _onOpenChange,
   setToken,
 }: {
   isOpen: boolean
@@ -122,7 +127,7 @@ function ModalSelectToken({
   setToken: (id: string) => void
 }) {
   const dispatch = useAppDispatch()
-
+  const { data: fullTokenData } = useFullTokens()
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
   const followingPriceData = useAppSelector((state) => state.price.followingPriceData)
   const { balance, walletAddress } = useAppSelector((state) => state.wallet)
@@ -146,6 +151,7 @@ function ModalSelectToken({
         logoUrl: followingTokenData[address].logoUrl,
         fractionalBalance,
         fractionalBalanceUsd,
+        isFollowing: true,
       }
       res[address] = newItem
     }
@@ -166,14 +172,23 @@ function ModalSelectToken({
     return list
   }, [followingTokenDataWithBalance])
 
-  const isSm = useIsSm()
+  const onClose = useCallback(() => {
+    setSearchValue("")
+    _onClose()
+  }, [_onClose])
+
+  const onOpenChange = useCallback(() => {
+    setSearchValue("")
+    _onOpenChange()
+  }, [_onOpenChange])
 
   const setTokenAndClose = useCallback(
     (id: string) => {
+      dispatch(addTokensToFollow([id]))
       setToken(id)
       onClose()
     },
-    [onClose, setToken],
+    [dispatch, onClose, setToken],
   )
 
   const [copiedId, copy] = useCopyToClipboard()
@@ -193,22 +208,56 @@ function ModalSelectToken({
 
   const [_searchValue, setSearchValue] = useState("")
   const [searchValue] = useDebounceValue(_searchValue, 250)
-  const renderTokenList = useMemo(() => {
+  const renderFollowingTokenList = useMemo(() => {
     const str = searchValue.trim()
     if (!str) return followingTokenDataWithBalanceList
 
-    if (str.includes("::")) {
-      dispatch(addTokensToFollow([str]))
-    }
-
     const res = followingTokenDataWithBalanceList.filter((token) => {
       if (token.id === str) return true
-      if (token.name.toLowerCase().includes(str.toLowerCase())) return true
       if (token.symbol.toLowerCase().includes(str.toLowerCase())) return true
       return false
     })
     return res
-  }, [dispatch, followingTokenDataWithBalanceList, searchValue])
+  }, [followingTokenDataWithBalanceList, searchValue])
+  const renderUnfollowingTokenList = useMemo(() => {
+    if (!fullTokenData) return []
+
+    const str = searchValue.trim()
+    if (!str) return []
+
+    const fullTokenList: TokenWithBalance[] = Object.values(fullTokenData)
+      .filter((token) => {
+        if (token.id === str) return true
+        if (token.symbol.toLowerCase().includes(str.toLowerCase())) return true
+        return false
+      })
+      .filter((token) => !renderFollowingTokenList.map((token) => token.id).includes(token.id))
+      .map((token) => ({
+        id: token.id,
+        name: token.name,
+        symbol: token.symbol,
+        decimals: token.decimals,
+        logoUrl: undefined,
+        fractionalBalance: undefined,
+        fractionalBalanceUsd: undefined,
+        isFollowing: false,
+      }))
+      .sort((a: TokenWithBalance, b: TokenWithBalance) => {
+        const x = a.fractionalBalanceUsd ?? new Fraction(0)
+        const y = b.fractionalBalanceUsd ?? new Fraction(0)
+        if (x.lessThan(y)) {
+          return 1
+        } else if (x.greaterThan(y)) {
+          return -1
+        }
+        return a.symbol.localeCompare(b.symbol)
+      })
+    return fullTokenList
+  }, [fullTokenData, renderFollowingTokenList, searchValue])
+  const renderTokenList = useMemo(
+    () => [...renderFollowingTokenList, ...renderUnfollowingTokenList],
+    [renderFollowingTokenList, renderUnfollowingTokenList],
+  )
   const isEmpty = renderTokenList.length === 0
 
   const itemData = useMemo(
@@ -230,52 +279,62 @@ function ModalSelectToken({
         disableAnimation
       >
         <ModalContent className="max-w-[420px] bg-buttonDisabled p-4 pb-0 text-foreground dark">
-          {(onClose) => (
-            <>
-              <div className="flex items-center justify-between">
-                <TitleT1>Select a token</TitleT1>
-                <Button isIconOnly variant="light" className="h-[20px] w-[20px] min-w-fit p-0" onPress={onClose}>
-                  <CloseIcon size={20} />
-                </Button>
-              </div>
+          <>
+            <div className="flex items-center justify-between">
+              <TitleT1>Select a token</TitleT1>
+              <Button isIconOnly variant="light" className="h-[20px] w-[20px] min-w-fit p-0" onPress={onClose}>
+                <CloseIcon size={20} />
+              </Button>
+            </div>
 
-              <Spacer y={4} />
+            <Spacer y={4} />
 
-              <Input
-                type="text"
-                placeholder={isSm ? "Token name, symbol or address" : "Search by token name, symbol or address"}
-                labelPlacement="outside"
-                autoComplete="off"
-                autoCorrect="off"
-                spellCheck={false}
-                className="input-modal-select-token"
-                startContent={<SearchIcon size={20} />}
-                value={_searchValue}
-                onChange={(e) => setSearchValue(e.currentTarget.value)}
-              />
-
-              <Spacer y={4} />
-
-              {renderTokenList && (
-                <div className="relative -mx-4">
-                  <FixedSizeList
-                    height={listHeight}
-                    itemCount={renderTokenList.length}
-                    itemSize={68}
-                    width="100%"
-                    itemData={itemData}
+            <Input
+              type="text"
+              placeholder={"Search by token symbol or address"}
+              labelPlacement="outside"
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+              className="input-modal-select-token"
+              startContent={<SearchIcon size={20} />}
+              endContent={
+                searchValue ? (
+                  <Button
+                    isIconOnly
+                    className="m-0 h-fit w-fit min-w-fit border-transparent bg-transparent p-0"
+                    disableRipple
+                    onPress={() => setSearchValue("")}
                   >
-                    {TokenItem}
-                  </FixedSizeList>
-                  {isEmpty && (
-                    <TitleT2 className="absolute left-1/2 top-1/4 -translate-x-1/2 -translate-y-1/2 text-buttonSecondary">
-                      No Token Found
-                    </TitleT2>
-                  )}
-                </div>
-              )}
-            </>
-          )}
+                    <CloseIcon size={16} />
+                  </Button>
+                ) : null
+              }
+              value={_searchValue}
+              onChange={(e) => setSearchValue(e.currentTarget.value)}
+            />
+
+            <Spacer y={4} />
+
+            {renderTokenList && (
+              <div className="relative -mx-4">
+                <FixedSizeList
+                  height={listHeight}
+                  itemCount={renderTokenList.length}
+                  itemSize={68}
+                  width="100%"
+                  itemData={itemData}
+                >
+                  {TokenItem}
+                </FixedSizeList>
+                {isEmpty && (
+                  <TitleT2 className="absolute left-1/2 top-1/4 -translate-x-1/2 -translate-y-1/2 text-buttonSecondary">
+                    No Token Found
+                  </TitleT2>
+                )}
+              </div>
+            )}
+          </>
         </ModalContent>
       </Modal>
     </>

@@ -46,16 +46,14 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
       isXToY = path.extra.isXToY ? 1 : 0
       break
     case "liquid_swap_v0":
-      if (path.extra?.isStable === undefined)
-        throw new Error(`isStable undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra?.isStable === undefined) throw new Error(`isStable undefined, path = ${JSON.stringify(path)}`)
       if (path.extra?.isXToY === undefined) throw new Error(`isXToY undefined, path = ${JSON.stringify(path)}`)
       source = 3
       poolType = path.extra.isStable ? 3 : 2
       isXToY = path.extra.isXToY ? 1 : 0
       break
     case "liquid_swap_v0.5":
-      if (path.extra?.isStable === undefined)
-        throw new Error(`isStable undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra?.isStable === undefined) throw new Error(`isStable undefined, path = ${JSON.stringify(path)}`)
       if (path.extra?.isXToY === undefined) throw new Error(`isXToY undefined, path = ${JSON.stringify(path)}`)
       source = 3
       poolType = path.extra.isStable ? 1 : 0
@@ -106,8 +104,7 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
       isXToY = path.extra.isXToY ? 1 : 0
       break
     case "cellana_finance":
-      if (path.extra?.isStable === undefined)
-        throw new Error(`isStable undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra?.isStable === undefined) throw new Error(`isStable undefined, path = ${JSON.stringify(path)}`)
       source = 7
       poolType = 0
       isXToY = path.extra.isStable ? 1 : 0 // isXToY is actually isStable.
@@ -131,8 +128,7 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
       break
     case "econia":
       if (path.extra?.isXToY === undefined) throw new Error(`isXToY undefined, path = ${JSON.stringify(path)}`)
-      if (path.extra?.marketId === undefined)
-        throw new Error(`marketId undefined, path = ${JSON.stringify(path)}`)
+      if (path.extra?.marketId === undefined) throw new Error(`marketId undefined, path = ${JSON.stringify(path)}`)
       source = 12
       poolType = path.extra.marketId
       isXToY = path.extra.isXToY ? 1 : 0

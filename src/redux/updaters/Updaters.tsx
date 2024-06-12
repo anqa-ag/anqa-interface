@@ -1,10 +1,10 @@
-import WalletUpdater from "./WalletUpdater"
-import TokenUpdater from "./TokenUpdater"
-import PriceUpdater from "./PriceUpdater"
 import { useEffect } from "react"
-import { persistor } from "../store"
-import { useAppSelector } from "../hooks"
 import { VERSION } from "../../constants"
+import { useAppSelector } from "../hooks"
+import { persistor } from "../store"
+import PriceUpdater from "./PriceUpdater"
+import TokenUpdater from "./TokenUpdater"
+import WalletUpdater from "./WalletUpdater"
 
 export default function Updaters() {
   const version = useAppSelector((state) => state.user.version)

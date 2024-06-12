@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "../hooks"
 import useMartian from "../hooks/useMartian"
 import usePetra from "../hooks/usePetra"
 import { updateBalance, updateNetwork, updateWalletAddress } from "../slices/wallet"
+import { addTokensToFollow } from "../slices/token"
 
 function useGetAccountCoinsDataInterval() {
   const dispatch = useAppDispatch()
@@ -14,14 +15,17 @@ function useGetAccountCoinsDataInterval() {
 
   const fn = useCallback(async () => {
     if (!walletAddress) return
-    const accountCoinsData = await aptos.getAccountCoinsData({
+    const _accountCoinsData = await aptos.getAccountCoinsData({
       accountAddress: walletAddress,
     })
-    const _accountCoinsData = accountCoinsData.reduce(
-      (prev, curr) => ({ ...prev, [curr.asset_type]: { ...curr, amount: curr.amount.toString() as string } }),
-      {} as WalletBalance,
-    )
-    dispatch(updateBalance(_accountCoinsData))
+    const accountCoinsData = _accountCoinsData
+      .filter((item) => item.amount)
+      .reduce(
+        (prev, curr) => ({ ...prev, [curr.asset_type]: { ...curr, amount: curr.amount.toString() as string } }),
+        {} as WalletBalance,
+      )
+    dispatch(updateBalance(accountCoinsData))
+    dispatch(addTokensToFollow(_accountCoinsData.map((item) => item.asset_type)))
   }, [dispatch, walletAddress])
 
   useEffect(() => {

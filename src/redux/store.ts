@@ -10,7 +10,7 @@ import walletReducer from "./slices/wallet"
 const persistConfig = {
   key: "root",
   storage,
-  debug: true,
+  debug: false,
 }
 
 const rootReducer = combineReducers({

@@ -35,6 +35,7 @@ module.exports = {
     "@typescript-eslint/no-unsafe-member-access": "off",
     "@typescript-eslint/prefer-for-of": "off",
     "@typescript-eslint/prefer-nullish-coalescing": "off",
+    "no-constant-condition": "off",
   },
   settings: {
     react: {

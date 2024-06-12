@@ -22,7 +22,7 @@ export interface GetTokenInfoResponse {
 }
 
 const fn = async ({ tokens }: { key: string; tokens: string[] }) => {
-  if (!tokens) return
+  if (tokens.length === 0) return
   const url = `${AGGREGATOR_URL}/v1/tokens?` + tokens.map((t) => `ids[]=${t}`).join("&")
   const response = await axios<GetTokenInfoResponse>(url)
   if (response.status === 200) {

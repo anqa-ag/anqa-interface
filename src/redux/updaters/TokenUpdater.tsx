@@ -3,8 +3,9 @@ import useTokenInfo from "../../hooks/useTokenInfo"
 import useWhitelistedTokens from "../../hooks/useWhitelistedTokens"
 import { useAppDispatch, useAppSelector } from "../hooks"
 import { Token, addTokensToFollow, updateTokenData } from "../slices/token"
+import useFullTokens from "../../hooks/useFullTokens"
 
-function TokenUpdater() {
+function FollowingTokenUpdater() {
   const dispatch = useAppDispatch()
 
   const whitelistedTokenMap = useWhitelistedTokens()
@@ -48,14 +49,29 @@ function TokenUpdater() {
           name: tokenInfoMap[address].name,
           symbol: tokenInfoMap[address].symbol,
           decimals: tokenInfoMap[address].decimals,
-          logoUrl: followingTokenData[address]?.logoUrl,
+          logoUrl: undefined,
         }
       }
       dispatch(updateTokenData(newTokenData))
     }
-  }, [dispatch, followingTokenData, tokenInfoMap])
+  }, [dispatch, tokenInfoMap])
 
   return null
+}
+
+function FullTokensUpdater() {
+  useFullTokens()
+
+  return null
+}
+
+function TokenUpdater() {
+  return (
+    <>
+      <FollowingTokenUpdater />
+      <FullTokensUpdater />
+    </>
+  )
 }
 
 const MemoTokenUpdater = memo(TokenUpdater)
