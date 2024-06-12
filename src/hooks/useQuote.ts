@@ -60,7 +60,7 @@ const fn = async ({
       excludeSources: excludeSources.join(","),
     },
   })
-  if (response.status === 200) {
+  if (response.status === 200 && response.data.data.amountOut != "0") {
     return response.data
   }
   return undefined

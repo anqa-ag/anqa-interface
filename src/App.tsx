@@ -516,9 +516,10 @@ export default function App() {
                           </Button>
                         </div>
                       </div>
+                      <Spacer y={2} />
                     </div>
                   </>
-                  <div className="absolute left-1/2 top-1/2 z-[1] mt-3 -translate-x-1/2 -translate-y-1/2">
+                  <div className="absolute left-1/2 top-1/2 z-[1] mt-2 -translate-x-1/2 -translate-y-1/2">
                     <Button
                       isIconOnly
                       className="rounded-full border-2 border-background bg-buttonDisabled data-[hover]:border-buttonSecondary"
