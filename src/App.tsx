@@ -30,6 +30,7 @@ import {
 } from "./utils/number"
 import { ToastContainer } from "react-toastify"
 import useSwap from "./hooks/useSwap"
+import { NumericFormat } from "react-number-format"
 
 function Menu() {
   return (
@@ -448,7 +449,8 @@ export default function App() {
                         )}
                       </div>
                       <div className="flex items-center justify-between gap-3">
-                        <input
+                        <NumericFormat
+                          thousandSeparator
                           inputMode="decimal"
                           autoComplete="off"
                           autoCorrect="off"
@@ -555,7 +557,8 @@ export default function App() {
                             <Skeleton className="h-[38px] w-full rounded" />
                           </div>
                         ) : (
-                          <input
+                          <NumericFormat
+                            thousandSeparator
                             inputMode="decimal"
                             autoComplete="off"
                             autoCorrect="off"
