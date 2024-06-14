@@ -36,6 +36,7 @@ module.exports = {
     "@typescript-eslint/prefer-for-of": "off",
     "@typescript-eslint/prefer-nullish-coalescing": "off",
     "no-constant-condition": "off",
+    "@typescript-eslint/no-explicit-any": "off",
   },
   settings: {
     react: {

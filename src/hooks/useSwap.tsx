@@ -1,10 +1,12 @@
+import { isUserTransactionResponse } from "@aptos-labs/ts-sdk"
 import { Link } from "@nextui-org/react"
 import { useCallback, useMemo, useState } from "react"
 import { toast } from "react-toastify"
-import { martian, petra } from "../../types"
+import { IPetraSignAndSubmitTransactionData, martian, petra } from "../../types"
 import { TitleT2, TitleT4 } from "../components/Texts"
 import { useAppDispatch, useAppSelector } from "../redux/hooks"
 import { NotificationData, addNotification } from "../redux/slices/user"
+import { aptos } from "../utils/aptos"
 import { divpowToFraction } from "../utils/number"
 import { GetRouteResponseDataPath } from "./useQuote"
 
@@ -152,7 +154,7 @@ function getSwapDataFromPaths(args: SwapArgs): {
 } {
   console.log(`args`, args)
   const data = {
-    function: "2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::swap_generic",
+    function: "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::swap_generic",
     arguments: [...Array(MAX_PATH * MAX_HOPS_PER_PATH).fill([0, 0, 0, "0"]), args.minAmountOut],
     typeArguments: [args.tokenIn, args.tokenOut, ...Array(MAX_PATH * (MAX_HOPS_PER_PATH - 1)).fill(COIN_NULL)],
   }
@@ -185,6 +187,64 @@ export default function useSwap() {
   const dispatch = useAppDispatch()
   const { walletAddress, provider } = useAppSelector((state) => state.wallet)
   const { followingTokenData } = useAppSelector((state) => state.token)
+
+  const sendNotification = useCallback(
+    (tokenIn: string, tokenOut: string, version: string, isSuccess: boolean, amountIn: string, amountOut: string) => {
+      const tokenInData = followingTokenData[tokenIn]
+      const tokenOutData = followingTokenData[tokenOut]
+      if (tokenInData && tokenOutData) {
+        const payload: NotificationData = {
+          version,
+          isSuccess,
+          tokenInSymbol: tokenInData.symbol,
+          tokenOutSymbol: tokenOutData.symbol,
+          readableAmountIn: divpowToFraction(amountIn, tokenInData.decimals).toSignificant(6),
+          readableAmountOut: divpowToFraction(amountOut, tokenOutData.decimals).toSignificant(6),
+          isHide: false,
+        }
+        dispatch(addNotification(payload))
+        toast(
+          payload.isSuccess ? (
+            <div className="rounded bg-[rgba(24,207,106,0.2)] p-4">
+              <TitleT2>
+                Swap {payload.readableAmountIn} {payload.tokenInSymbol} to {payload.readableAmountOut}{" "}
+                {payload.tokenOutSymbol}
+              </TitleT2>
+              <Link
+                href={`https://aptoscan.com/transaction/${payload.version}`}
+                isExternal
+                showAnchorIcon
+                className="text-buttonSecondary"
+              >
+                <TitleT4>View on explorer</TitleT4>
+              </Link>
+            </div>
+          ) : (
+            <div className="rounded bg-[rgba(244,70,70,0.2)] p-4">
+              <TitleT2>
+                Error swapping {payload.readableAmountIn} {payload.tokenInSymbol} to {payload.readableAmountOut}{" "}
+                {payload.tokenOutSymbol}
+              </TitleT2>
+              <Link
+                href={`https://aptoscan.com/transaction/${payload.version}`}
+                isExternal
+                showAnchorIcon
+                className="text-buttonSecondary"
+              >
+                <TitleT4>View on explorer</TitleT4>
+              </Link>
+            </div>
+          ),
+          {
+            className: "z-toast",
+            bodyClassName: "z-toast-body",
+            progressClassName: payload.isSuccess ? "z-toast-progress-success" : "z-toast-progress-failed",
+          },
+        )
+      }
+    },
+    [dispatch, followingTokenData],
+  )
 
   const onSwap = useCallback(
     async (args: SwapArgs) => {
@@ -254,80 +314,45 @@ export default function useSwap() {
           })
           console.log(`response`, response)
           setSwapState({ isSwapping: false, txVersion: response.version, success: response.success })
-          const tokenInData = followingTokenData[args.tokenIn]
-          const tokenOutData = followingTokenData[args.tokenOut]
-          if (tokenInData && tokenOutData) {
-            const payload: NotificationData = {
-              version: response.version,
-              isSuccess: response.success,
-              tokenInSymbol: tokenInData.symbol,
-              tokenOutSymbol: tokenOutData.symbol,
-              readableAmountIn: divpowToFraction(args.amountIn, tokenInData.decimals).toSignificant(6),
-              readableAmountOut: divpowToFraction(args.amountOut, tokenOutData.decimals).toSignificant(6),
-              isHide: false,
-            }
-            dispatch(addNotification(payload))
-            toast(
-              payload.isSuccess ? (
-                <div className="rounded bg-[rgba(24,207,106,0.2)] p-4">
-                  <TitleT2>
-                    Swap {payload.readableAmountIn} {payload.tokenInSymbol} to {payload.readableAmountOut}{" "}
-                    {payload.tokenOutSymbol}
-                  </TitleT2>
-                  <Link
-                    href={`https://aptoscan.com/transaction/${payload.version}`}
-                    isExternal
-                    showAnchorIcon
-                    className="text-buttonSecondary"
-                  >
-                    <TitleT4>View on explorer</TitleT4>
-                  </Link>
-                </div>
-              ) : (
-                <div className="rounded bg-[rgba(244,70,70,0.2)] p-4">
-                  <TitleT2>
-                    Error swapping {payload.readableAmountIn} {payload.tokenInSymbol} to {payload.readableAmountOut}{" "}
-                    {payload.tokenOutSymbol}
-                  </TitleT2>
-                  <Link
-                    href={`https://aptoscan.com/transaction/${payload.version}`}
-                    isExternal
-                    showAnchorIcon
-                    className="text-buttonSecondary"
-                  >
-                    <TitleT4>View on explorer</TitleT4>
-                  </Link>
-                </div>
-              ),
-              {
-                className: "z-toast",
-                bodyClassName: "z-toast-body",
-                progressClassName: payload.isSuccess ? "z-toast-progress-success" : "z-toast-progress-failed",
-              },
-            )
-          }
+          sendNotification(
+            args.tokenIn,
+            args.tokenOut,
+            response.version,
+            response.success,
+            args.amountIn,
+            args.amountOut,
+          )
         } else if (provider === "Martian") {
           if (!martian) return
           const swapData = getSwapDataFromPaths(args)
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          const response = await martian.generateSignAndSubmitTransaction(walletAddress, {
+          const payload: IPetraSignAndSubmitTransactionData["payload"] = {
             function: swapData.function,
             arguments: swapData.arguments,
             type_arguments: swapData.typeArguments,
-            // function: "0x1::coin::transfer",
-            // arguments: ["0x57b057e189f60ed079bbfe11b88b187cc6bea5016d1bc58aee5ec087f76ce44e", 50],
-            // type_arguments: ["0x1::aptos_coin::AptosCoin"],
-          })
-          console.log(`response`, response)
-          setSwapState({ isSwapping: false, txVersion: response.version, success: response.success })
+          }
+          const transaction = await martian.generateTransaction(walletAddress, payload)
+          const txHash = await martian.signAndSubmitTransaction(transaction)
+          const response = await aptos.transaction.getTransactionByHash({ transactionHash: txHash })
+          if (isUserTransactionResponse(response)) {
+            setSwapState({ isSwapping: false, txVersion: response.version, success: response.success })
+            sendNotification(
+              args.tokenIn,
+              args.tokenOut,
+              response.version,
+              response.success,
+              args.amountIn,
+              args.amountOut,
+            )
+          } else {
+            throw new Error(JSON.stringify(response))
+          }
         }
       } catch (err) {
         console.error(err)
         setSwapState((prev) => ({ ...prev, isSwapping: false }))
       }
     },
-    [dispatch, followingTokenData, isSwapping, provider, walletAddress],
+    [isSwapping, provider, sendNotification, walletAddress],
   )
 
   const res = useMemo(

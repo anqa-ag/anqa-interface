@@ -32,6 +32,8 @@ interface IMartian {
   network: () => Promise<Network>
   onNetworkChange: (fn: (network: Network) => void) => void
   onAccountChange: (fn: (walletAddress: string) => void) => void
+  generateTransaction: (walletAddress: string, payload: IPetraSignAndSubmitTransactionData["payload"]) => Promise<any>
+  signAndSubmitTransaction: (tx: any) => Promise<string>
 }
 
 // ###############################################################################
@@ -66,9 +68,7 @@ interface IPetra {
   network: () => Promise<Network>
   onNetworkChange: (fn: (network: IPetraNetwork) => void) => void
   onAccountChange: (fn: (response: IPetraConnectResponse) => void) => void
-  signAndSubmitTransaction: (
-    data: IPetraSignAndSubmitTransactionData,
-  ) => Promise<UserTransactionResponse>
+  signAndSubmitTransaction: (data: IPetraSignAndSubmitTransactionData) => Promise<UserTransactionResponse>
 }
 
 declare global {
