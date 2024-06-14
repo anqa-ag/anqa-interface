@@ -2,7 +2,7 @@ import { useCallback } from "react"
 import { useAppDispatch } from "."
 import { connect, disconnect } from "../slices/wallet"
 import { isDesktop } from "react-device-detect"
-import { petra } from "../../../types"
+import { petra } from "../../../types/common"
 
 export default function usePetra() {
   const dispatch = useAppDispatch()

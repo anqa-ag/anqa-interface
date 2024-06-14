@@ -1,9 +1,12 @@
-import { Network } from "@aptos-labs/ts-sdk"
+import { GetAccountCoinsDataResponse, Network } from "@aptos-labs/ts-sdk"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { createSlice } from "@reduxjs/toolkit"
-import { WalletBalance } from "../../../types"
+import { ArrayElement } from "../../../types/common"
 
 export type WalletProvider = "Martian" | "Petra"
+
+export type AccountCoinData = Omit<ArrayElement<GetAccountCoinsDataResponse>, "amount"> & { amount: string }
+export type WalletBalance = Record<string, AccountCoinData | undefined>
 
 export interface WalletState {
   provider: WalletProvider | undefined

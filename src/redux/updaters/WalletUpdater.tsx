@@ -1,12 +1,13 @@
 import { memo, useCallback, useEffect, useRef } from "react"
 import { useInterval } from "usehooks-ts"
-import { IPetraConnectResponse, IPetraNetwork, WalletBalance, martian, petra } from "../../../types"
+import { martian, petra } from "../../../types/common"
+import { IPetraConnectResponse, IPetraNetwork } from "../../../types/petra"
 import { aptos } from "../../utils/aptos"
 import { useAppDispatch, useAppSelector } from "../hooks"
 import useMartian from "../hooks/useMartian"
 import usePetra from "../hooks/usePetra"
-import { updateBalance, updateNetwork, updateWalletAddress } from "../slices/wallet"
 import { addTokensToFollow } from "../slices/token"
+import { updateBalance, updateNetwork, updateWalletAddress } from "../slices/wallet"
 
 function useGetAccountCoinsDataInterval() {
   const dispatch = useAppDispatch()
@@ -22,7 +23,7 @@ function useGetAccountCoinsDataInterval() {
       .filter((item) => item.amount)
       .reduce(
         (prev, curr) => ({ ...prev, [curr.asset_type]: { ...curr, amount: curr.amount.toString() as string } }),
-        {} as WalletBalance,
+        {},
       )
     dispatch(updateBalance(accountCoinsData))
     dispatch(addTokensToFollow(_accountCoinsData.map((item) => item.asset_type)))

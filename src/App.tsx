@@ -2,7 +2,9 @@ import { APTOS_COIN, Network } from "@aptos-labs/ts-sdk"
 import { Button, Image, Link, Skeleton, Spacer } from "@nextui-org/react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
+import { NumericFormat } from "react-number-format"
 import { useSearchParams } from "react-router-dom"
+import { ToastContainer } from "react-toastify"
 import { useDebounceValue } from "usehooks-ts"
 import { AnqaWithTextIcon, ArrowFilledDownIcon, SettingIcon, SwapIcon, WalletIcon } from "./components/Icons"
 import { BodyB2, BodyB3, TitleT1, TitleT2 } from "./components/Texts"
@@ -14,6 +16,7 @@ import { BIP_BASE, NOT_FOUND_TOKEN_LOGO_URL, SOURCE_LIST, ZUSDC } from "./consta
 import { useIsSm } from "./hooks/useMedia"
 import useModal, { MODAL_LIST } from "./hooks/useModal"
 import useQuote from "./hooks/useQuote"
+import useSwap from "./hooks/useSwap"
 import { useAppSelector } from "./redux/hooks"
 import useMartian from "./redux/hooks/useMartian"
 import usePetra from "./redux/hooks/usePetra"
@@ -28,9 +31,6 @@ import {
   numberWithCommas,
   truncateValue,
 } from "./utils/number"
-import { ToastContainer } from "react-toastify"
-import useSwap from "./hooks/useSwap"
-import { NumericFormat } from "react-number-format"
 
 function Menu() {
   return (

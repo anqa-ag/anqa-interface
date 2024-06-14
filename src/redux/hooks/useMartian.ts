@@ -1,7 +1,7 @@
 import { useCallback } from "react"
 import { useAppDispatch } from "."
-import { martian } from "../../../types"
 import { connect, disconnect } from "../slices/wallet"
+import { martian } from "../../../types/common"
 
 export default function useMartian() {
   const dispatch = useAppDispatch()
@@ -22,7 +22,6 @@ export default function useMartian() {
       dispatch(disconnect())
       throw err
     }
-
   }, [dispatch])
 
   const onDisconnect = useCallback(async () => {
