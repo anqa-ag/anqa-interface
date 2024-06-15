@@ -1,23 +1,20 @@
-import { memo, useCallback, useEffect, useRef } from "react"
+import { useWallet } from "@aptos-labs/wallet-adapter-react"
+import { memo, useCallback, useEffect } from "react"
 import { useInterval } from "usehooks-ts"
-import { martian, petra } from "../../../types/common"
-import { IPetraConnectResponse, IPetraNetwork } from "../../../types/petra"
 import { aptos } from "../../utils/aptos"
-import { useAppDispatch, useAppSelector } from "../hooks"
-import useMartian from "../hooks/useMartian"
-import usePetra from "../hooks/usePetra"
+import { useAppDispatch } from "../hooks"
 import { addTokensToFollow } from "../slices/token"
-import { updateBalance, updateNetwork, updateWalletAddress } from "../slices/wallet"
+import { updateBalance } from "../slices/wallet"
 
-function useGetAccountCoinsDataInterval() {
+function WalletUpdater() {
   const dispatch = useAppDispatch()
 
-  const walletAddress = useAppSelector((state) => state.wallet.walletAddress)
+  const { account } = useWallet()
 
   const fn = useCallback(async () => {
-    if (!walletAddress) return
+    if (!account) return
     const _accountCoinsData = await aptos.getAccountCoinsData({
-      accountAddress: walletAddress,
+      accountAddress: account.address,
     })
     const accountCoinsData = _accountCoinsData
       .filter((item) => item.amount)
@@ -27,59 +24,13 @@ function useGetAccountCoinsDataInterval() {
       )
     dispatch(updateBalance(accountCoinsData))
     dispatch(addTokensToFollow(_accountCoinsData.map((item) => item.asset_type)))
-  }, [dispatch, walletAddress])
+  }, [account, dispatch])
 
   useEffect(() => {
     void fn()
   }, [fn])
 
   useInterval(fn, 10000)
-}
-
-function WalletUpdater() {
-  useGetAccountCoinsDataInterval()
-
-  const dispatch = useAppDispatch()
-
-  const { onConnect: onConnectMartian } = useMartian()
-  const { onConnect: onConnectPetra } = usePetra()
-
-  const provider = useAppSelector((state) => state.wallet.provider)
-
-  const run = useRef(false)
-  // Run only once to auto connect.
-  useEffect(() => {
-    if (run.current) return
-    run.current = true
-    switch (provider) {
-      case "Martian":
-        void onConnectMartian()
-        break
-      case "Petra":
-        void onConnectPetra()
-        break
-    }
-  }, [onConnectMartian, onConnectPetra, provider])
-
-  useEffect(() => {
-    if (!martian) return
-    martian.onNetworkChange((network: string) => dispatch(updateNetwork(network)))
-    martian.onAccountChange((walletAddress: string) => dispatch(updateWalletAddress(walletAddress)))
-  }, [dispatch])
-
-  useEffect(() => {
-    if (!petra) return
-    petra.onNetworkChange((network: IPetraNetwork) => dispatch(updateNetwork(network.name)))
-    petra.onAccountChange((response: IPetraConnectResponse) => {
-      // WARN: Why it's render 8 times in here for each switching?!
-      // console.log("response.address", response.address)
-
-      // If the new account has already connected to your app then the newAccount will be returned
-      if (response) {
-        dispatch(updateWalletAddress(response.address))
-      } else void onConnectPetra() // Otherwise you will need to ask to connect to the new account
-    })
-  }, [dispatch, onConnectPetra])
 
   return null
 }

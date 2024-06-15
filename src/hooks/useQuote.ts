@@ -95,16 +95,18 @@ export function sourceToName(source: string): string {
     .join("")
 }
 
-const swrOptions =
-  import.meta.env.MODE === "development"
-    ? {
-        refreshInterval: 0,
-        revalidateIfStale: false,
-        revalidateOnFocus: false,
-        revalidateOnMount: false,
-        revalidateOnReconnect: false,
-      }
-    : { refreshInterval: 10_000 }
+// const swrOptions =
+//   import.meta.env.MODE === "development"
+//     ? {
+//         refreshInterval: 0,
+//         revalidateIfStale: false,
+//         revalidateOnFocus: false,
+//         revalidateOnMount: false,
+//         revalidateOnReconnect: false,
+//       }
+//     : { refreshInterval: 10_000 }
+
+const swrOptions = { refreshInterval: 10_000 }
 
 export default function useQuote(tokenIn?: string, tokenOut?: string, amountIn?: string, includeSources?: string) {
   const {

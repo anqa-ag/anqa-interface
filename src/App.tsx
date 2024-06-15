@@ -1,4 +1,5 @@
 import { APTOS_COIN, Network } from "@aptos-labs/ts-sdk"
+import { useWallet } from "@aptos-labs/wallet-adapter-react"
 import { Button, Image, Link, Skeleton, Spacer } from "@nextui-org/react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
@@ -12,14 +13,21 @@ import Tooltips from "./components/Tooltips"
 import ModalConnectWallet from "./components/modals/ModalConnectWallet"
 import ModalSelectToken from "./components/modals/ModalSelectToken"
 import ModalUserSetting from "./components/modals/ModalUserSetting"
-import { BIP_BASE, NOT_FOUND_TOKEN_LOGO_URL, SOURCE_LIST, ZUSDC } from "./constants"
+import {
+  BIP_BASE,
+  NOT_FOUND_TOKEN_LOGO_URL,
+  SOURCE_LIST,
+  ZUSDC,
+  martianWallet,
+  okxWallet,
+  petraWallet,
+  pontemWallet,
+} from "./constants"
 import { useIsSm } from "./hooks/useMedia"
 import useModal, { MODAL_LIST } from "./hooks/useModal"
 import useQuote from "./hooks/useQuote"
 import useSwap from "./hooks/useSwap"
 import { useAppSelector } from "./redux/hooks"
-import useMartian from "./redux/hooks/useMartian"
-import usePetra from "./redux/hooks/usePetra"
 import { Token } from "./redux/slices/token"
 import Updaters from "./redux/updaters/Updaters"
 import { Fraction } from "./utils/fraction"
@@ -57,20 +65,8 @@ function ButtonConnectWallet({
   onOpenModalConnectWallet: () => void
   isOpenModalConnectWallet: boolean
 }) {
-  const { walletAddress: connectedWallet, network } = useAppSelector((state) => state.wallet)
-  const isMainnet = network === Network.MAINNET
-  const provider = useAppSelector((state) => state.wallet.provider)
-  const { onDisconnect: onDisconnectMartian } = useMartian()
-  const { onDisconnect: onDisconnectPetra } = usePetra()
-  const onDisconnect = async () => {
-    switch (provider) {
-      case "Martian":
-        await onDisconnectMartian()
-        break
-      case "Petra":
-        await onDisconnectPetra()
-    }
-  }
+  const { account, network, disconnect, wallet, connected } = useWallet()
+  const isMainnet = network ? network.name === Network.MAINNET : undefined
 
   return (
     <div className="flex-1 text-end">
@@ -79,26 +75,34 @@ function ButtonConnectWallet({
         className={
           "w-fit rounded px-4" +
           " " +
-          (connectedWallet
+          (connected
             ? "border-buttonSecondary bg-background text-buttonSecondary"
             : "border-primary bg-primary text-white")
         }
-        onPress={connectedWallet ? onDisconnect : onOpenModalConnectWallet}
+        onPress={connected ? disconnect : onOpenModalConnectWallet}
         isLoading={isOpenModalConnectWallet}
-        variant={connectedWallet ? "bordered" : "solid"}
+        variant={connected ? "bordered" : "solid"}
       >
-        {connectedWallet && (
+        {wallet && connected && (
           <Image
             width={20}
             className="min-w-[20px]"
             src={
-              provider === "Martian" ? "/images/martian.jpeg" : provider === "Petra" ? "/images/petra.svg" : undefined
+              wallet.name === petraWallet.name
+                ? "/images/petra.svg"
+                : wallet.name === martianWallet.name
+                  ? "/images/martian.jpeg"
+                  : wallet.name === pontemWallet.name
+                    ? "/images/pontem.svg"
+                    : wallet.name === okxWallet.name
+                      ? "/images/okx.png"
+                      : undefined
             }
           />
         )}
-        {connectedWallet ? (
+        {connected && account?.address ? (
           isMainnet ? (
-            <TitleT2>{connectedWallet.slice(0, 4) + "..." + connectedWallet.slice(-4)}</TitleT2>
+            <TitleT2>{account.address.slice(0, 4) + "..." + account.address.slice(-4)}</TitleT2>
           ) : (
             <TitleT2>Wrong Network ({network})</TitleT2>
           )
@@ -118,7 +122,9 @@ export default function App() {
 
   const isSm = useIsSm()
 
-  const { walletAddress: connectedWallet, balance } = useAppSelector((state) => state.wallet)
+  const { balance } = useAppSelector((state) => state.wallet)
+  const { account } = useWallet()
+  const connectedWallet = useMemo(() => (account ? account.address : undefined), [account])
 
   const [typedAmountIn, _setTypedAmountIn] = useState("")
   const [shouldUseDebounceAmountIn, setShouldUseDebounceAmountIn] = useState(true)

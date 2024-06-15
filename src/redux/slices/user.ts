@@ -3,7 +3,7 @@ import { VERSION } from "../../constants"
 import { PURGE } from "redux-persist"
 
 export interface NotificationData {
-  version: string
+  version: string | undefined
   isSuccess: boolean
   tokenInSymbol: string | undefined
   tokenOutSymbol: string | undefined
@@ -32,8 +32,11 @@ export const userSlice = createSlice({
       state.slippageBps = action.payload
     },
     addNotification: (state, action: PayloadAction<NotificationData>) => {
+      if (!action.payload.version) return
+
       if (state.notificationMap) {
         state.notificationMap[action.payload.version] = action.payload
+        return
       }
       state.notificationMap = {
         [action.payload.version]: action.payload,

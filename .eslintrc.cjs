@@ -37,6 +37,8 @@ module.exports = {
     "@typescript-eslint/prefer-nullish-coalescing": "off",
     "no-constant-condition": "off",
     "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/unbound-method": "off",
+    "@typescript-eslint/no-unsafe-argument": "off",
   },
   settings: {
     react: {

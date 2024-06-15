@@ -1,14 +1,9 @@
-import { Image, Button, Modal, ModalContent, Spacer } from "@nextui-org/react"
-import useMartian from "../../redux/hooks/useMartian"
+import { WalletName, useWallet } from "@aptos-labs/wallet-adapter-react"
+import { Button, Image, Modal, ModalContent, Spacer } from "@nextui-org/react"
+import { isDesktop } from "react-device-detect"
+import { martianWallet, okxWallet, petraWallet, pontemWallet } from "../../constants/index.ts"
 import { CloseIcon } from "../Icons"
 import { BodyB2, TitleT1, TitleT2, TitleT5 } from "../Texts"
-import { useState } from "react"
-import { useAppDispatch, useAppSelector } from "../../redux/hooks"
-import { setProvider } from "../../redux/slices/wallet"
-import usePetra from "../../redux/hooks/usePetra"
-import { petra } from "../../../types/common.ts"
-import { martian } from "../../../types/common.ts"
-import { isDesktop } from "react-device-detect"
 
 export default function ModalConnectWallet({
   isOpen,
@@ -19,38 +14,11 @@ export default function ModalConnectWallet({
   onClose: () => void
   onOpenChange: () => void
 }) {
-  const dispatch = useAppDispatch()
+  const { connect } = useWallet()
 
-  const provider = useAppSelector((state) => state.wallet.provider)
-  const isMartian = provider === "Martian"
-  const isPetra = provider === "Petra"
-
-  const [isConnecting, setIsConnecting] = useState(false)
-  const [error, setError] = useState<string>()
-
-  const { onConnect: onConnectMartian } = useMartian()
-  const { onConnect: onConnectPetra } = usePetra()
-
-  const onConnect = (wantedProvider: "Martian" | "Petra") => async () => {
-    dispatch(setProvider(wantedProvider))
-
-    setIsConnecting(true)
-    try {
-      let ok: boolean | undefined
-      switch (wantedProvider) {
-        case "Martian":
-          ok = await onConnectMartian()
-          break
-        case "Petra":
-          ok = await onConnectPetra()
-      }
-      if (ok) onClose()
-    } catch (err) {
-      console.error(err)
-      setError((err as Error).toString())
-    } finally {
-      setIsConnecting(false)
-    }
+  const onConnect = (wantedProvider: WalletName) => () => {
+    connect(wantedProvider)
+    onClose()
   }
 
   return (
@@ -77,21 +45,19 @@ export default function ModalConnectWallet({
                 <div className="flex w-full flex-col gap-1">
                   <Button
                     className="flex items-center justify-between rounded bg-background px-4 py-3"
-                    onPress={onConnect("Petra")}
-                    isLoading={isPetra && isConnecting}
+                    onPress={onConnect(petraWallet.name)}
                   >
                     <div className="flex items-center gap-2">
                       <Image width={20} src="/images/petra.svg" />
                       <TitleT2>Petra</TitleT2>
                     </div>
-                    {petra && (
+                    {window.aptos && (
                       <div className="flex items-center gap-2">
                         <div className="h-[6.67px] w-[6.67px] rounded-full bg-buttonGreen"></div>
                         <TitleT5>Detected</TitleT5>
                       </div>
                     )}
                   </Button>
-                  {isPetra && error && <BodyB2 className="text-buttonRed">{error}</BodyB2>}
                 </div>
 
                 {/* MARTIAN */}
@@ -100,24 +66,60 @@ export default function ModalConnectWallet({
                     <div className="flex w-full flex-col gap-1">
                       <Button
                         className="flex w-full items-center justify-between rounded bg-background px-4 py-3"
-                        onPress={onConnect("Martian")}
-                        isLoading={isMartian && isConnecting}
+                        onPress={onConnect(martianWallet.name)}
                       >
                         <div className="flex items-center gap-2">
                           <Image width={20} src="/images/martian.jpeg" />
                           <TitleT2>Martian</TitleT2>
                         </div>
-                        {martian && (
+                        {window.martian && (
                           <div className="flex items-center gap-2">
                             <div className="h-[6.67px] w-[6.67px] rounded-full bg-buttonGreen"></div>
                             <TitleT5>Detected</TitleT5>
                           </div>
                         )}
                       </Button>
-                      {isMartian && error && <BodyB2 className="text-buttonRed">{error}</BodyB2>}
                     </div>
                   </>
                 )}
+
+                {/* PONTEM */}
+                <div className="flex w-full flex-col gap-1">
+                  <Button
+                    className="flex items-center justify-between rounded bg-background px-4 py-3"
+                    onPress={onConnect(pontemWallet.name)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Image width={20} src="/images/pontem.svg" />
+                      <TitleT2>Pontem</TitleT2>
+                    </div>
+                    {window.pontem && (
+                      <div className="flex items-center gap-2">
+                        <div className="h-[6.67px] w-[6.67px] rounded-full bg-buttonGreen"></div>
+                        <TitleT5>Detected</TitleT5>
+                      </div>
+                    )}
+                  </Button>
+                </div>
+
+                {/* OKX */}
+                <div className="flex w-full flex-col gap-1">
+                  <Button
+                    className="flex items-center justify-between rounded bg-background px-4 py-3"
+                    onPress={onConnect(okxWallet.name)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Image width={20} src="/images/okx.png" />
+                      <TitleT2>OKX Wallet</TitleT2>
+                    </div>
+                    {window.okxwallet && (
+                      <div className="flex items-center gap-2">
+                        <div className="h-[6.67px] w-[6.67px] rounded-full bg-buttonGreen"></div>
+                        <TitleT5>Detected</TitleT5>
+                      </div>
+                    )}
+                  </Button>
+                </div>
               </div>
             </>
           )}

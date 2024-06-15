@@ -1,3 +1,4 @@
+import { useWallet } from "@aptos-labs/wallet-adapter-react"
 import { Icon } from "@iconify/react"
 import { Button, Image, Input, Modal, ModalContent, Spacer } from "@nextui-org/react"
 import { CSSProperties, memo, useCallback, useEffect, useMemo, useState } from "react"
@@ -130,12 +131,13 @@ function ModalSelectToken({
   const { data: fullTokenData } = useFullTokens()
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
   const followingPriceData = useAppSelector((state) => state.price.followingPriceData)
-  const { balance, walletAddress } = useAppSelector((state) => state.wallet)
+  const { balance } = useAppSelector((state) => state.wallet)
+  const { connected } = useWallet()
   const followingTokenDataWithBalance = useMemo(() => {
     const res: Record<string, TokenWithBalance> = {}
     for (const address of Object.keys(followingTokenData)) {
       let fractionalBalance: Fraction | undefined
-      if (walletAddress && balance[address] && balance[address]?.amount) {
+      if (connected && balance[address] && balance[address]?.amount) {
         fractionalBalance = divpowToFraction(balance[address]!.amount, followingTokenData[address].decimals)
       }
       let fractionalBalanceUsd: Fraction | undefined
@@ -156,7 +158,7 @@ function ModalSelectToken({
       res[address] = newItem
     }
     return res
-  }, [balance, followingPriceData, followingTokenData, walletAddress])
+  }, [balance, connected, followingPriceData, followingTokenData])
   const followingTokenDataWithBalanceList = useMemo(() => {
     const list = Object.values(followingTokenDataWithBalance)
     list.sort((a: TokenWithBalance, b: TokenWithBalance) => {

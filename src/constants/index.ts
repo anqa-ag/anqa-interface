@@ -1,3 +1,8 @@
+import { PetraWallet } from "petra-plugin-wallet-adapter"
+import { MartianWallet } from "@martianwallet/aptos-wallet-adapter"
+import { PontemWallet } from "@pontem/wallet-adapter-plugin"
+import { OKXWallet } from "@okwallet/aptos-wallet-adapter"
+
 export const ZUSDC = "0xf22bede237a07e121b56d91a491eb7bcdfd1f5907926a9e58338f964a01b17fa::asset::USDC"
 
 export const MAINNET_CHAIN_ID = 1
@@ -28,3 +33,9 @@ export const SOURCE_LIST = [
 
 export const AGGREGATOR_URL = import.meta.env.VITE_AGGREGATOR_URL
 export const VERSION = 1 // Pump version to purge state.
+
+export const petraWallet = new PetraWallet()
+export const martianWallet = new MartianWallet()
+export const pontemWallet = new PontemWallet()
+export const okxWallet = new OKXWallet()
+export const MAINNET_WALLETS = [petraWallet, martianWallet, pontemWallet, okxWallet]

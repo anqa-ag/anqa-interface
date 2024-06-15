@@ -1,10 +1,8 @@
-import { isUserTransactionResponse } from "@aptos-labs/ts-sdk"
+import { InputEntryFunctionData, isUserTransactionResponse } from "@aptos-labs/ts-sdk"
+import { useWallet } from "@aptos-labs/wallet-adapter-react"
 import { Link } from "@nextui-org/react"
 import { useCallback, useMemo, useState } from "react"
 import { toast } from "react-toastify"
-import { petra } from "../../types/common"
-import { martian } from "../../types/common"
-import { IPetraSignAndSubmitTransactionData } from "../../types/petra"
 import { TitleT2, TitleT4 } from "../components/Texts"
 import { useAppDispatch, useAppSelector } from "../redux/hooks"
 import { NotificationData, addNotification } from "../redux/slices/user"
@@ -149,31 +147,29 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
   return [source, poolType, isXToY, path.amountIn]
 }
 
-function getSwapDataFromPaths(args: SwapArgs): {
-  function: string
-  arguments: ((number | string)[] | string)[]
-  typeArguments: string[]
-} {
+function getSwapDataFromPaths(args: SwapArgs): InputEntryFunctionData {
   console.log(`args`, args)
-  const data = {
+  const data: InputEntryFunctionData = {
     function: "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::swap_generic",
-    arguments: [...Array(MAX_PATH * MAX_HOPS_PER_PATH).fill([0, 0, 0, "0"]), args.minAmountOut],
+    functionArguments: [...Array(MAX_PATH * MAX_HOPS_PER_PATH).fill([0, 0, 0, "0"]), args.minAmountOut],
     typeArguments: [args.tokenIn, args.tokenOut, ...Array(MAX_PATH * (MAX_HOPS_PER_PATH - 1)).fill(COIN_NULL)],
   }
   // Fill arguments.
   for (let i = 0; i < args.paths.length; i++) {
     for (let j = 0; j < args.paths[i].length; j++) {
-      data.arguments[i * MAX_HOPS_PER_PATH + j] = pathToSwapArgument(args.paths[i][j])
+      data.functionArguments[i * MAX_HOPS_PER_PATH + j] = pathToSwapArgument(args.paths[i][j])
     }
   }
   // Fill typeArguments.
-  for (let i = 0; i < args.paths.length; i++) {
-    if (args.paths[i].length === 1) {
-      data.typeArguments[2 + i * (MAX_HOPS_PER_PATH - 1)] = args.tokenOut
-      continue
-    }
-    for (let j = 0; j < args.paths[i].length; j++) {
-      data.typeArguments[2 + i * (MAX_HOPS_PER_PATH - 1) + j] = args.paths[i][j].tokenOut
+  if (data.typeArguments) {
+    for (let i = 0; i < args.paths.length; i++) {
+      if (args.paths[i].length === 1) {
+        data.typeArguments[2 + i * (MAX_HOPS_PER_PATH - 1)] = args.tokenOut
+        continue
+      }
+      for (let j = 0; j < args.paths[i].length; j++) {
+        data.typeArguments[2 + i * (MAX_HOPS_PER_PATH - 1) + j] = args.paths[i][j].tokenOut
+      }
     }
   }
   console.log(`data`, data)
@@ -187,11 +183,18 @@ export default function useSwap() {
     success: undefined,
   })
   const dispatch = useAppDispatch()
-  const { walletAddress, provider } = useAppSelector((state) => state.wallet)
+  const { account, connected, signAndSubmitTransaction } = useWallet()
   const { followingTokenData } = useAppSelector((state) => state.token)
 
   const sendNotification = useCallback(
-    (tokenIn: string, tokenOut: string, version: string, isSuccess: boolean, amountIn: string, amountOut: string) => {
+    (
+      tokenIn: string,
+      tokenOut: string,
+      version: string | undefined,
+      isSuccess: boolean,
+      amountIn: string,
+      amountOut: string,
+    ) => {
       const tokenInData = followingTokenData[tokenIn]
       const tokenOutData = followingTokenData[tokenOut]
       if (tokenInData && tokenOutData) {
@@ -212,14 +215,16 @@ export default function useSwap() {
                 Swap {payload.readableAmountIn} {payload.tokenInSymbol} to {payload.readableAmountOut}{" "}
                 {payload.tokenOutSymbol}
               </TitleT2>
-              <Link
-                href={`https://aptoscan.com/transaction/${payload.version}`}
-                isExternal
-                showAnchorIcon
-                className="text-buttonSecondary"
-              >
-                <TitleT4>View on explorer</TitleT4>
-              </Link>
+              {payload.version && (
+                <Link
+                  href={`https://aptoscan.com/transaction/${payload.version}`}
+                  isExternal
+                  showAnchorIcon
+                  className="text-buttonSecondary"
+                >
+                  <TitleT4>View on explorer</TitleT4>
+                </Link>
+              )}
             </div>
           ) : (
             <div className="rounded bg-[rgba(244,70,70,0.2)] p-4">
@@ -250,7 +255,7 @@ export default function useSwap() {
 
   const onSwap = useCallback(
     async (args: SwapArgs) => {
-      if (!provider || !walletAddress || isSwapping) return
+      if (!account || !connected || isSwapping) return
 
       // const payload = {
       //   version: Date.now().toString(),
@@ -303,58 +308,61 @@ export default function useSwap() {
 
       try {
         setSwapState({ isSwapping: true, txVersion: undefined, success: undefined })
-        if (provider === "Petra") {
-          if (!petra) return
-          const swapData = getSwapDataFromPaths(args)
-          // TODO: Simulate transaction.
-          const response = await petra.signAndSubmitTransaction({
-            payload: {
-              function: swapData.function,
-              arguments: swapData.arguments,
-              type_arguments: swapData.typeArguments,
-            },
-          })
-          console.log(`response`, response)
-          setSwapState({ isSwapping: false, txVersion: response.version, success: response.success })
-          sendNotification(
-            args.tokenIn,
-            args.tokenOut,
-            response.version,
-            response.success,
-            args.amountIn,
-            args.amountOut,
-          )
-        } else if (provider === "Martian") {
-          if (!martian) return
-          const swapData = getSwapDataFromPaths(args)
-          const payload: IPetraSignAndSubmitTransactionData["payload"] = {
-            function: swapData.function,
-            arguments: swapData.arguments,
-            type_arguments: swapData.typeArguments,
-          }
-          const transaction = await martian.generateTransaction(walletAddress, payload)
-          const txHash = await martian.signAndSubmitTransaction(transaction)
-          const response = await aptos.transaction.getTransactionByHash({ transactionHash: txHash })
-          if (isUserTransactionResponse(response)) {
-            setSwapState({ isSwapping: false, txVersion: response.version, success: response.success })
-            sendNotification(
-              args.tokenIn,
-              args.tokenOut,
-              response.version,
-              response.success,
-              args.amountIn,
-              args.amountOut,
-            )
+        // if (provider === "Petra") {
+        //   if (!petra) return
+        //   const swapData = getSwapDataFromPaths(args)
+        //   const response = await petra.signAndSubmitTransaction({
+        //     payload: {
+        //       function: swapData.function,
+        //       arguments: swapData.arguments,
+        //       type_arguments: swapData.typeArguments,
+        //     },
+        //   })
+        //   console.log(`response`, response)
+        //   setSwapState({ isSwapping: false, txVersion: response.version, success: response.success })
+        //   sendNotification(
+        //     args.tokenIn,
+        //     args.tokenOut,
+        //     response.version,
+        //     response.success,
+        //     args.amountIn,
+        //     args.amountOut,
+        //   )
+        // } else if (provider === "Martian") {
+        //   if (!martian) return
+        const swapData = getSwapDataFromPaths(args)
+        const response: {
+          hash: string
+          output: Record<string, any>
+        } = await signAndSubmitTransaction({ sender: account.address, data: swapData })
+        console.log(`response`, response)
+        if (
+          response.hash &&
+          (response.output === undefined || Object.keys(response.output).length === 0 || !response.output.version)
+        ) {
+          const aptosResponse = await aptos.waitForTransaction({ transactionHash: response.hash })
+          console.log(`aptosResponse`, aptosResponse)
+          if (isUserTransactionResponse(aptosResponse)) {
+            response.output = aptosResponse
           } else {
-            throw new Error(JSON.stringify(response))
+            throw new Error(`Something is wrong. aptosResponse = ${JSON.stringify(aptosResponse, null, 4)}`)
           }
         }
+        setSwapState({ isSwapping: false, txVersion: response.output?.version, success: response.output?.success })
+        sendNotification(
+          args.tokenIn,
+          args.tokenOut,
+          response.output?.version,
+          Boolean(response.output?.success),
+          args.amountIn,
+          args.amountOut,
+        )
       } catch (err) {
         console.error(err)
         setSwapState((prev) => ({ ...prev, isSwapping: false }))
       }
     },
-    [isSwapping, provider, sendNotification, walletAddress],
+    [account, connected, isSwapping, sendNotification, signAndSubmitTransaction],
   )
 
   const res = useMemo(
