@@ -13,9 +13,14 @@ function ButtonSlippage({ value, onClose }: { value: number; onClose: () => void
     dispatch(setSlippage(value))
     onClose()
   }
+
   return (
     <Button
-      className={"h-[40px] min-w-fit p-5 rounded-none bg-background sm:p-[10px]" + " " + (value === slippageBps ? "!bg-primaryHover" : "")}
+      className={
+        "h-[40px] min-w-fit rounded-none bg-background p-5 sm:p-[10px]" +
+        " " +
+        (value === slippageBps ? "!bg-primaryHover" : "")
+      }
       disableAnimation
       onPress={onPress}
     >
