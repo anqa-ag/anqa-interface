@@ -65,7 +65,7 @@ function ButtonConnectWallet({
   onOpenModalConnectWallet: () => void
   isOpenModalConnectWallet: boolean
 }) {
-  const { account, network, disconnect, wallet, connected } = useWallet()
+  const { account, network, disconnect, wallet, connected, isLoading: isLoadingWallet } = useWallet()
   const isMainnet = network ? network.name === Network.MAINNET : undefined
 
   return (
@@ -80,7 +80,7 @@ function ButtonConnectWallet({
             : "border-primary bg-primary text-white")
         }
         onPress={connected ? disconnect : onOpenModalConnectWallet}
-        isLoading={isOpenModalConnectWallet}
+        isLoading={isOpenModalConnectWallet || isLoadingWallet}
         variant={connected ? "bordered" : "solid"}
       >
         {wallet && connected && (
@@ -106,6 +106,8 @@ function ButtonConnectWallet({
           ) : (
             <TitleT2>Wrong Network ({network})</TitleT2>
           )
+        ) : isLoadingWallet ? (
+          <TitleT2>Loading Wallet</TitleT2>
         ) : (
           <TitleT2>Connect Wallet</TitleT2>
         )}
@@ -123,7 +125,7 @@ export default function App() {
   const isSm = useIsSm()
 
   const { balance } = useAppSelector((state) => state.wallet)
-  const { account } = useWallet()
+  const { isLoading: isLoadingWallet, account } = useWallet()
   const connectedWallet = useMemo(() => (account ? account.address : undefined), [account])
 
   const [typedAmountIn, _setTypedAmountIn] = useState("")
@@ -216,10 +218,10 @@ export default function App() {
   const priceImpact = useMemo(() => {
     let res =
       fractionalAmountInUsd && fractionalAmountOutUsd
-        ? fractionalAmountOutUsd.subtract(fractionalAmountInUsd).divide(fractionalAmountInUsd).multiply(100)
+        ? fractionalAmountInUsd.subtract(fractionalAmountOutUsd).divide(fractionalAmountInUsd).multiply(100)
         : undefined
     if (res?.lessThan(0)) {
-      res = res.multiply(-1)
+      res = new Fraction(0)
     }
     return res
   }, [fractionalAmountInUsd, fractionalAmountOutUsd])
@@ -268,12 +270,21 @@ export default function App() {
   }
 
   const swapButton = useMemo(() => {
-    if (!fractionalAmountIn) return { isDisabled: true, text: "Enter an amount" }
-    if (!isSufficientBalance) return { isDisabled: true, text: "Insufficient balance" }
-    if (isValidatingQuote) return { isDisabled: true, text: "Getting quote..." }
-    if (!fractionalAmountOut) return { isDisabled: true, text: "Not found route" }
-    return { isDisabled: false, text: "Swap" }
-  }, [fractionalAmountIn, isSufficientBalance, isValidatingQuote, fractionalAmountOut])
+    if (!fractionalAmountIn) return { isDisabled: true, background: "bg-primary", text: "Enter an amount" }
+    if (!isSufficientBalance) return { isDisabled: true, background: "bg-primary", text: "Insufficient balance" }
+    if (isValidatingQuote) return { isDisabled: true, background: "bg-primary", text: "Getting quote..." }
+    if (!fractionalAmountOut) return { isDisabled: true, background: "bg-primary", text: "Not found route" }
+    if (!priceImpact) {
+      return { isDisabled: false, background: "bg-buttonRed", text: "Can't calculate price impact. Swap anyway?" }
+    }
+    if (priceImpact.greaterThan(5)) {
+      return { isDisabled: false, background: "bg-buttonRed", text: "Price impact is very high. Swap anyway?" }
+    }
+    if (priceImpact.greaterThan(2)) {
+      return { isDisabled: false, background: "bg-[#867614]", text: "Price impact is high. Swap anyway?" }
+    }
+    return { isDisabled: false, background: "bg-primary", text: "Swap" }
+  }, [fractionalAmountIn, isSufficientBalance, isValidatingQuote, fractionalAmountOut, priceImpact])
 
   const [tokenInLogoSrc, setTokenInLogoSrc] = useState(tokenInInfo?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL)
   const [tokenOutLogoSrc, setTokenOutLogoSrc] = useState(tokenOutInfo?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL)
@@ -436,7 +447,7 @@ export default function App() {
                   {/* INPUT */}
                   <>
                     <div className="flex flex-col gap-2 rounded border-1 border-black900 bg-black900 p-3 transition focus-within:border-black600">
-                      <div className="flex items-center justify-between">
+                      <div className="flex h-[24px] items-center justify-between">
                         <BodyB2 className="text-buttonSecondary">You&apos;re paying</BodyB2>
                         {connectedWallet && (
                           <Button
@@ -539,7 +550,7 @@ export default function App() {
                   {/* OUTPUT */}
                   <>
                     <div className="flex flex-col gap-2 rounded border-1 border-black900 bg-black900 p-3 transition">
-                      <div className="flex items-center justify-between">
+                      <div className="flex h-[24px] items-center justify-between">
                         <BodyB2 className="text-buttonSecondary">To Receive</BodyB2>
                         {connectedWallet && (
                           <Button
@@ -645,8 +656,7 @@ export default function App() {
 
                 {connectedWallet ? (
                   <Button
-                    color="primary"
-                    className="h-[52px] rounded"
+                    className={`h-[52px] rounded ${swapButton.background}`}
                     isLoading={isSwapping}
                     onPress={onSwap}
                     isDisabled={swapButton.isDisabled}
@@ -658,8 +668,9 @@ export default function App() {
                     color="primary"
                     className="h-[52px] rounded"
                     onPress={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
+                    isLoading={isLoadingWallet}
                   >
-                    <TitleT2>Connect Wallet</TitleT2>
+                    <TitleT2>{isLoadingWallet ? "Loading Wallet" : "Connect Wallet"}</TitleT2>
                   </Button>
                 )}
 
@@ -757,7 +768,13 @@ export default function App() {
                                 </div>
                               </>
                             ) : (
-                              <BodyB2>{priceImpact ? `~${priceImpact.toSignificant(4)}%` : "--"}</BodyB2>
+                              <BodyB2 className="flex items-center">
+                                {priceImpact
+                                  ? priceImpact.lessThan(new Fraction(1, 100))
+                                    ? "<0.01%"
+                                    : `~${truncateValue(priceImpact.toSignificant(4), 2)}%`
+                                  : "--"}
+                              </BodyB2>
                             )}
                           </div>
                           <div className="flex items-center justify-between">

@@ -3,9 +3,9 @@ import { useWallet } from "@aptos-labs/wallet-adapter-react"
 import { Link } from "@nextui-org/react"
 import { useCallback, useMemo, useState } from "react"
 import { toast } from "react-toastify"
-import { TitleT2, TitleT4 } from "../components/Texts"
+import { BodyB2, TitleT2, TitleT4 } from "../components/Texts"
 import { useAppDispatch, useAppSelector } from "../redux/hooks"
-import { NotificationData, addNotification } from "../redux/slices/user"
+import { ITransactionHistory, addTransactionHistory } from "../redux/slices/user"
 import { aptos } from "../utils/aptos"
 import { divpowToFraction } from "../utils/number"
 import { GetRouteResponseDataPath } from "./useQuote"
@@ -190,24 +190,25 @@ export default function useSwap() {
     (
       tokenIn: string,
       tokenOut: string,
-      version: string | undefined,
-      isSuccess: boolean,
       amountIn: string,
       amountOut: string,
+      version: string | undefined,
+      isSuccess: boolean,
+      details: string | undefined,
     ) => {
       const tokenInData = followingTokenData[tokenIn]
       const tokenOutData = followingTokenData[tokenOut]
       if (tokenInData && tokenOutData) {
-        const payload: NotificationData = {
+        const payload: ITransactionHistory = {
           version,
           isSuccess,
+          details,
           tokenInSymbol: tokenInData.symbol,
           tokenOutSymbol: tokenOutData.symbol,
           readableAmountIn: divpowToFraction(amountIn, tokenInData.decimals).toSignificant(6),
           readableAmountOut: divpowToFraction(amountOut, tokenOutData.decimals).toSignificant(6),
-          isHide: false,
         }
-        dispatch(addNotification(payload))
+        dispatch(addTransactionHistory(payload))
         toast(
           payload.isSuccess ? (
             <div className="rounded bg-[rgba(24,207,106,0.2)] p-4">
@@ -232,14 +233,17 @@ export default function useSwap() {
                 Error swapping {payload.readableAmountIn} {payload.tokenInSymbol} to {payload.readableAmountOut}{" "}
                 {payload.tokenOutSymbol}
               </TitleT2>
-              <Link
-                href={`https://aptoscan.com/transaction/${payload.version}`}
-                isExternal
-                showAnchorIcon
-                className="text-buttonSecondary"
-              >
-                <TitleT4>View on explorer</TitleT4>
-              </Link>
+              {payload.version && (
+                <Link
+                  href={`https://aptoscan.com/transaction/${payload.version}`}
+                  isExternal
+                  showAnchorIcon
+                  className="text-buttonSecondary"
+                >
+                  <TitleT4>View on explorer</TitleT4>
+                </Link>
+              )}
+              {details && <BodyB2>{details}</BodyB2>}
             </div>
           ),
           {
@@ -266,7 +270,7 @@ export default function useSwap() {
       //   readableAmountOut: Math.random().toFixed(6),
       //   isHide: false,
       // }
-      // dispatch(addNotification(payload))
+      // dispatch(addTransactionHistory(payload))
       // toast(
       //   payload.isSuccess ? (
       //     <div className="rounded bg-[rgba(24,207,106,0.2)] p-4">
@@ -340,7 +344,10 @@ export default function useSwap() {
           response.hash &&
           (response.output === undefined || Object.keys(response.output).length === 0 || !response.output.version)
         ) {
-          const aptosResponse = await aptos.waitForTransaction({ transactionHash: response.hash })
+          const aptosResponse = await aptos.waitForTransaction({
+            transactionHash: response.hash,
+            options: { checkSuccess: false, timeoutSecs: 2, waitForIndexer: true },
+          })
           console.log(`aptosResponse`, aptosResponse)
           if (isUserTransactionResponse(aptosResponse)) {
             response.output = aptosResponse
@@ -352,14 +359,28 @@ export default function useSwap() {
         sendNotification(
           args.tokenIn,
           args.tokenOut,
-          response.output?.version,
-          Boolean(response.output?.success),
           args.amountIn,
           args.amountOut,
+          response.output?.version,
+          Boolean(response.output?.success),
+          response.output?.vm_status,
         )
       } catch (err) {
+        console.log(err)
         console.error(err)
         setSwapState((prev) => ({ ...prev, isSwapping: false }))
+
+        const jsonErr = JSON.stringify(err)
+        const isUserRejectError = jsonErr.includes("user") && jsonErr.includes("request")
+        if (!isUserRejectError) {
+          let errorDetails: string | undefined = undefined
+          if (typeof err === "string") {
+            errorDetails = err
+          } else {
+            errorDetails = (err as any)?.message || undefined
+          }
+          sendNotification(args.tokenIn, args.tokenOut, args.amountIn, args.amountOut, undefined, false, errorDetails)
+        }
       }
     },
     [account, connected, isSwapping, sendNotification, signAndSubmitTransaction],
@@ -376,8 +397,3 @@ export default function useSwap() {
   )
   return res
 }
-
-// const txxxxxxxx = await martian.generateTransaction(
-//   "0x57b057e189f60ed079bbfe11b88b187cc6bea5016d1bc58aee5ec087f76ce44e",
-//   transaction.data,
-// )

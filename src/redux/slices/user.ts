@@ -2,26 +2,26 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 import { VERSION } from "../../constants"
 import { PURGE } from "redux-persist"
 
-export interface NotificationData {
+export interface ITransactionHistory {
   version: string | undefined
   isSuccess: boolean
+  details: string | undefined
   tokenInSymbol: string | undefined
   tokenOutSymbol: string | undefined
   readableAmountIn: string
   readableAmountOut: string
-  isHide: boolean
 }
 
 export interface UserState {
   version: number
   slippageBps: number
-  notificationMap: Record<string, NotificationData>
+  txHistoryMap: Record<string, ITransactionHistory>
 }
 
 const initialState: UserState = {
   version: VERSION,
   slippageBps: 50,
-  notificationMap: {},
+  txHistoryMap: {},
 }
 
 export const userSlice = createSlice({
@@ -31,19 +31,16 @@ export const userSlice = createSlice({
     setSlippage: (state, action: PayloadAction<number>) => {
       state.slippageBps = action.payload
     },
-    addNotification: (state, action: PayloadAction<NotificationData>) => {
+    addTransactionHistory: (state, action: PayloadAction<ITransactionHistory>) => {
       if (!action.payload.version) return
 
-      if (state.notificationMap) {
-        state.notificationMap[action.payload.version] = action.payload
+      if (state.txHistoryMap) {
+        state.txHistoryMap[action.payload.version] = action.payload
         return
       }
-      state.notificationMap = {
+      state.txHistoryMap = {
         [action.payload.version]: action.payload,
       }
-    },
-    hideNotification: (state, action: PayloadAction<string>) => {
-      state.notificationMap[action.payload].isHide = true
     },
   },
   extraReducers: (builder) => {
@@ -53,6 +50,6 @@ export const userSlice = createSlice({
   },
 })
 
-export const { setSlippage, addNotification, hideNotification } = userSlice.actions
+export const { setSlippage, addTransactionHistory } = userSlice.actions
 
 export default userSlice.reducer
