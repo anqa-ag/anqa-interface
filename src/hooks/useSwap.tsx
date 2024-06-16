@@ -9,6 +9,7 @@ import { ITransactionHistory, addTransactionHistory } from "../redux/slices/user
 import { aptos } from "../utils/aptos"
 import { divpowToFraction } from "../utils/number"
 import { GetRouteResponseDataPath } from "./useQuote"
+import { isDesktop } from "react-device-detect"
 
 interface SwapState {
   isSwapping: boolean
@@ -250,7 +251,8 @@ export default function useSwap() {
             className: "z-toast",
             bodyClassName: "z-toast-body",
             progressClassName: payload.isSuccess ? "z-toast-progress-success" : "z-toast-progress-failed",
-            autoClose: payload.isSuccess ? 4000 : false,
+            autoClose: payload.isSuccess || isDesktop ? 4000 : false,
+            pauseOnHover: isDesktop,
           },
         )
       }
