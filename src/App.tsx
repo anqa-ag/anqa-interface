@@ -39,6 +39,7 @@ import {
   numberWithCommas,
   truncateValue,
 } from "./utils/number"
+import { Icon } from "@iconify/react"
 
 function Menu() {
   return (
@@ -876,7 +877,34 @@ export default function App() {
           */}
             <footer className="flex w-full flex-1 items-end">
               <div className="flex h-[84px] w-full content-center items-center justify-between px-[60px] lg:px-[30px] md:static md:px-[16px] sm:justify-center">
-                <BodyB2 className="text-buttonSecondary">© Anqa 2024</BodyB2>
+                <div className="flex items-center gap-2">
+                  <BodyB2 className="text-buttonSecondary">© Anqa 2024</BodyB2>
+
+                  <div className="flex items-center">
+                    <Link
+                      isBlock
+                      href="https://x.com/anqa_apt"
+                      color="primary"
+                      className="text-buttonSecondary"
+                      disableAnimation
+                      size="sm"
+                      isExternal
+                    >
+                      <Icon icon="mdi:twitter" fontSize={16} />
+                    </Link>
+                    <Link
+                      isBlock
+                      href="https://discord.gg/UR7fasRR"
+                      color="primary"
+                      className="text-buttonSecondary"
+                      disableAnimation
+                      size="sm"
+                      isExternal
+                    >
+                      <Icon icon="ic:baseline-discord" fontSize={16} />
+                    </Link>
+                  </div>
+                </div>
 
                 {isSm ? (
                   <div />
