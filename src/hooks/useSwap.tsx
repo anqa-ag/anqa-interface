@@ -22,6 +22,8 @@ interface SwapArgs {
   tokenOut: string
   amountIn: string // string of an integer
   amountOut: string // string of an integer
+  amountInUsd: string
+  amountOutUsd: string
   minAmountOut: string // string of an integer
   paths: GetRouteResponseDataPath[][]
 }
@@ -151,8 +153,8 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
 function getSwapDataFromPaths(args: SwapArgs): InputEntryFunctionData {
   console.log(`args`, args)
   const data: InputEntryFunctionData = {
-    function: "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::swap_generic",
-    functionArguments: [...Array(MAX_PATH * MAX_HOPS_PER_PATH).fill([0, 0, 0, "0"]), args.minAmountOut],
+    function: "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::swap_generic_v2",
+    functionArguments: [...Array(MAX_PATH * MAX_HOPS_PER_PATH).fill([0, 0, 0, "0"]), args.minAmountOut, args.amountInUsd, args.amountOutUsd],
     typeArguments: [args.tokenIn, args.tokenOut, ...Array(MAX_PATH * (MAX_HOPS_PER_PATH - 1)).fill(COIN_NULL)],
   }
   // Fill arguments.

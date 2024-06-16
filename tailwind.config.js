@@ -43,6 +43,7 @@ export default {
             buttonSecondaryHover: "#DADCE0",
             buttonDisabled: "#282A2D",
             buttonRed: "#F44646",
+            buttonYellow: "#867614",
             buttonGreen: "#18CF6A",
             tooltipBg: "#80868B",
             black900: "#17181B",

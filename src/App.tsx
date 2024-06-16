@@ -282,7 +282,7 @@ export default function App() {
       return { isDisabled: false, background: "bg-buttonRed", text: "Price impact is very high. Swap anyway?" }
     }
     if (priceImpact.greaterThan(2)) {
-      return { isDisabled: false, background: "bg-[#867614]", text: "Price impact is high. Swap anyway?" }
+      return { isDisabled: false, background: "bg-buttonYellow", text: "Price impact is high. Swap anyway?" }
     }
     return { isDisabled: false, background: "bg-primary", text: "Swap" }
   }, [fractionalAmountIn, isSufficientBalance, isValidatingQuote, fractionalAmountOut, priceImpact])
@@ -335,6 +335,8 @@ export default function App() {
         tokenOut,
         amountIn: fractionalAmountIn.numerator.toString(),
         amountOut: fractionalAmountOut.numerator.toString(),
+        amountInUsd: fractionalAmountInUsd?.toSignificant(18) || "0",
+        amountOutUsd: fractionalAmountOutUsd?.toSignificant(18) || "0",
         minAmountOut: minimumReceived.numerator.toString(),
         paths,
       })
