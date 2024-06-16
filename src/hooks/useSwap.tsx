@@ -250,7 +250,7 @@ export default function useSwap() {
             className: "z-toast",
             bodyClassName: "z-toast-body",
             progressClassName: payload.isSuccess ? "z-toast-progress-success" : "z-toast-progress-failed",
-            pauseOnHover: payload.isSuccess ? false : true,
+            autoClose: payload.isSuccess ? 4000 : false,
           },
         )
       }
