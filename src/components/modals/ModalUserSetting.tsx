@@ -5,6 +5,7 @@ import { setSlippage } from "../../redux/slices/user.ts"
 import { mulpowToFraction } from "../../utils/number.ts"
 import { CloseIcon } from "../Icons.tsx"
 import { BodyB1, BodyB2, TitleT1 } from "../Texts.tsx"
+import { NumericFormat } from "react-number-format"
 
 function ButtonSlippage({ value, onClose }: { value: number; onClose: () => void }) {
   const dispatch = useAppDispatch()
@@ -105,7 +106,9 @@ export default function ModalUserSetting({
               <ButtonSlippage value={50} onClose={_onClose} />
               <ButtonSlippage value={100} onClose={_onClose} />
               <div className="flex h-[40px] items-center gap-1 bg-background pr-3">
-                <input
+                <NumericFormat
+                  decimalSeparator="."
+                  allowedDecimalSeparators={[","]}
                   className="w-full bg-transparent text-end text-base font-normal text-disable outline-none placeholder:text-disable"
                   inputMode="decimal"
                   autoComplete="off"
