@@ -5,11 +5,14 @@ import { useCallback, useMemo, useState } from "react"
 import { toast } from "react-toastify"
 import { BodyB2, TitleT2, TitleT4 } from "../components/Texts"
 import { useAppDispatch, useAppSelector } from "../redux/hooks"
-import { ITransactionHistory, addTransactionHistory } from "../redux/slices/user"
+import { addTransactionHistory, ITransactionHistory } from "../redux/slices/user"
 import { aptos } from "../utils/aptos"
 import { divpowToFraction } from "../utils/number"
 import { GetRouteResponseDataPath } from "./useQuote"
 import { isDesktop } from "react-device-detect"
+import { useWalletDeep } from "./useWalletDeep.ts"
+import { closeTelegramWebApp, useTelegramWebApp } from "./useTelegramWebApp.ts"
+import { AGGREGATOR_URL } from "../constants"
 
 interface SwapState {
   isSwapping: boolean
@@ -155,7 +158,7 @@ function getSwapDataFromPaths(args: SwapArgs): InputEntryFunctionData {
   const data: InputEntryFunctionData = {
     function: "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::swap_generic_v2",
     functionArguments: [...Array(MAX_PATH * MAX_HOPS_PER_PATH).fill([0, 0, 0, "0"]), args.minAmountOut, args.amountInUsd, args.amountOutUsd],
-    typeArguments: [args.tokenIn, args.tokenOut, ...Array(MAX_PATH * (MAX_HOPS_PER_PATH - 1)).fill(COIN_NULL)],
+    typeArguments: [args.tokenIn, args.tokenOut, ...Array(MAX_PATH * (MAX_HOPS_PER_PATH - 1)).fill(COIN_NULL)]
   }
   // Fill arguments.
   for (let i = 0; i < args.paths.length; i++) {
@@ -183,10 +186,22 @@ export default function useSwap() {
   const [{ isSwapping, txVersion, success }, setSwapState] = useState<SwapState>({
     isSwapping: false,
     txVersion: undefined,
-    success: undefined,
+    success: undefined
   })
   const dispatch = useAppDispatch()
-  const { account, connected, signAndSubmitTransaction } = useWallet()
+  const { account: account1, connected: connected1, signAndSubmitTransaction } = useWallet()
+
+  const { telegramUser } = useTelegramWebApp()
+  const { address, signTransaction } = useWalletDeep()
+
+  const account = useMemo(() => {
+    return account1?.address || address
+  }, [account1, address])
+
+  const connected = useMemo(() => {
+    return connected1 || address != null
+  }, [connected1, address])
+
   const { followingTokenData } = useAppSelector((state) => state.token)
 
   const sendNotification = useCallback(
@@ -197,7 +212,7 @@ export default function useSwap() {
       amountOut: string,
       version: string | undefined,
       isSuccess: boolean,
-      details: string | undefined,
+      details: string | undefined
     ) => {
       const tokenInData = followingTokenData[tokenIn]
       const tokenOutData = followingTokenData[tokenOut]
@@ -209,7 +224,7 @@ export default function useSwap() {
           tokenInSymbol: tokenInData.symbol,
           tokenOutSymbol: tokenOutData.symbol,
           readableAmountIn: divpowToFraction(amountIn, tokenInData.decimals).toSignificant(6),
-          readableAmountOut: divpowToFraction(amountOut, tokenOutData.decimals).toSignificant(6),
+          readableAmountOut: divpowToFraction(amountOut, tokenOutData.decimals).toSignificant(6)
         }
         dispatch(addTransactionHistory(payload))
         toast(
@@ -254,12 +269,12 @@ export default function useSwap() {
             bodyClassName: "z-toast-body",
             progressClassName: payload.isSuccess ? "z-toast-progress-success" : "z-toast-progress-failed",
             autoClose: payload.isSuccess || isDesktop ? 4000 : false,
-            pauseOnHover: isDesktop,
-          },
+            pauseOnHover: isDesktop
+          }
         )
       }
     },
-    [dispatch, followingTokenData],
+    [dispatch, followingTokenData]
   )
 
   const onSwap = useCallback(
@@ -340,36 +355,51 @@ export default function useSwap() {
         // } else if (provider === "Martian") {
         //   if (!martian) return
         const swapData = getSwapDataFromPaths(args)
-        const response: {
-          hash: string
-          output: Record<string, any>
-        } = await signAndSubmitTransaction({ sender: account.address, data: swapData })
-        console.log(`response`, response)
-        if (
-          response.hash &&
-          (response.output === undefined || Object.keys(response.output).length === 0 || !response.output.version)
-        ) {
-          const aptosResponse = await aptos.waitForTransaction({
-            transactionHash: response.hash,
-            options: { checkSuccess: false, timeoutSecs: 2, waitForIndexer: true },
-          })
-          console.log(`aptosResponse`, aptosResponse)
-          if (isUserTransactionResponse(aptosResponse)) {
-            response.output = aptosResponse
-          } else {
-            throw new Error(`Something is wrong. aptosResponse = ${JSON.stringify(aptosResponse, null, 4)}`)
+        console.log(`swapData`, JSON.stringify({
+          function: swapData.function,
+          arguments: swapData.functionArguments,
+          type_arguments: swapData.typeArguments
+        }))
+
+        if (telegramUser) {
+          signTransaction(btoa(JSON.stringify({
+            function: swapData.function,
+            arguments: swapData.functionArguments,
+            type_arguments: swapData.typeArguments
+          })), AGGREGATOR_URL + "/v1/ul?method=sendTx")
+          closeTelegramWebApp()
+        } else {
+          const response: {
+            hash: string
+            output: Record<string, any>
+          } = await signAndSubmitTransaction({ sender: account || "", data: swapData })
+          console.log(`response`, response)
+          if (
+            response.hash &&
+            (response.output === undefined || Object.keys(response.output).length === 0 || !response.output.version)
+          ) {
+            const aptosResponse = await aptos.waitForTransaction({
+              transactionHash: response.hash,
+              options: { checkSuccess: false, timeoutSecs: 2, waitForIndexer: true }
+            })
+            console.log(`aptosResponse`, aptosResponse)
+            if (isUserTransactionResponse(aptosResponse)) {
+              response.output = aptosResponse
+            } else {
+              throw new Error(`Something is wrong. aptosResponse = ${JSON.stringify(aptosResponse, null, 4)}`)
+            }
           }
+          setSwapState({ isSwapping: false, txVersion: response.output?.version, success: response.output?.success })
+          sendNotification(
+            args.tokenIn,
+            args.tokenOut,
+            args.amountIn,
+            args.amountOut,
+            response.output?.version,
+            Boolean(response.output?.success),
+            response.output?.vm_status
+          )
         }
-        setSwapState({ isSwapping: false, txVersion: response.output?.version, success: response.output?.success })
-        sendNotification(
-          args.tokenIn,
-          args.tokenOut,
-          args.amountIn,
-          args.amountOut,
-          response.output?.version,
-          Boolean(response.output?.success),
-          response.output?.vm_status,
-        )
       } catch (err) {
         console.log(err)
         console.error(err)
@@ -388,7 +418,7 @@ export default function useSwap() {
         }
       }
     },
-    [account, connected, isSwapping, sendNotification, signAndSubmitTransaction],
+    [account, connected, isSwapping, sendNotification, signAndSubmitTransaction]
   )
 
   const res = useMemo(
@@ -396,9 +426,9 @@ export default function useSwap() {
       isSwapping,
       txVersion,
       success,
-      onSwap,
+      onSwap
     }),
-    [isSwapping, onSwap, success, txVersion],
+    [isSwapping, onSwap, success, txVersion]
   )
   return res
 }
