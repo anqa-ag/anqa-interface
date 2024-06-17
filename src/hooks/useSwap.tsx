@@ -376,7 +376,7 @@ export default function useSwap() {
         setSwapState((prev) => ({ ...prev, isSwapping: false }))
 
         const jsonErr = JSON.stringify(err)
-        const isUserRejectError = jsonErr.includes("user") && jsonErr.includes("request")
+        const isUserRejectError = jsonErr.toLowerCase().includes("user") && jsonErr.toLowerCase().includes("request")
         if (!isUserRejectError) {
           let errorDetails: string | undefined = undefined
           if (typeof err === "string") {

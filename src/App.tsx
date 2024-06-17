@@ -8,7 +8,7 @@ import { useSearchParams } from "react-router-dom"
 import { ToastContainer } from "react-toastify"
 import { useDebounceValue } from "usehooks-ts"
 import { AnqaWithTextIcon, ArrowFilledDownIcon, SettingIcon, SwapIcon, WalletIcon } from "./components/Icons"
-import { BodyB2, BodyB3, TitleT1, TitleT2 } from "./components/Texts"
+import { BodyB2, BodyB3, TitleT1, TitleT2, TitleT4 } from "./components/Texts"
 import Tooltips from "./components/Tooltips"
 import ModalConnectWallet from "./components/modals/ModalConnectWallet"
 import ModalSelectToken from "./components/modals/ModalSelectToken"
@@ -118,11 +118,6 @@ function ButtonConnectWallet({
 }
 
 export default function App() {
-  const [isMoreInfo, setIsMoreInfo] = useState(false)
-  const onToggleMoreInfo = () => {
-    setIsMoreInfo((prev) => !prev)
-  }
-
   const isSm = useIsSm()
 
   const { balance } = useAppSelector((state) => state.wallet)
@@ -226,8 +221,11 @@ export default function App() {
     }
     return res
   }, [fractionalAmountInUsd, fractionalAmountOutUsd])
+  const isPriceImpactVeryHigh = useMemo(() => Boolean(priceImpact?.greaterThan(10)), [priceImpact])
+  const isPriceImpactHigh = useMemo(() => Boolean(priceImpact?.greaterThan(5)), [priceImpact])
 
   const slippageBps = useAppSelector((state) => state.user.slippageBps)
+  const isHighSlippage = slippageBps >= 500
   const minimumReceived = useMemo(() => {
     if (!fractionalAmountOut) return undefined
     // If any tokens has more than 8 decimals, this assignment will break. I assume 8 is the max decimals in aptos chain? Nevermind, I will use 18.
@@ -271,21 +269,12 @@ export default function App() {
   }
 
   const swapButton = useMemo(() => {
-    if (!fractionalAmountIn) return { isDisabled: true, background: "bg-primary", text: "Enter an amount" }
-    if (!isSufficientBalance) return { isDisabled: true, background: "bg-primary", text: "Insufficient balance" }
-    if (isValidatingQuote) return { isDisabled: true, background: "bg-primary", text: "Getting quote..." }
-    if (!fractionalAmountOut) return { isDisabled: true, background: "bg-primary", text: "Not found route" }
-    if (!priceImpact) {
-      return { isDisabled: false, background: "bg-buttonRed", text: "Can't calculate price impact. Swap anyway?" }
-    }
-    if (priceImpact.greaterThan(5)) {
-      return { isDisabled: false, background: "bg-buttonRed", text: "Price impact is very high. Swap anyway?" }
-    }
-    if (priceImpact.greaterThan(2)) {
-      return { isDisabled: false, background: "bg-buttonYellow", text: "Price impact is high. Swap anyway?" }
-    }
-    return { isDisabled: false, background: "bg-primary", text: "Swap" }
-  }, [fractionalAmountIn, isSufficientBalance, isValidatingQuote, fractionalAmountOut, priceImpact])
+    if (!fractionalAmountIn) return { isDisabled: true, text: "Enter an amount" }
+    if (!isSufficientBalance) return { isDisabled: true, text: "Insufficient balance" }
+    if (isValidatingQuote) return { isDisabled: true, text: "Getting quote..." }
+    if (!fractionalAmountOut) return { isDisabled: true, text: "Not found route" }
+    return { isDisabled: false, text: "Swap" }
+  }, [fractionalAmountIn, isSufficientBalance, isValidatingQuote, fractionalAmountOut])
 
   const [tokenInLogoSrc, setTokenInLogoSrc] = useState(tokenInInfo?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL)
   const [tokenOutLogoSrc, setTokenOutLogoSrc] = useState(tokenOutInfo?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL)
@@ -436,11 +425,17 @@ export default function App() {
                   </div>
                   <Button
                     isIconOnly
-                    className="h-[36px] w-[36px] min-w-min border-1 border-black bg-black pl-3 data-[hover]:border-black600"
+                    className={
+                      "h-[36px] w-[36px] min-w-min rounded border-1 border-black pl-3" +
+                      " " +
+                      (isHighSlippage ? "bg-[rgba(255,153,1,0.2)]" : "border-black600 bg-black")
+                    }
                     onPress={() => onOpenModal(MODAL_LIST.USER_SETTING)}
                   >
-                    <BodyB2 className="text-buttonSecondary">{slippageBps / 100}%</BodyB2>
-                    <SettingIcon size={36} />
+                    <BodyB2 className={isHighSlippage ? "text-[rgba(255,153,1)]" : "text-buttonSecondary"}>
+                      {slippageBps / 100}%
+                    </BodyB2>
+                    <SettingIcon size={36} color={isHighSlippage ? "rgba(255,153,1)" : "#9AA0A6"} />
                   </Button>
                 </div>
 
@@ -616,11 +611,49 @@ export default function App() {
                         </Button>
                       </div>
                       <div className="flex items-center justify-between gap-3">
-                        <BodyB2 className="text-buttonSecondary">
-                          {fractionalAmountOutUsd
-                            ? "~$" + numberWithCommas(fractionalAmountOutUsd.toSignificant(6), false, 2)
-                            : "--"}
-                        </BodyB2>
+                        <div className="flex items-center justify-between gap-1">
+                          <BodyB2 className="text-buttonSecondary">
+                            {fractionalAmountOutUsd
+                              ? "~$" + numberWithCommas(fractionalAmountOutUsd.toSignificant(6), false, 2)
+                              : "--"}
+                          </BodyB2>
+                          {priceImpact && (
+                            <BodyB2
+                              data-tooltip-id="tooltip-price-impact"
+                              className={
+                                isPriceImpactVeryHigh
+                                  ? "text-buttonRed"
+                                  : isPriceImpactHigh
+                                    ? "text-buttonYellow"
+                                    : "text-buttonSecondary"
+                              }
+                            >
+                              (
+                              {priceImpact
+                                ? priceImpact.lessThan(new Fraction(1, 100))
+                                  ? "<0.01%"
+                                  : `~${truncateValue(priceImpact.toSignificant(4), 2)}%`
+                                : "--"}
+                              )
+                            </BodyB2>
+                          )}
+                        </div>
+                        {fractionalAmountIn && fractionalAmountOut && priceImpact === undefined ? (
+                          <div className="flex items-center gap-1">
+                            <Icon icon="ph:warning" fontSize={16} color="#F44646" />
+                            <TitleT4 className="text-buttonRed">Can&apos;t calculate price impact</TitleT4>
+                          </div>
+                        ) : isPriceImpactVeryHigh ? (
+                          <div className="flex items-center gap-1">
+                            <Icon icon="ph:warning" fontSize={16} color="#F44646" />
+                            <TitleT4 className="text-buttonRed">Price impact is very high</TitleT4>
+                          </div>
+                        ) : isPriceImpactHigh ? (
+                          <div className="flex items-center gap-1">
+                            <Icon icon="ph:warning" fontSize={16} color="#FF9901" />
+                            <TitleT4 className="text-buttonYellow">Price impact is high</TitleT4>
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   </>
@@ -659,7 +692,13 @@ export default function App() {
 
                 {connectedWallet ? (
                   <Button
-                    className={`h-[52px] rounded ${swapButton.background}`}
+                    className={
+                      "h-[52px] rounded" +
+                      " " +
+                      ((fractionalAmountIn && fractionalAmountOut && !priceImpact) || isPriceImpactVeryHigh
+                        ? "bg-buttonRed"
+                        : "bg-primary")
+                    }
                     isLoading={isSwapping}
                     onPress={onSwap}
                     isDisabled={swapButton.isDisabled}
@@ -735,75 +774,29 @@ export default function App() {
                             )}
                           </CountdownCircleTimer>
                         </div>
-                        <Button
-                          variant="light"
-                          className="anqa-hover-white-all h-fit w-fit min-w-fit gap-0 p-0 data-[hover]:bg-transparent"
-                          disableRipple
-                          disableAnimation
-                          onPress={onToggleMoreInfo}
-                          endContent={
-                            <ArrowFilledDownIcon
-                              size={24}
-                              className={`-mr-1 ${isMoreInfo ? "rotate-180" : ""}`}
-                              color="#9AA0A6"
-                            />
-                          }
-                        >
-                          <BodyB2 className="pl-1.5 text-buttonSecondary">
-                            {isMoreInfo ? (isSm ? "Less" : "Less Info") : isSm ? "More" : "More info"}
-                          </BodyB2>
-                        </Button>
                       </div>
-                      {isMoreInfo && (
-                        <>
-                          <div className="flex items-center justify-between">
-                            <BodyB2
-                              className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
-                              tabIndex={0}
-                              data-tooltip-id="tooltip-price-impact"
-                            >
-                              Price Impact
-                            </BodyB2>
-                            {isValidatingQuote ? (
-                              <>
-                                <div className="flex h-[20px] w-[50px] items-center">
-                                  <Skeleton className="h-[20px] w-full rounded" />
-                                </div>
-                              </>
-                            ) : (
-                              <BodyB2 className="flex items-center">
-                                {priceImpact
-                                  ? priceImpact.lessThan(new Fraction(1, 100))
-                                    ? "<0.01%"
-                                    : `~${truncateValue(priceImpact.toSignificant(4), 2)}%`
-                                  : "--"}
-                              </BodyB2>
-                            )}
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <BodyB2
-                              className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
-                              tabIndex={0}
-                              data-tooltip-id="tooltip-minimum-received"
-                            >
-                              Minimum Received
-                            </BodyB2>
-                            {isValidatingQuote ? (
-                              <>
-                                <div className="flex h-[20px] w-[100px] items-center">
-                                  <Skeleton className="h-[20px] w-full rounded" />
-                                </div>
-                              </>
-                            ) : (
-                              <BodyB2>
-                                {minimumReceived && tokenOutInfo
-                                  ? `${numberWithCommas(minimumReceived.toSignificant(6))} ${tokenOutInfo.symbol ?? "--"}`
-                                  : "--"}
-                              </BodyB2>
-                            )}
-                          </div>
-                        </>
-                      )}
+                      <div className="flex items-center justify-between">
+                        <BodyB2
+                          className="border-b-1 border-dashed border-buttonSecondary text-buttonSecondary"
+                          tabIndex={0}
+                          data-tooltip-id="tooltip-minimum-received"
+                        >
+                          Minimum Received
+                        </BodyB2>
+                        {isValidatingQuote ? (
+                          <>
+                            <div className="flex h-[20px] w-[100px] items-center">
+                              <Skeleton className="h-[20px] w-full rounded" />
+                            </div>
+                          </>
+                        ) : (
+                          <BodyB2>
+                            {minimumReceived && tokenOutInfo
+                              ? `${numberWithCommas(minimumReceived.toSignificant(6))} ${tokenOutInfo.symbol ?? "--"}`
+                              : "--"}
+                          </BodyB2>
+                        )}
+                      </div>
                     </div>
                     <Spacer y={4} />
                   </>
