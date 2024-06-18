@@ -783,14 +783,15 @@ export default function App() {
                     <TitleT2>{swapButton.text}</TitleT2>
                   </Button>
                 ) : (
-                  <Button
-                    color="primary"
-                    className="h-[52px] rounded"
-                    onPress={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
-                    isLoading={isLoadingWallet}
-                  >
-                    <TitleT2>{isLoadingWallet ? "Loading Wallet" : "Connect Wallet"}</TitleT2>
-                  </Button>
+                  telegramUser ? <ButtonConnectWalletDeep /> :
+                    <Button
+                      color="primary"
+                      className="h-[52px] rounded"
+                      onPress={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
+                      isLoading={isLoadingWallet}
+                    >
+                      <TitleT2>{isLoadingWallet ? "Loading Wallet" : "Connect Wallet"}</TitleT2>
+                    </Button>
                 )}
 
                 <Spacer y={4} />
