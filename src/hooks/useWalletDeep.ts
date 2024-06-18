@@ -15,7 +15,7 @@ export const encryptPayload = (payload: any, sharedSecret?: Uint8Array | null) =
   return [nonce, encryptedPayload]
 }
 
-export const sendEncryptedPayload = (openLink: string, payload: any, sharedSecret: Uint8Array, redirect: string) => {
+export const sendEncryptedPayload = (openLink: string, payload: any, sharedSecret: Uint8Array | undefined, redirect: string) => {
   const [nonce, encryptedPayload] = encryptPayload(payload, sharedSecret)
   const params = {
     appInfo: { domain: "https://" + window.location.hostname },
