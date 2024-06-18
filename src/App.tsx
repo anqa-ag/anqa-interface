@@ -1,5 +1,6 @@
 import { APTOS_COIN, Network } from "@aptos-labs/ts-sdk"
 import { useWallet } from "@aptos-labs/wallet-adapter-react"
+import { Icon } from "@iconify/react"
 import { Button, Image, Link, Skeleton, Spacer } from "@nextui-org/react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
@@ -12,18 +13,18 @@ import { BodyB2, BodyB3, TitleT1, TitleT2, TitleT4 } from "./components/Texts"
 import Tooltips from "./components/Tooltips"
 import ModalConnectWallet from "./components/modals/ModalConnectWallet"
 import ModalSelectToken from "./components/modals/ModalSelectToken"
+import ModalTradeRoute from "./components/modals/ModalTradeRoute"
 import ModalUserSetting from "./components/modals/ModalUserSetting"
 import {
   BIP_BASE,
   NOT_FOUND_TOKEN_LOGO_URL,
-  SOURCE_LIST,
   ZUSDC,
   martianWallet,
   okxWallet,
   petraWallet,
   pontemWallet,
 } from "./constants"
-import { useIsSm } from "./hooks/useMedia"
+import { useIsMd, useIsSm } from "./hooks/useMedia"
 import useModal, { MODAL_LIST } from "./hooks/useModal"
 import useQuote from "./hooks/useQuote"
 import useSwap from "./hooks/useSwap"
@@ -39,7 +40,7 @@ import {
   numberWithCommas,
   truncateValue,
 } from "./utils/number"
-import { Icon } from "@iconify/react"
+import { SOURCES } from "./constants/source"
 
 function Menu() {
   return (
@@ -119,6 +120,7 @@ function ButtonConnectWallet({
 
 export default function App() {
   const isSm = useIsSm()
+  const isMd = useIsMd()
 
   const { balance } = useAppSelector((state) => state.wallet)
   const { isLoading: isLoadingWallet, account } = useWallet()
@@ -193,6 +195,11 @@ export default function App() {
       amountOut && tokenOutDecimals != undefined ? new Fraction(amountOut, Math.pow(10, tokenOutDecimals)) : undefined,
     [tokenOutDecimals, amountOut],
   )
+
+  const readbleAmountOut =
+    fractionalAmountOut && tokenOutDecimals !== undefined
+      ? numberWithCommas(truncateValue(fractionalAmountOut.toFixed(18), tokenOutDecimals))
+      : ""
 
   const fractionalAmountInUsd = useMemo(
     () =>
@@ -367,7 +374,7 @@ export default function App() {
                     }
                     multiple
                   >
-                    {SOURCE_LIST.map((source) => (
+                    {Object.keys(SOURCES).map((source) => (
                       <option key={source}>{source}</option>
                     ))}
                   </select>
@@ -586,11 +593,7 @@ export default function App() {
                             pattern="^[0-9]*[.,]?[0-9]*$"
                             disabled
                             data-tooltip-id="tooltip-input-amount-out"
-                            value={
-                              fractionalAmountOut && tokenOutDecimals !== undefined
-                                ? numberWithCommas(truncateValue(fractionalAmountOut.toFixed(18), tokenOutDecimals))
-                                : ""
-                            }
+                            value={readbleAmountOut}
                           />
                         )}
                         <Button
@@ -674,6 +677,7 @@ export default function App() {
                       className="anqa-hover-primary-all flex h-fit min-h-fit cursor-pointer items-center gap-3 rounded-none bg-transparent p-0 data-[hover]:bg-transparent"
                       disableAnimation
                       disableRipple
+                      onPress={() => onOpenModal(MODAL_LIST.TRADE_ROUTE)}
                     >
                       <BodyB2 className="whitespace-nowrap rounded border-1 border-primary p-2 text-primary">
                         {sourceInfo.numberOfPaths} split{sourceInfo.numberOfPaths >= 2 ? "s" : ""} &{" "}
@@ -963,6 +967,21 @@ export default function App() {
           onOpenChange={onOpenChangeModal}
           onClose={onCloseModal}
         />
+        {/* NOTE: Small view has bug, hide for now. */}
+        {!isMd && (
+          <ModalTradeRoute
+            isOpen={globalModal === MODAL_LIST.TRADE_ROUTE && isModalOpen}
+            onOpenChange={onOpenChangeModal}
+            onClose={onCloseModal}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            readableAmountIn={numberWithCommas(typedAmountIn)}
+            readableAmountOut={readbleAmountOut}
+            rawAmountIn={fractionalAmountIn?.numerator?.toString()}
+            paths={paths}
+          />
+        )}
+
         <Tooltips />
       </div>
     </>
