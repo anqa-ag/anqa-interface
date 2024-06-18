@@ -97,3 +97,11 @@ export function SearchIcon({ size, className, color }: IconProps) {
     </svg>
   )
 }
+
+export function ChevronRight({ size, className, color }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      <path fillRule="evenodd" clipRule="evenodd" d="M8 16.7962C8 17.6554 9.01192 18.1146 9.6585 17.5488L15.1399 12.7526C15.5952 12.3542 15.5952 11.6458 15.1399 11.2474L9.6585 6.45119C9.01192 5.88543 8 6.34461 8 7.20377L8 16.7962Z" fill={color || "#0CA0EB"} />
+    </svg>
+  )
+}
