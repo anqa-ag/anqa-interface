@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from "react"
 export interface Size {
-  width: number;
-  height: number;
+  width: number
+  height: number
 }
 
 /**
@@ -12,36 +12,33 @@ export interface Size {
  * @return - An object containing the `width` and `height` of the element.
  */
 
-function useElementSize<T extends HTMLElement = HTMLDivElement>(): [
-  (node: T | null) => void,
-  Size,
-] {
-  const [ref, setRef] = useState<T | null>(null);
-  const [size, setSize] = useState<Size>({ width: 0, height: 0 });
+function useElementSize<T extends HTMLElement = HTMLDivElement>(): [(node: T | null) => void, Size] {
+  const [ref, setRef] = useState<T | null>(null)
+  const [size, setSize] = useState<Size>({ width: 0, height: 0 })
 
   const handleSize = useCallback(() => {
     if (ref) {
       setSize({
         width: ref.offsetWidth,
         height: ref.offsetHeight,
-      });
+      })
     }
-  }, [ref]);
+  }, [ref])
 
-  const useEnviromentEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+  const useEnviromentEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect
 
   useEnviromentEffect(() => {
-    if (!ref) return;
+    if (!ref) return
 
-    handleSize();
+    handleSize()
 
-    const resizeObserver = new ResizeObserver(handleSize);
-    resizeObserver.observe(ref);
+    const resizeObserver = new ResizeObserver(handleSize)
+    resizeObserver.observe(ref)
 
-    return () => resizeObserver.disconnect();
-  }, [ref, handleSize]);
+    return () => resizeObserver.disconnect()
+  }, [ref, handleSize])
 
-  return [setRef, size];
+  return [setRef, size]
 }
 
-export default useElementSize;
+export default useElementSize

@@ -157,8 +157,13 @@ function getSwapDataFromPaths(args: SwapArgs): InputEntryFunctionData {
   console.log(`args`, args)
   const data: InputEntryFunctionData = {
     function: "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::swap_generic_v2",
-    functionArguments: [...Array(MAX_PATH * MAX_HOPS_PER_PATH).fill([0, 0, 0, "0"]), args.minAmountOut, args.amountInUsd, args.amountOutUsd],
-    typeArguments: [args.tokenIn, args.tokenOut, ...Array(MAX_PATH * (MAX_HOPS_PER_PATH - 1)).fill(COIN_NULL)]
+    functionArguments: [
+      ...Array(MAX_PATH * MAX_HOPS_PER_PATH).fill([0, 0, 0, "0"]),
+      args.minAmountOut,
+      args.amountInUsd,
+      args.amountOutUsd,
+    ],
+    typeArguments: [args.tokenIn, args.tokenOut, ...Array(MAX_PATH * (MAX_HOPS_PER_PATH - 1)).fill(COIN_NULL)],
   }
   // Fill arguments.
   for (let i = 0; i < args.paths.length; i++) {
@@ -186,7 +191,7 @@ export default function useSwap() {
   const [{ isSwapping, txVersion, success }, setSwapState] = useState<SwapState>({
     isSwapping: false,
     txVersion: undefined,
-    success: undefined
+    success: undefined,
   })
   const dispatch = useAppDispatch()
   const { account: account1, connected: connected1, signAndSubmitTransaction } = useWallet()
@@ -212,7 +217,7 @@ export default function useSwap() {
       amountOut: string,
       version: string | undefined,
       isSuccess: boolean,
-      details: string | undefined
+      details: string | undefined,
     ) => {
       const tokenInData = followingTokenData[tokenIn]
       const tokenOutData = followingTokenData[tokenOut]
@@ -224,7 +229,7 @@ export default function useSwap() {
           tokenInSymbol: tokenInData.symbol,
           tokenOutSymbol: tokenOutData.symbol,
           readableAmountIn: divpowToFraction(amountIn, tokenInData.decimals).toSignificant(6),
-          readableAmountOut: divpowToFraction(amountOut, tokenOutData.decimals).toSignificant(6)
+          readableAmountOut: divpowToFraction(amountOut, tokenOutData.decimals).toSignificant(6),
         }
         dispatch(addTransactionHistory(payload))
         toast(
@@ -269,12 +274,12 @@ export default function useSwap() {
             bodyClassName: "z-toast-body",
             progressClassName: payload.isSuccess ? "z-toast-progress-success" : "z-toast-progress-failed",
             autoClose: payload.isSuccess || isDesktop ? 4000 : false,
-            pauseOnHover: isDesktop
-          }
+            pauseOnHover: isDesktop,
+          },
         )
       }
     },
-    [dispatch, followingTokenData]
+    [dispatch, followingTokenData],
   )
 
   const onSwap = useCallback(
@@ -355,18 +360,26 @@ export default function useSwap() {
         // } else if (provider === "Martian") {
         //   if (!martian) return
         const swapData = getSwapDataFromPaths(args)
-        console.log(`swapData`, JSON.stringify({
-          function: swapData.function,
-          arguments: swapData.functionArguments,
-          type_arguments: swapData.typeArguments
-        }))
-
-        if (telegramUser) {
-          signTransaction(btoa(JSON.stringify({
+        console.log(
+          `swapData`,
+          JSON.stringify({
             function: swapData.function,
             arguments: swapData.functionArguments,
-            type_arguments: swapData.typeArguments
-          })), AGGREGATOR_URL + "/v1/ul?method=sendTx")
+            type_arguments: swapData.typeArguments,
+          }),
+        )
+
+        if (telegramUser) {
+          signTransaction(
+            btoa(
+              JSON.stringify({
+                function: swapData.function,
+                arguments: swapData.functionArguments,
+                type_arguments: swapData.typeArguments,
+              }),
+            ),
+            AGGREGATOR_URL + "/v1/ul?method=sendTx",
+          )
           closeTelegramWebApp()
         } else {
           const response: {
@@ -380,7 +393,7 @@ export default function useSwap() {
           ) {
             const aptosResponse = await aptos.waitForTransaction({
               transactionHash: response.hash,
-              options: { checkSuccess: false, timeoutSecs: 2, waitForIndexer: true }
+              options: { checkSuccess: false, timeoutSecs: 2, waitForIndexer: true },
             })
             console.log(`aptosResponse`, aptosResponse)
             if (isUserTransactionResponse(aptosResponse)) {
@@ -397,7 +410,7 @@ export default function useSwap() {
             args.amountOut,
             response.output?.version,
             Boolean(response.output?.success),
-            response.output?.vm_status
+            response.output?.vm_status,
           )
         }
       } catch (err) {
@@ -418,7 +431,7 @@ export default function useSwap() {
         }
       }
     },
-    [account, connected, isSwapping, sendNotification, signAndSubmitTransaction]
+    [account, connected, isSwapping, sendNotification, signAndSubmitTransaction],
   )
 
   const res = useMemo(
@@ -426,9 +439,9 @@ export default function useSwap() {
       isSwapping,
       txVersion,
       success,
-      onSwap
+      onSwap,
     }),
-    [isSwapping, onSwap, success, txVersion]
+    [isSwapping, onSwap, success, txVersion],
   )
   return res
 }

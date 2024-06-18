@@ -14,7 +14,7 @@ export function useParseConnection() {
         address = data.address
         petraPublicEncryptedKey = nacl.box.before(
           Buffer.from(data.petraPublicEncryptedKey.slice(2), "hex"),
-          bs58.decode(import.meta.env.VITE_DAPP_PRIVATE_KEY)
+          bs58.decode(import.meta.env.VITE_DAPP_PRIVATE_KEY),
         )
         sharedSecret = petraPublicEncryptedKey
         if (parsed?.[0] === "connect") {
@@ -37,6 +37,6 @@ export function useParseConnection() {
   }
   return {
     address,
-    sharedSecret
+    sharedSecret,
   }
 }
