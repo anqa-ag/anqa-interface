@@ -6,6 +6,7 @@ export enum MODAL_LIST {
   SELECT_TOKEN_IN = "SELECT_TOKEN_IN",
   SELECT_TOKEN_OUT = "SELECT_TOKEN_OUT",
   USER_SETTING = "USER_SETTING",
+  TRADE_ROUTE = "TRADE_ROUTE",
 }
 
 export default function useModal() {
