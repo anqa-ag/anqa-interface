@@ -1,4 +1,4 @@
-import { APTOS_COIN, Network } from "@aptos-labs/ts-sdk"
+import { Aptos, APTOS_COIN, AptosConfig, Network } from "@aptos-labs/ts-sdk"
 import { useWallet } from "@aptos-labs/wallet-adapter-react"
 import { Icon } from "@iconify/react"
 import { Button, Image, Link, Skeleton, Spacer } from "@nextui-org/react"
@@ -16,10 +16,11 @@ import ModalSelectToken from "./components/modals/ModalSelectToken"
 import ModalTradeRoute from "./components/modals/ModalTradeRoute"
 import ModalUserSetting from "./components/modals/ModalUserSetting"
 import {
+  AGGREGATOR_URL,
   BIP_BASE,
-  NOT_FOUND_TOKEN_LOGO_URL,
   ZUSDC,
   martianWallet,
+  NOT_FOUND_TOKEN_LOGO_URL,
   okxWallet,
   petraWallet,
   pontemWallet,
@@ -41,6 +42,10 @@ import {
   truncateValue,
 } from "./utils/number"
 import { SOURCES } from "./constants/source"
+import { useWalletDeep } from "./hooks/useWalletDeep.ts"
+import { Buffer } from "buffer"
+import bs58 from "bs58"
+import { closeTelegramWebApp, getTelegramWebApp, useTelegramWebApp } from "./hooks/useTelegramWebApp.ts"
 
 function Menu() {
   return (
@@ -118,13 +123,83 @@ function ButtonConnectWallet({
   )
 }
 
+function ButtonConnectWalletDeep() {
+  const { address } = useWalletDeep()
+
+  const connect = () => {
+    const params = {
+      dappEncryptionPublicKey: Buffer.from(bs58.decode(import.meta.env.VITE_DAPP_PUBLIC_KEY || "")).toString("hex"),
+      appInfo: { domain: "https://" + window.location.hostname },
+      redirectLink: AGGREGATOR_URL + "/v1/ul?method=connect",
+    }
+    getTelegramWebApp()?.openLink(`https://petra.app/api/v1/connect?data=${btoa(JSON.stringify(params))}`)
+    closeTelegramWebApp()
+  }
+
+  const disconnect = () => {
+    localStorage.removeItem("anqa_address")
+    localStorage.removeItem("anqa_shared_secret")
+    window.location.href = "/"
+  }
+
+  return (
+    <div className="flex-1 text-end">
+      <Button
+        color="primary"
+        className={
+          "w-fit rounded px-4" +
+          " " +
+          (address
+            ? "border-buttonSecondary bg-background text-buttonSecondary"
+            : "border-primary bg-primary text-white")
+        }
+        onPress={address ? disconnect : connect}
+        variant={address ? "bordered" : "solid"}
+      >
+        {address ? (
+          <TitleT2>{address.slice(0, 4) + "..." + address.slice(-4)}</TitleT2>
+        ) : (
+          <TitleT2>Connect Wallet (Petra)</TitleT2>
+        )}
+      </Button>
+    </div>
+  )
+}
+
 export default function App() {
   const isSm = useIsSm()
   const isMd = useIsMd()
+  const { telegramUser } = useTelegramWebApp()
 
-  const { balance } = useAppSelector((state) => state.wallet)
+  const [balance, setBalance] = useState<Record<string, any>>({})
+  const { balance: balance1 } = useAppSelector((state) => state.wallet)
+
   const { isLoading: isLoadingWallet, account } = useWallet()
-  const connectedWallet = useMemo(() => (account ? account.address : undefined), [account])
+  const { address } = useWalletDeep()
+  const connectedWallet = useMemo(() => {
+    if (account) {
+      return account.address
+    }
+    if (address) {
+      return address
+    }
+    return undefined
+  }, [account, address])
+
+  useEffect(() => {
+    if (balance1 && JSON.stringify(balance1) !== "{}") {
+      setBalance(balance1)
+    }
+    const aptosConfig = new AptosConfig({ network: import.meta.env.VITE_NETWORK })
+    const aptos = new Aptos(aptosConfig)
+    void aptos.getAccountCoinsData({ accountAddress: address || "" }).then((res) => {
+      const coinMap: Record<string, any> = {}
+      for (const coin of res) {
+        coinMap[coin.asset_type] = coin
+      }
+      setBalance(coinMap)
+    })
+  }, [balance1, address])
 
   const [typedAmountIn, _setTypedAmountIn] = useState("")
   const [shouldUseDebounceAmountIn, setShouldUseDebounceAmountIn] = useState(true)
@@ -276,10 +351,10 @@ export default function App() {
   }
 
   const swapButton = useMemo(() => {
-    if (!fractionalAmountIn) return { isDisabled: true, text: "Enter an amount" }
-    if (!isSufficientBalance) return { isDisabled: true, text: "Insufficient balance" }
-    if (isValidatingQuote) return { isDisabled: true, text: "Getting quote..." }
-    if (!fractionalAmountOut) return { isDisabled: true, text: "Not found route" }
+    if (!fractionalAmountIn) return { isDisabled: false, text: "Enter an amount" }
+    if (!isSufficientBalance) return { isDisabled: false, text: "Insufficient balance" }
+    if (isValidatingQuote) return { isDisabled: false, text: "Getting quote..." }
+    if (!fractionalAmountOut) return { isDisabled: false, text: "Not found route" }
     return { isDisabled: false, text: "Swap" }
   }, [fractionalAmountIn, isSufficientBalance, isValidatingQuote, fractionalAmountOut])
 
@@ -400,7 +475,9 @@ export default function App() {
                   <AnqaWithTextIcon size={40} />
                 </Button>
               </div>
-              {isSm ? (
+              {telegramUser ? (
+                <ButtonConnectWalletDeep />
+              ) : isSm ? (
                 <ButtonConnectWallet
                   onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
                   isOpenModalConnectWallet={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
@@ -694,7 +771,7 @@ export default function App() {
                   <Spacer y={4} />
                 )}
 
-                {connectedWallet ? (
+                {connectedWallet || address ? (
                   <Button
                     className={
                       "h-[52px] rounded" +
@@ -709,6 +786,8 @@ export default function App() {
                   >
                     <TitleT2>{swapButton.text}</TitleT2>
                   </Button>
+                ) : telegramUser ? (
+                  <ButtonConnectWalletDeep />
                 ) : (
                   <Button
                     color="primary"
