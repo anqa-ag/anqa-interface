@@ -431,7 +431,7 @@ export default function useSwap() {
         }
       }
     },
-    [account, connected, isSwapping, sendNotification, signAndSubmitTransaction],
+    [account, connected, isSwapping, sendNotification, signAndSubmitTransaction, signTransaction, telegramUser]
   )
 
   const res = useMemo(
