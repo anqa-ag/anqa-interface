@@ -523,7 +523,7 @@ export default function ModalTradeRoute({
               <div className="relative flex max-h-[50vh] w-full px-[10px] py-1">
                 <div className="absolute left-[10px] z-20 h-full w-px bg-buttonSecondary before:absolute before:left-0 before:top-1 before:h-2 before:w-2 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:bg-primary"></div>
                 <div className="absolute right-[10px] z-20 h-full w-px bg-buttonSecondary before:absolute before:left-0 before:top-1 before:h-2 before:w-2 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:bg-primary"></div>
-                <div className="flex w-full flex-col gap-3 overflow-auto">
+                <div className="hide-scrollbar flex w-full flex-col gap-3 overflow-auto">
                   {/* ROW */}
                   {(paths || []).map((path, index) => (
                     <div className="relative flex items-center py-4" key={index}>
@@ -554,9 +554,7 @@ export default function ModalTradeRoute({
                                   className="min-h-[20px] min-w-[20px]"
                                   src={SOURCES[hop.source]?.logoUrl}
                                 />
-                                <BodyB3 className="text-buttonSecondary">
-                                  {SOURCES[hop.source]?.name || "--"}: 100%
-                                </BodyB3>
+                                <BodyB3 className="text-buttonSecondary">{SOURCES[hop.source]?.name || "--"}</BodyB3>
                               </div>
                             </div>
                           ))}
