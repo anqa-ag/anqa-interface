@@ -28,6 +28,6 @@ export function useParseConnection() {
   }
   return {
     address,
-    sharedSecret
+    sharedSecret,
   }
 }

@@ -22,7 +22,7 @@ import {
   okxWallet,
   petraWallet,
   pontemWallet,
-  ZUSDC
+  ZUSDC,
 } from "./constants"
 import { useIsMd, useIsSm } from "./hooks/useMedia"
 import useModal, { MODAL_LIST } from "./hooks/useModal"
@@ -38,7 +38,7 @@ import {
   inputRegex,
   mulpowToFraction,
   numberWithCommas,
-  truncateValue
+  truncateValue,
 } from "./utils/number"
 import { SOURCES } from "./constants/source"
 import { useWalletDeep } from "./hooks/useWalletDeep.ts"
@@ -64,9 +64,9 @@ function Menu() {
 }
 
 function ButtonConnectWallet({
-                               onOpenModalConnectWallet,
-                               isOpenModalConnectWallet
-                             }: {
+  onOpenModalConnectWallet,
+  isOpenModalConnectWallet,
+}: {
   onOpenModalConnectWallet: () => void
   isOpenModalConnectWallet: boolean
 }) {
@@ -187,11 +187,11 @@ export default function App() {
   const followingPriceData = useAppSelector((state) => state.price.followingPriceData)
   const fractionalPriceTokenIn = useMemo(
     () => (followingPriceData[tokenIn] ? mulpowToFraction(followingPriceData[tokenIn]) : undefined),
-    [followingPriceData, tokenIn]
+    [followingPriceData, tokenIn],
   )
   const fractionalPriceTokenOut = useMemo(
     () => (followingPriceData[tokenOut] ? mulpowToFraction(followingPriceData[tokenOut]) : undefined),
-    [followingPriceData, tokenOut]
+    [followingPriceData, tokenOut],
   )
 
   const balanceTokenIn = balance[tokenIn]
@@ -210,7 +210,7 @@ export default function App() {
       typedAmountIn && tokenInDecimals !== undefined
         ? mulpowToFraction(typedAmountIn.replaceAll(",", ""), tokenInDecimals)
         : undefined,
-    [tokenInDecimals, typedAmountIn]
+    [tokenInDecimals, typedAmountIn],
   )
   const [fractionalAmountIn] = useDebounceValue(_fractionalAmountIn, shouldUseDebounceAmountIn ? 250 : 0)
 
@@ -220,12 +220,12 @@ export default function App() {
     amountOut,
     isValidating: isValidatingQuote,
     sourceInfo,
-    paths
+    paths,
   } = useQuote(tokenIn, tokenOut, fractionalAmountIn?.numerator?.toString(), source)
   const fractionalAmountOut = useMemo(
     () =>
       amountOut && tokenOutDecimals != undefined ? new Fraction(amountOut, Math.pow(10, tokenOutDecimals)) : undefined,
-    [tokenOutDecimals, amountOut]
+    [tokenOutDecimals, amountOut],
   )
 
   const readbleAmountOut =
@@ -236,19 +236,19 @@ export default function App() {
   const fractionalAmountInUsd = useMemo(
     () =>
       fractionalAmountIn && fractionalPriceTokenIn ? fractionalAmountIn.multiply(fractionalPriceTokenIn) : undefined,
-    [fractionalAmountIn, fractionalPriceTokenIn]
+    [fractionalAmountIn, fractionalPriceTokenIn],
   )
   const fractionalAmountOutUsd = useMemo(
     () =>
       fractionalAmountOut && fractionalPriceTokenOut
         ? fractionalAmountOut.multiply(fractionalPriceTokenOut)
         : undefined,
-    [fractionalAmountOut, fractionalPriceTokenOut]
+    [fractionalAmountOut, fractionalPriceTokenOut],
   )
 
   const rate = useMemo(
     () => (fractionalAmountIn && fractionalAmountOut ? fractionalAmountOut.divide(fractionalAmountIn) : undefined),
-    [fractionalAmountIn, fractionalAmountOut]
+    [fractionalAmountIn, fractionalAmountOut],
   )
   const priceImpact = useMemo(() => {
     let res =
@@ -280,12 +280,12 @@ export default function App() {
 
   const fractionalFeeAmount = useMemo(
     () => (tokenIn === APTOS_COIN ? new Fraction(2, 1000) : new Fraction(0, 1)),
-    [tokenIn]
+    [tokenIn],
   )
   const isSufficientBalance =
     fractionalBalanceTokenIn && fractionalAmountIn
       ? fractionalBalanceTokenIn.subtract(fractionalFeeAmount).equalTo(fractionalAmountIn) ||
-      fractionalBalanceTokenIn.subtract(fractionalFeeAmount).greaterThan(fractionalAmountIn)
+        fractionalBalanceTokenIn.subtract(fractionalFeeAmount).greaterThan(fractionalAmountIn)
         ? true
         : false
       : undefined
@@ -340,7 +340,7 @@ export default function App() {
         _setTokenIn(id)
       }
     },
-    [switchToken, tokenOut]
+    [switchToken, tokenOut],
   )
   const setTokenOut = useCallback(
     (id: string) => {
@@ -350,7 +350,7 @@ export default function App() {
         _setTokenOut(id)
       }
     },
-    [switchToken, tokenIn]
+    [switchToken, tokenIn],
   )
 
   const { globalModal, isModalOpen, onOpenModal, onCloseModal, onOpenChangeModal } = useModal()
@@ -366,7 +366,7 @@ export default function App() {
         amountInUsd: fractionalAmountInUsd?.toSignificant(18) || "0",
         amountOutUsd: fractionalAmountOutUsd?.toSignificant(18) || "0",
         minAmountOut: minimumReceived.numerator.toString(),
-        paths
+        paths,
       })
     }
   }
@@ -379,8 +379,7 @@ export default function App() {
       <Updaters />
       <div className="h-full bg-background text-foreground dark">
         <div className="h-full w-screen">
-          <div
-            className="fixed top-0 h-full w-screen bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
+          <div className="fixed top-0 h-full w-screen bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
           <div className="isolate flex min-h-screen flex-col">
             {isDebug && (
               <div className="absolute left-0 top-1/2 w-[250px] -translate-y-1/2 border-1 border-red-500 p-4">
@@ -402,7 +401,7 @@ export default function App() {
                         [...e.currentTarget.options]
                           .filter((op) => op.selected)
                           .map((op) => op.value)
-                          .join(",")
+                          .join(","),
                       )
                     }
                     multiple
@@ -422,8 +421,7 @@ export default function App() {
           #
           ###############################################################################
           */}
-            <header
-              className="flex h-[84px] items-center justify-between px-[60px] lg:px-[30px] md:justify-center md:px-[16px]">
+            <header className="flex h-[84px] items-center justify-between px-[60px] lg:px-[30px] md:justify-center md:px-[16px]">
               <div className="flex flex-1">
                 <Button
                   isIconOnly
@@ -487,8 +485,7 @@ export default function App() {
                 <div className="relative flex flex-col gap-1">
                   {/* INPUT */}
                   <>
-                    <div
-                      className="flex flex-col gap-2 rounded border-1 border-black900 bg-black900 p-3 transition focus-within:border-black600">
+                    <div className="flex flex-col gap-2 rounded border-1 border-black900 bg-black900 p-3 transition focus-within:border-black600">
                       <div className="flex h-[24px] items-center justify-between">
                         <BodyB2 className="text-buttonSecondary">You&apos;re paying</BodyB2>
                         {connectedWallet && (
@@ -747,11 +744,7 @@ export default function App() {
                     <TitleT2>{swapButton.text}</TitleT2>
                   </Button>
                 ) : telegramUser ? (
-                  <Button
-                    color="primary"
-                    className="h-[52px] rounded"
-                    onPress={connect}
-                  >
+                  <Button color="primary" className="h-[52px] rounded" onPress={connect}>
                     <TitleT2>Connect Wallet (Petra)</TitleT2>
                   </Button>
                 ) : (
@@ -920,8 +913,7 @@ export default function App() {
           ###############################################################################
           */}
             <footer className="flex w-full flex-1 items-end">
-              <div
-                className="flex h-[84px] w-full content-center items-center justify-between px-[60px] lg:px-[30px] md:static md:px-[16px] sm:justify-center">
+              <div className="flex h-[84px] w-full content-center items-center justify-between px-[60px] lg:px-[30px] md:static md:px-[16px] sm:justify-center">
                 <div className="flex items-center gap-2">
                   <BodyB2 className="text-buttonSecondary">© Anqa 2024</BodyB2>
 

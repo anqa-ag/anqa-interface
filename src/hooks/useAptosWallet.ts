@@ -43,6 +43,6 @@ export default function useAptosWallet() {
 
   return {
     balance,
-    connectedWallet
+    connectedWallet,
   }
 }

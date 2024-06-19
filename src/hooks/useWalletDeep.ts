@@ -12,11 +12,7 @@ export const encryptPayload = (payload: any, sharedSecret?: Uint8Array | null) =
   return [nonce, encryptedPayload]
 }
 
-export const sendEncryptedPayload = (
-  openLink: string,
-  payload: any,
-  sharedSecret: Uint8Array | undefined,
-) => {
+export const sendEncryptedPayload = (openLink: string, payload: any, sharedSecret: Uint8Array | undefined) => {
   const fallbackEnv = import.meta.env.VITE_NETWORK === "mainnet" ? "production" : "dev"
   const [nonce, encryptedPayload] = encryptPayload(payload, sharedSecret)
   const params = {
@@ -38,8 +34,7 @@ export function useWalletDeep(): {
 } {
   const { address, sharedSecret } = useParseConnection()
 
-
-  const connect = () =>{
+  const connect = () => {
     const fallbackEnv = import.meta.env.VITE_NETWORK === "mainnet" ? "production" : "dev"
     const params = {
       dappEncryptionPublicKey: Buffer.from(bs58.decode(import.meta.env.VITE_DAPP_PUBLIC_KEY || "")).toString("hex"),
@@ -55,7 +50,6 @@ export function useWalletDeep(): {
     localStorage.removeItem("anqa_shared_secret")
     window.location.href = "/"
   }
-
 
   const signTransaction = (transaction: any) => {
     sendEncryptedPayload(" https://petra.app/api/v1/signAndSubmit?data=", transaction, sharedSecret)
