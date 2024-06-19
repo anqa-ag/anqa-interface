@@ -12,25 +12,6 @@ export const NOT_FOUND_TOKEN_LOGO_URL =
 
 export const BIP_BASE = 10_000
 
-export const SOURCE_LIST = [
-  "pancake_swap",
-  "sushi_swap",
-  "liquid_swap_v0",
-  "liquid_swap_v0.5",
-  "thala_swap_stable",
-  "thala_swap_weighted",
-  // "bapt_swap_v1",
-  // "bapt_swap_v2",
-  // "bapt_swap_v2.1",
-  "aux_exchange",
-  "cellana_finance",
-  "cetus_amm",
-  "aptoswap",
-  "anime_swap",
-  "econia",
-  "obric_v3_abel",
-]
-
 export const AGGREGATOR_URL = import.meta.env.VITE_AGGREGATOR_URL
 export const TELEGRAM_REDIRECT_URL = import.meta.env.VITE_TELEGRAM_REDIRECT_URL
 export const VERSION = 1 // Pump version to purge state.

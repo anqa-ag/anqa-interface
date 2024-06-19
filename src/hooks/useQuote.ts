@@ -2,6 +2,7 @@ import axios from "axios"
 import { useMemo } from "react"
 import useSWR from "swr"
 import { AGGREGATOR_URL } from "../constants"
+import { sourceToName } from "../constants/source"
 
 export interface GetRouteResponse {
   code: number
@@ -64,35 +65,6 @@ const fn = async ({
     return response.data
   }
   return undefined
-}
-
-export function sourceToName(source: string): string {
-  const list: Record<string, string> = {
-    pancake_swap: "PancakeSwap",
-    sushi_swap: "SushiSwap",
-    liquid_swap_v0: "LiquidSwap",
-    "liquid_swap_v0.5": "LiquidSwap",
-    thala_swap_stable: "ThalaSwap",
-    thala_swap_weighted: "ThalaSwap",
-    bapt_swap_v1: "BaptSwap",
-    "bapt-swap_v2": "BaptSwap",
-    "bapt_swap_v2.1": "BaptSwap",
-    aux_exchange: "AuxExchange",
-    cellana_finance: "CellanaFinance",
-    cetus_amm: "Cetus",
-    aptoswap: "Aptoswap",
-  }
-  if (list[source]) return list[source]
-  return source
-    .split("_")
-    .map((word) => {
-      if (word.length) {
-        word = word[0].toUpperCase() + word.slice(1)
-        return word
-      }
-      return word
-    })
-    .join("")
 }
 
 // const swrOptions =

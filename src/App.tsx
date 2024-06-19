@@ -1,5 +1,6 @@
 import { Aptos, APTOS_COIN, AptosConfig, Network } from "@aptos-labs/ts-sdk"
 import { useWallet } from "@aptos-labs/wallet-adapter-react"
+import { Icon } from "@iconify/react"
 import { Button, Image, Link, Skeleton, Spacer } from "@nextui-org/react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
@@ -12,19 +13,19 @@ import { BodyB2, BodyB3, TitleT1, TitleT2, TitleT4 } from "./components/Texts"
 import Tooltips from "./components/Tooltips"
 import ModalConnectWallet from "./components/modals/ModalConnectWallet"
 import ModalSelectToken from "./components/modals/ModalSelectToken"
+import ModalTradeRoute from "./components/modals/ModalTradeRoute"
 import ModalUserSetting from "./components/modals/ModalUserSetting"
 import {
   BIP_BASE,
+  ZUSDC,
   martianWallet,
   NOT_FOUND_TOKEN_LOGO_URL,
   okxWallet,
   petraWallet,
   pontemWallet,
-  SOURCE_LIST,
   TELEGRAM_REDIRECT_URL,
-  ZUSDC
 } from "./constants"
-import { useIsSm } from "./hooks/useMedia"
+import { useIsMd, useIsSm } from "./hooks/useMedia"
 import useModal, { MODAL_LIST } from "./hooks/useModal"
 import useQuote from "./hooks/useQuote"
 import useSwap from "./hooks/useSwap"
@@ -38,9 +39,9 @@ import {
   inputRegex,
   mulpowToFraction,
   numberWithCommas,
-  truncateValue
+  truncateValue,
 } from "./utils/number"
-import { Icon } from "@iconify/react"
+import { SOURCES } from "./constants/source"
 import { useWalletDeep } from "./hooks/useWalletDeep.ts"
 import { Buffer } from "buffer"
 import bs58 from "bs58"
@@ -64,7 +65,10 @@ function Menu() {
   )
 }
 
-function ButtonConnectWallet({ onOpenModalConnectWallet, isOpenModalConnectWallet }: {
+function ButtonConnectWallet({
+  onOpenModalConnectWallet,
+  isOpenModalConnectWallet,
+}: {
   onOpenModalConnectWallet: () => void
   isOpenModalConnectWallet: boolean
 }) {
@@ -126,7 +130,7 @@ function ButtonConnectWalletDeep() {
     const params = {
       dappEncryptionPublicKey: Buffer.from(bs58.decode(import.meta.env.VITE_DAPP_PUBLIC_KEY || "")).toString("hex"),
       appInfo: { domain: "https://" + window.location.hostname },
-      redirectLink: TELEGRAM_REDIRECT_URL + "/ul?method=connect"
+      redirectLink: TELEGRAM_REDIRECT_URL + "/ul?method=connect",
     }
     getTelegramWebApp()?.openLink(`https://petra.app/api/v1/connect?data=${btoa(JSON.stringify(params))}`)
     closeTelegramWebApp()
@@ -164,6 +168,8 @@ function ButtonConnectWalletDeep() {
 
 export default function App() {
   const isSm = useIsSm()
+  const isMd = useIsMd()
+
   const { telegramUser } = useTelegramWebApp()
 
   const [balance, setBalance] = useState<Record<string, any>>({})
@@ -225,11 +231,11 @@ export default function App() {
   const followingPriceData = useAppSelector((state) => state.price.followingPriceData)
   const fractionalPriceTokenIn = useMemo(
     () => (followingPriceData[tokenIn] ? mulpowToFraction(followingPriceData[tokenIn]) : undefined),
-    [followingPriceData, tokenIn]
+    [followingPriceData, tokenIn],
   )
   const fractionalPriceTokenOut = useMemo(
     () => (followingPriceData[tokenOut] ? mulpowToFraction(followingPriceData[tokenOut]) : undefined),
-    [followingPriceData, tokenOut]
+    [followingPriceData, tokenOut],
   )
 
   const balanceTokenIn = balance[tokenIn]
@@ -248,7 +254,7 @@ export default function App() {
       typedAmountIn && tokenInDecimals !== undefined
         ? mulpowToFraction(typedAmountIn.replaceAll(",", ""), tokenInDecimals)
         : undefined,
-    [tokenInDecimals, typedAmountIn]
+    [tokenInDecimals, typedAmountIn],
   )
   const [fractionalAmountIn] = useDebounceValue(_fractionalAmountIn, shouldUseDebounceAmountIn ? 250 : 0)
 
@@ -258,30 +264,35 @@ export default function App() {
     amountOut,
     isValidating: isValidatingQuote,
     sourceInfo,
-    paths
+    paths,
   } = useQuote(tokenIn, tokenOut, fractionalAmountIn?.numerator?.toString(), source)
   const fractionalAmountOut = useMemo(
     () =>
       amountOut && tokenOutDecimals != undefined ? new Fraction(amountOut, Math.pow(10, tokenOutDecimals)) : undefined,
-    [tokenOutDecimals, amountOut]
+    [tokenOutDecimals, amountOut],
   )
+
+  const readbleAmountOut =
+    fractionalAmountOut && tokenOutDecimals !== undefined
+      ? numberWithCommas(truncateValue(fractionalAmountOut.toFixed(18), tokenOutDecimals))
+      : ""
 
   const fractionalAmountInUsd = useMemo(
     () =>
       fractionalAmountIn && fractionalPriceTokenIn ? fractionalAmountIn.multiply(fractionalPriceTokenIn) : undefined,
-    [fractionalAmountIn, fractionalPriceTokenIn]
+    [fractionalAmountIn, fractionalPriceTokenIn],
   )
   const fractionalAmountOutUsd = useMemo(
     () =>
       fractionalAmountOut && fractionalPriceTokenOut
         ? fractionalAmountOut.multiply(fractionalPriceTokenOut)
         : undefined,
-    [fractionalAmountOut, fractionalPriceTokenOut]
+    [fractionalAmountOut, fractionalPriceTokenOut],
   )
 
   const rate = useMemo(
     () => (fractionalAmountIn && fractionalAmountOut ? fractionalAmountOut.divide(fractionalAmountIn) : undefined),
-    [fractionalAmountIn, fractionalAmountOut]
+    [fractionalAmountIn, fractionalAmountOut],
   )
   const priceImpact = useMemo(() => {
     let res =
@@ -313,12 +324,12 @@ export default function App() {
 
   const fractionalFeeAmount = useMemo(
     () => (tokenIn === APTOS_COIN ? new Fraction(2, 1000) : new Fraction(0, 1)),
-    [tokenIn]
+    [tokenIn],
   )
   const isSufficientBalance =
     fractionalBalanceTokenIn && fractionalAmountIn
       ? fractionalBalanceTokenIn.subtract(fractionalFeeAmount).equalTo(fractionalAmountIn) ||
-      fractionalBalanceTokenIn.subtract(fractionalFeeAmount).greaterThan(fractionalAmountIn)
+        fractionalBalanceTokenIn.subtract(fractionalFeeAmount).greaterThan(fractionalAmountIn)
         ? true
         : false
       : undefined
@@ -373,7 +384,7 @@ export default function App() {
         _setTokenIn(id)
       }
     },
-    [switchToken, tokenOut]
+    [switchToken, tokenOut],
   )
   const setTokenOut = useCallback(
     (id: string) => {
@@ -383,7 +394,7 @@ export default function App() {
         _setTokenOut(id)
       }
     },
-    [switchToken, tokenIn]
+    [switchToken, tokenIn],
   )
 
   const { globalModal, isModalOpen, onOpenModal, onCloseModal, onOpenChangeModal } = useModal()
@@ -399,7 +410,7 @@ export default function App() {
         amountInUsd: fractionalAmountInUsd?.toSignificant(18) || "0",
         amountOutUsd: fractionalAmountOutUsd?.toSignificant(18) || "0",
         minAmountOut: minimumReceived.numerator.toString(),
-        paths
+        paths,
       })
     }
   }
@@ -412,8 +423,7 @@ export default function App() {
       <Updaters />
       <div className="h-full bg-background text-foreground dark">
         <div className="h-full w-screen">
-          <div
-            className="fixed top-0 h-full w-screen bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
+          <div className="fixed top-0 h-full w-screen bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
           <div className="isolate flex min-h-screen flex-col">
             {isDebug && (
               <div className="absolute left-0 top-1/2 w-[250px] -translate-y-1/2 border-1 border-red-500 p-4">
@@ -435,12 +445,12 @@ export default function App() {
                         [...e.currentTarget.options]
                           .filter((op) => op.selected)
                           .map((op) => op.value)
-                          .join(",")
+                          .join(","),
                       )
                     }
                     multiple
                   >
-                    {SOURCE_LIST.map((source) => (
+                    {Object.keys(SOURCES).map((source) => (
                       <option key={source}>{source}</option>
                     ))}
                   </select>
@@ -455,8 +465,7 @@ export default function App() {
           #
           ###############################################################################
           */}
-            <header
-              className="flex h-[84px] items-center justify-between px-[60px] lg:px-[30px] md:justify-center md:px-[16px]">
+            <header className="flex h-[84px] items-center justify-between px-[60px] lg:px-[30px] md:justify-center md:px-[16px]">
               <div className="flex flex-1">
                 <Button
                   isIconOnly
@@ -467,21 +476,21 @@ export default function App() {
                   <AnqaWithTextIcon size={40} />
                 </Button>
               </div>
-              {telegramUser ? <ButtonConnectWalletDeep /> : (
-                isSm ? (
+              {telegramUser ? (
+                <ButtonConnectWalletDeep />
+              ) : isSm ? (
+                <ButtonConnectWallet
+                  onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
+                  isOpenModalConnectWallet={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
+                />
+              ) : (
+                <>
+                  <Menu />
                   <ButtonConnectWallet
                     onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
                     isOpenModalConnectWallet={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
                   />
-                ) : (
-                  <>
-                    <Menu />
-                    <ButtonConnectWallet
-                      onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
-                      isOpenModalConnectWallet={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
-                    />
-                  </>
-                )
+                </>
               )}
             </header>
             {/*
@@ -520,8 +529,7 @@ export default function App() {
                 <div className="relative flex flex-col gap-1">
                   {/* INPUT */}
                   <>
-                    <div
-                      className="flex flex-col gap-2 rounded border-1 border-black900 bg-black900 p-3 transition focus-within:border-black600">
+                    <div className="flex flex-col gap-2 rounded border-1 border-black900 bg-black900 p-3 transition focus-within:border-black600">
                       <div className="flex h-[24px] items-center justify-between">
                         <BodyB2 className="text-buttonSecondary">You&apos;re paying</BodyB2>
                         {connectedWallet && (
@@ -663,11 +671,7 @@ export default function App() {
                             pattern="^[0-9]*[.,]?[0-9]*$"
                             disabled
                             data-tooltip-id="tooltip-input-amount-out"
-                            value={
-                              fractionalAmountOut && tokenOutDecimals !== undefined
-                                ? numberWithCommas(truncateValue(fractionalAmountOut.toFixed(18), tokenOutDecimals))
-                                : ""
-                            }
+                            value={readbleAmountOut}
                           />
                         )}
                         <Button
@@ -751,6 +755,7 @@ export default function App() {
                       className="anqa-hover-primary-all flex h-fit min-h-fit cursor-pointer items-center gap-3 rounded-none bg-transparent p-0 data-[hover]:bg-transparent"
                       disableAnimation
                       disableRipple
+                      onPress={() => onOpenModal(MODAL_LIST.TRADE_ROUTE)}
                     >
                       <BodyB2 className="whitespace-nowrap rounded border-1 border-primary p-2 text-primary">
                         {sourceInfo.numberOfPaths} split{sourceInfo.numberOfPaths >= 2 ? "s" : ""} &{" "}
@@ -767,7 +772,7 @@ export default function App() {
                   <Spacer y={4} />
                 )}
 
-                {(connectedWallet || address) ? (
+                {connectedWallet || address ? (
                   <Button
                     className={
                       "h-[52px] rounded" +
@@ -782,31 +787,36 @@ export default function App() {
                   >
                     <TitleT2>{swapButton.text}</TitleT2>
                   </Button>
+                ) : telegramUser ? (
+                  <Button
+                    color="primary"
+                    className="h-[52px] rounded"
+                    onPress={() => {
+                      const params = {
+                        dappEncryptionPublicKey: Buffer.from(
+                          bs58.decode(import.meta.env.VITE_DAPP_PUBLIC_KEY || ""),
+                        ).toString("hex"),
+                        appInfo: { domain: "https://" + window.location.hostname },
+                        redirectLink: TELEGRAM_REDIRECT_URL + "/ul?method=connect",
+                      }
+                      getTelegramWebApp()?.openLink(
+                        `https://petra.app/api/v1/connect?data=${btoa(JSON.stringify(params))}`,
+                      )
+                      closeTelegramWebApp()
+                    }}
+                    isLoading={isLoadingWallet}
+                  >
+                    <TitleT2>{isLoadingWallet ? "Loading Wallet" : "Connect Wallet (Petra)"}</TitleT2>
+                  </Button>
                 ) : (
-                  telegramUser ? <Button
-                      color="primary"
-                      className="h-[52px] rounded"
-                      onPress={() => {
-                        const params = {
-                          dappEncryptionPublicKey: Buffer.from(bs58.decode(import.meta.env.VITE_DAPP_PUBLIC_KEY || "")).toString("hex"),
-                          appInfo: { domain: "https://" + window.location.hostname },
-                          redirectLink: TELEGRAM_REDIRECT_URL + "/ul?method=connect"
-                        }
-                        getTelegramWebApp()?.openLink(`https://petra.app/api/v1/connect?data=${btoa(JSON.stringify(params))}`)
-                        closeTelegramWebApp()
-                      }}
-                      isLoading={isLoadingWallet}
-                    >
-                      <TitleT2>{isLoadingWallet ? "Loading Wallet" : "Connect Wallet (Petra)"}</TitleT2>
-                    </Button> :
-                    <Button
-                      color="primary"
-                      className="h-[52px] rounded"
-                      onPress={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
-                      isLoading={isLoadingWallet}
-                    >
-                      <TitleT2>{isLoadingWallet ? "Loading Wallet" : "Connect Wallet"}</TitleT2>
-                    </Button>
+                  <Button
+                    color="primary"
+                    className="h-[52px] rounded"
+                    onPress={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
+                    isLoading={isLoadingWallet}
+                  >
+                    <TitleT2>{isLoadingWallet ? "Loading Wallet" : "Connect Wallet"}</TitleT2>
+                  </Button>
                 )}
 
                 <Spacer y={4} />
@@ -964,8 +974,7 @@ export default function App() {
           ###############################################################################
           */}
             <footer className="flex w-full flex-1 items-end">
-              <div
-                className="flex h-[84px] w-full content-center items-center justify-between px-[60px] lg:px-[30px] md:static md:px-[16px] sm:justify-center">
+              <div className="flex h-[84px] w-full content-center items-center justify-between px-[60px] lg:px-[30px] md:static md:px-[16px] sm:justify-center">
                 <div className="flex items-center gap-2">
                   <BodyB2 className="text-buttonSecondary">© Anqa 2024</BodyB2>
 
@@ -1057,6 +1066,20 @@ export default function App() {
           onOpenChange={onOpenChangeModal}
           onClose={onCloseModal}
         />
+        {/* NOTE: Small view has bug, hide for now. */}
+        {!isMd && (
+          <ModalTradeRoute
+            isOpen={globalModal === MODAL_LIST.TRADE_ROUTE && isModalOpen}
+            onOpenChange={onOpenChangeModal}
+            onClose={onCloseModal}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            readableAmountIn={numberWithCommas(typedAmountIn)}
+            readableAmountOut={readbleAmountOut}
+            rawAmountIn={fractionalAmountIn?.numerator?.toString()}
+            paths={paths}
+          />
+        )}
         <Tooltips />
       </div>
     </>

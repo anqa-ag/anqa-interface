@@ -5,7 +5,6 @@ export function getTelegramWebApp(): any {
 }
 
 export function getTelegramUserAgent(): any {
-  console.log(getTelegramWebApp()?.initDataUnsafe?.user)
   return getTelegramWebApp()?.initDataUnsafe?.user
 }
 
