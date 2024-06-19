@@ -43,7 +43,7 @@ import {
 import { SOURCES } from "./constants/source"
 import { useWalletDeep } from "./hooks/useWalletDeep.ts"
 import { useTelegramWebApp } from "./hooks/useTelegramWebApp.ts"
-import useAptosWallet from "./hooks/useAptosWallet.ts"
+import useConnectedWallet from "./hooks/useConnectedWallet.ts"
 
 function Menu() {
   return (
@@ -155,7 +155,8 @@ export default function App() {
   const { telegramUser } = useTelegramWebApp()
   const { connect } = useWalletDeep()
 
-  const { balance, connectedWallet } = useAptosWallet()
+  const { balance } = useAppSelector((state) => state.wallet)
+  const { connectedWallet } = useConnectedWallet()
   const { isLoading: isLoadingWallet } = useWallet()
 
   const [typedAmountIn, _setTypedAmountIn] = useState("")

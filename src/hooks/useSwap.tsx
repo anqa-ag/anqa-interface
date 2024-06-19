@@ -12,6 +12,7 @@ import { GetRouteResponseDataPath } from "./useQuote"
 import { isDesktop } from "react-device-detect"
 import { useWalletDeep } from "./useWalletDeep.ts"
 import { useTelegramWebApp } from "./useTelegramWebApp.ts"
+import useConnectedWallet from "./useConnectedWallet.ts"
 
 interface SwapState {
   isSwapping: boolean
@@ -193,18 +194,16 @@ export default function useSwap() {
     success: undefined,
   })
   const dispatch = useAppDispatch()
-  const { account: account1, connected: connected1, signAndSubmitTransaction } = useWallet()
+  const { signAndSubmitTransaction } = useWallet()
 
   const { telegramUser } = useTelegramWebApp()
-  const { address, signTransaction } = useWalletDeep()
+  const { signTransaction } = useWalletDeep()
 
-  const account = useMemo(() => {
-    return account1?.address || address
-  }, [account1, address])
+  const { connectedWallet: account } = useConnectedWallet()
 
   const connected = useMemo(() => {
-    return connected1 || address != null
-  }, [connected1, address])
+    return !!account;
+  }, [account])
 
   const { followingTokenData } = useAppSelector((state) => state.token)
 
@@ -359,14 +358,6 @@ export default function useSwap() {
         // } else if (provider === "Martian") {
         //   if (!martian) return
         const swapData = getSwapDataFromPaths(args)
-        console.log(
-          `swapData`,
-          JSON.stringify({
-            function: swapData.function,
-            arguments: swapData.functionArguments,
-            type_arguments: swapData.typeArguments,
-          }),
-        )
 
         if (telegramUser) {
           signTransaction(
