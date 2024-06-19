@@ -620,7 +620,7 @@ export default function App() {
                               ? "~$" + numberWithCommas(fractionalAmountOutUsd.toSignificant(6), false, 2)
                               : "--"}
                           </BodyB2>
-                          {priceImpact && (
+                          {priceImpact && priceImpact.greaterThan(new Fraction(1, 100)) && (
                             <BodyB2
                               data-tooltip-id="tooltip-price-impact"
                               className={
@@ -631,13 +631,7 @@ export default function App() {
                                     : "text-buttonSecondary"
                               }
                             >
-                              (
-                              {priceImpact
-                                ? priceImpact.lessThan(new Fraction(1, 100))
-                                  ? "<0.01%"
-                                  : `~${truncateValue(priceImpact.toSignificant(4), 2)}%`
-                                : "--"}
-                              )
+                              ({`-${truncateValue(priceImpact.toSignificant(4), 2)}%`})
                             </BodyB2>
                           )}
                         </div>
