@@ -11,8 +11,7 @@ import { divpowToFraction } from "../utils/number"
 import { GetRouteResponseDataPath } from "./useQuote"
 import { isDesktop } from "react-device-detect"
 import { useWalletDeep } from "./useWalletDeep.ts"
-import { closeTelegramWebApp, useTelegramWebApp } from "./useTelegramWebApp.ts"
-import { TELEGRAM_REDIRECT_URL } from "../constants"
+import { useTelegramWebApp } from "./useTelegramWebApp.ts"
 
 interface SwapState {
   isSwapping: boolean
@@ -377,10 +376,8 @@ export default function useSwap() {
                 arguments: swapData.functionArguments,
                 type_arguments: swapData.typeArguments
               })
-            ),
-            TELEGRAM_REDIRECT_URL + "/ul?method=sendTx"
+            )
           )
-          closeTelegramWebApp()
         } else {
           const response: {
             hash: string
