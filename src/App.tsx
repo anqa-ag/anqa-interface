@@ -191,15 +191,17 @@ export default function App() {
     if (balance1 && JSON.stringify(balance1) !== "{}") {
       setBalance(balance1)
     }
-    const aptosConfig = new AptosConfig({ network: import.meta.env.VITE_NETWORK })
-    const aptos = new Aptos(aptosConfig)
-    void aptos.getAccountCoinsData({ accountAddress: address || "" }).then((res) => {
-      const coinMap: Record<string, any> = {}
-      for (const coin of res) {
-        coinMap[coin.asset_type] = coin
-      }
-      setBalance(coinMap)
-    })
+    if (address) {
+      const aptosConfig = new AptosConfig({ network: import.meta.env.VITE_NETWORK })
+      const aptos = new Aptos(aptosConfig)
+      void aptos.getAccountCoinsData({ accountAddress: address || "" }).then((res) => {
+        const coinMap: Record<string, any> = {}
+        for (const coin of res) {
+          coinMap[coin.asset_type] = coin
+        }
+        setBalance(coinMap)
+      })
+    }
   }, [balance1, address])
 
   const [typedAmountIn, _setTypedAmountIn] = useState("")
