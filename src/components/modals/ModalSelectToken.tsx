@@ -1,6 +1,6 @@
 import { useWallet } from "@aptos-labs/wallet-adapter-react"
 import { Icon } from "@iconify/react"
-import { Button, Image, Input, Modal, ModalContent, Spacer } from "@nextui-org/react"
+import { Button, Image, Input, Modal, ModalContent, Skeleton, Spacer } from "@nextui-org/react"
 import { CSSProperties, memo, useCallback, useEffect, useMemo, useState } from "react"
 import { FixedSizeList } from "react-window"
 import { useCopyToClipboard, useDebounceValue, useWindowSize } from "usehooks-ts"
@@ -12,6 +12,21 @@ import { Fraction } from "../../utils/fraction"
 import { divpowToFraction, mulpowToFraction } from "../../utils/number"
 import { CloseIcon, SearchIcon } from "../Icons"
 import { BodyB3, TitleT1, TitleT2, TitleT5 } from "../Texts"
+
+const BANNERS = [
+  {
+    address: "0xdcfa079344261bfde45e7f6281df091743b8d3098bf9e26e1c0212fc5b070621::zaaptos_token::ZaaptosCoin",
+    logoUrl: "/banners/ZAAP.png",
+  },
+  {
+    address: "0xf891d2e004973430cc2bbbee69f3d0f4adb9c7ae03137b4579f7bb9979283ee6::APTOS_FOMO::APTOS_FOMO",
+    logoUrl: "/banners/FOMO.png",
+  },
+  {
+    address: "0x4fbed3f8a3fd8a11081c8b6392152a8b0cb14d70d0414586f0c9b858fcd2d6a7::UPTOS::UPTOS",
+    logoUrl: "/banners/UPTOS.jpg",
+  },
+]
 
 export interface TokenWithBalance extends Token {
   isFollowing: boolean
@@ -318,8 +333,22 @@ function ModalSelectToken({
 
             <Spacer y={4} />
 
+            <div className="flex flex-col gap-2">
+              {BANNERS.map((item) => (
+                <Button key={item.address} onPress={() => setTokenAndClose(item.address)} className="relative rounded p-0">
+                  <Skeleton
+                    className="absolute left-0 top-0 z-10 h-full w-full rounded"
+                    classNames={{ base: "!bg-transparent after:!bg-transparent" }}
+                  />
+                  <Image src={item.logoUrl} className="w-full z-0" />
+                </Button>
+              ))}
+            </div>
+
+            <Spacer y={4} />
+
             {renderTokenList && (
-              <div className="relative -mx-4">
+              <div className="relative -mx-4 border-t-1 border-t-background">
                 <FixedSizeList
                   height={listHeight}
                   itemCount={renderTokenList.length}
