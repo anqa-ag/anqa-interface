@@ -14,6 +14,7 @@ export const BIP_BASE = 10_000
 
 export const AGGREGATOR_URL = import.meta.env.VITE_AGGREGATOR_URL
 export const TELEGRAM_REDIRECT_URL = import.meta.env.VITE_TELEGRAM_REDIRECT_URL
+export const PETRA_ENCRYPTION_PUBLIC_KEY = import.meta.env.VITE_DAPP_PUBLIC_KEY
 export const VERSION = 1 // Pump version to purge state.
 
 export const petraWallet = new PetraWallet()

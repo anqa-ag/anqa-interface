@@ -1,7 +1,8 @@
-import { WalletName, useWallet } from "@aptos-labs/wallet-adapter-react"
+import { WalletName } from "@aptos-labs/wallet-adapter-react"
 import { Button, Image, Modal, ModalContent, Spacer } from "@nextui-org/react"
 import { isDesktop } from "react-device-detect"
 import { martianWallet, okxWallet, petraWallet, pontemWallet } from "../../constants/index.ts"
+import useAnqaWallet from "../../hooks/useAnqaWallet.ts"
 import { CloseIcon } from "../Icons"
 import { BodyB2, TitleT1, TitleT2, TitleT5 } from "../Texts"
 
@@ -14,7 +15,7 @@ export default function ModalConnectWallet({
   onClose: () => void
   onOpenChange: () => void
 }) {
-  const { connect } = useWallet()
+  const { connect } = useAnqaWallet()
 
   const onConnect = (wantedProvider: WalletName) => () => {
     connect(wantedProvider)

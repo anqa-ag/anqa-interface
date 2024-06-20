@@ -1,5 +1,4 @@
 import { APTOS_COIN, Network } from "@aptos-labs/ts-sdk"
-import { useWallet } from "@aptos-labs/wallet-adapter-react"
 import { Icon } from "@iconify/react"
 import { Button, Image, Link, Skeleton, Spacer } from "@nextui-org/react"
 import { useCallback, useEffect, useMemo, useState } from "react"
@@ -17,13 +16,15 @@ import ModalTradeRoute from "./components/modals/ModalTradeRoute"
 import ModalUserSetting from "./components/modals/ModalUserSetting"
 import {
   BIP_BASE,
-  martianWallet,
   NOT_FOUND_TOKEN_LOGO_URL,
+  ZUSDC,
+  martianWallet,
   okxWallet,
   petraWallet,
   pontemWallet,
-  ZUSDC,
 } from "./constants"
+import { SOURCES } from "./constants/source"
+import useAnqaWallet from "./hooks/useAnqaWallet"
 import { useIsMd, useIsSm } from "./hooks/useMedia"
 import useModal, { MODAL_LIST } from "./hooks/useModal"
 import useQuote from "./hooks/useQuote"
@@ -40,11 +41,6 @@ import {
   numberWithCommas,
   truncateValue,
 } from "./utils/number"
-import { SOURCES } from "./constants/source"
-import { useWalletDeep } from "./hooks/useWalletDeep.ts"
-import { useTelegramWebApp } from "./hooks/useTelegramWebApp.ts"
-import useConnectedWallet from "./hooks/useConnectedWallet.ts"
-import ReactGA from "react-ga4"
 
 function Menu() {
   return (
@@ -71,7 +67,7 @@ function ButtonConnectWallet({
   onOpenModalConnectWallet: () => void
   isOpenModalConnectWallet: boolean
 }) {
-  const { account, network, disconnect, wallet, connected, isLoading: isLoadingWallet } = useWallet()
+  const { account, network, disconnect, wallet, connected, isLoading: isLoadingWallet } = useAnqaWallet()
   const isMainnet = network ? network.name === Network.MAINNET : undefined
 
   return (
@@ -122,43 +118,12 @@ function ButtonConnectWallet({
   )
 }
 
-function ButtonConnectWalletDeep() {
-  const { address, connect, disconnect } = useWalletDeep()
-
-  return (
-    <div className="flex-1 text-end">
-      <Button
-        color="primary"
-        className={
-          "w-fit rounded px-4" +
-          " " +
-          (address
-            ? "border-buttonSecondary bg-background text-buttonSecondary"
-            : "border-primary bg-primary text-white")
-        }
-        onPress={address ? disconnect : connect}
-        variant={address ? "bordered" : "solid"}
-      >
-        {address ? (
-          <TitleT2>{address.slice(0, 4) + "..." + address.slice(-4)}</TitleT2>
-        ) : (
-          <TitleT2>Connect Wallet (Petra)</TitleT2>
-        )}
-      </Button>
-    </div>
-  )
-}
-
 export default function App() {
   const isSm = useIsSm()
   const isMd = useIsMd()
 
-  const { telegramUser } = useTelegramWebApp()
-  const { connect } = useWalletDeep()
-
   const { balance } = useAppSelector((state) => state.wallet)
-  const { connectedWallet } = useConnectedWallet()
-  const { isLoading: isLoadingWallet } = useWallet()
+  const { account, isLoading: isLoadingWallet } = useAnqaWallet()
 
   const [typedAmountIn, _setTypedAmountIn] = useState("")
   const [shouldUseDebounceAmountIn, setShouldUseDebounceAmountIn] = useState(true)
@@ -373,15 +338,6 @@ export default function App() {
     }
   }
 
-  useEffect(() => {
-    if (telegramUser) {
-      ReactGA.event({
-        category: "Telegram Web App",
-        action: "TWA/view_index_page",
-      })
-    }
-  }, [telegramUser])
-
   const [searchParams] = useSearchParams()
   const isDebug = useMemo(() => searchParams.get("debug") === "true", [searchParams])
 
@@ -443,9 +399,7 @@ export default function App() {
                   <AnqaWithTextIcon size={40} />
                 </Button>
               </div>
-              {telegramUser ? (
-                <ButtonConnectWalletDeep />
-              ) : isSm ? (
+              {isSm ? (
                 <ButtonConnectWallet
                   onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
                   isOpenModalConnectWallet={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
@@ -499,7 +453,7 @@ export default function App() {
                     <div className="flex flex-col gap-2 rounded border-1 border-black900 bg-black900 p-3 transition focus-within:border-black600">
                       <div className="flex h-[24px] items-center justify-between">
                         <BodyB2 className="text-buttonSecondary">You&apos;re paying</BodyB2>
-                        {connectedWallet && (
+                        {account && (
                           <Button
                             className="anqa-hover-white-all flex h-fit w-fit min-w-fit items-center gap-1 bg-transparent p-0"
                             disableAnimation
@@ -602,7 +556,7 @@ export default function App() {
                     <div className="flex flex-col gap-2 rounded border-1 border-black900 bg-black900 p-3 transition">
                       <div className="flex h-[24px] items-center justify-between">
                         <BodyB2 className="text-buttonSecondary">To Receive</BodyB2>
-                        {connectedWallet && (
+                        {account && (
                           <Button
                             className="flex h-fit w-fit min-w-fit items-center gap-1 bg-transparent p-0 data-[hover]:opacity-100"
                             disableAnimation
@@ -739,7 +693,7 @@ export default function App() {
                   <Spacer y={4} />
                 )}
 
-                {connectedWallet ? (
+                {account ? (
                   <Button
                     className={
                       "h-[52px] rounded" +
@@ -753,10 +707,6 @@ export default function App() {
                     isDisabled={swapButton.isDisabled}
                   >
                     <TitleT2>{swapButton.text}</TitleT2>
-                  </Button>
-                ) : telegramUser ? (
-                  <Button color="primary" className="h-[52px] rounded" onPress={connect}>
-                    <TitleT2>Connect Wallet (Petra)</TitleT2>
                   </Button>
                 ) : (
                   <Button

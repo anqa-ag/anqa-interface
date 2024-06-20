@@ -1,18 +1,15 @@
 import { InputEntryFunctionData, isUserTransactionResponse } from "@aptos-labs/ts-sdk"
-import { useWallet } from "@aptos-labs/wallet-adapter-react"
 import { Link } from "@nextui-org/react"
 import { useCallback, useMemo, useState } from "react"
+import { isDesktop } from "react-device-detect"
 import { toast } from "react-toastify"
 import { BodyB2, TitleT2, TitleT4 } from "../components/Texts"
 import { useAppDispatch, useAppSelector } from "../redux/hooks"
-import { addTransactionHistory, ITransactionHistory } from "../redux/slices/user"
+import { ITransactionHistory, addTransactionHistory } from "../redux/slices/user"
 import { aptos } from "../utils/aptos"
 import { divpowToFraction } from "../utils/number"
+import useAnqaWallet from "./useAnqaWallet"
 import { GetRouteResponseDataPath } from "./useQuote"
-import { isDesktop } from "react-device-detect"
-import { useWalletDeep } from "./useWalletDeep.ts"
-import { useTelegramWebApp } from "./useTelegramWebApp.ts"
-import useConnectedWallet from "./useConnectedWallet.ts"
 
 interface SwapState {
   isSwapping: boolean
@@ -194,16 +191,7 @@ export default function useSwap() {
     success: undefined,
   })
   const dispatch = useAppDispatch()
-  const { signAndSubmitTransaction } = useWallet()
-
-  const { telegramUser } = useTelegramWebApp()
-  const { signTransaction } = useWalletDeep()
-
-  const { connectedWallet: account } = useConnectedWallet()
-
-  const connected = useMemo(() => {
-    return !!account;
-  }, [account])
+  const { signAndSubmitTransaction, account, connected } = useAnqaWallet()
 
   const { followingTokenData } = useAppSelector((state) => state.token)
 
@@ -359,48 +347,46 @@ export default function useSwap() {
         //   if (!martian) return
         const swapData = getSwapDataFromPaths(args)
 
-        if (telegramUser) {
-          signTransaction(
-            btoa(
-              JSON.stringify({
-                function: swapData.function,
-                arguments: swapData.functionArguments,
-                type_arguments: swapData.typeArguments,
-              }),
-            ),
-          )
-        } else {
-          const response: {
-            hash: string
-            output: Record<string, any>
-          } = await signAndSubmitTransaction({ sender: account || "", data: swapData })
-          console.log(`response`, response)
-          if (
-            response.hash &&
-            (response.output === undefined || Object.keys(response.output).length === 0 || !response.output.version)
-          ) {
-            const aptosResponse = await aptos.waitForTransaction({
-              transactionHash: response.hash,
-              options: { checkSuccess: false, timeoutSecs: 2, waitForIndexer: true },
-            })
-            console.log(`aptosResponse`, aptosResponse)
-            if (isUserTransactionResponse(aptosResponse)) {
-              response.output = aptosResponse
-            } else {
-              throw new Error(`Something is wrong. aptosResponse = ${JSON.stringify(aptosResponse, null, 4)}`)
-            }
+        // signAndSubmitTransaction(
+        //   btoa(
+        //     JSON.stringify({
+        //       function: swapData.function,
+        //       arguments: swapData.functionArguments,
+        //       type_arguments: swapData.typeArguments,
+        //     }),
+        //   ),
+        // )
+
+        const response: {
+          hash: string
+          output: Record<string, any>
+        } = await signAndSubmitTransaction({ sender: account.address || "", data: swapData })
+        console.log(`response`, response)
+        if (
+          response.hash &&
+          (response.output === undefined || Object.keys(response.output).length === 0 || !response.output.version)
+        ) {
+          const aptosResponse = await aptos.waitForTransaction({
+            transactionHash: response.hash,
+            options: { checkSuccess: false, timeoutSecs: 2, waitForIndexer: true },
+          })
+          console.log(`aptosResponse`, aptosResponse)
+          if (isUserTransactionResponse(aptosResponse)) {
+            response.output = aptosResponse
+          } else {
+            throw new Error(`Something is wrong. aptosResponse = ${JSON.stringify(aptosResponse, null, 4)}`)
           }
-          setSwapState({ isSwapping: false, txVersion: response.output?.version, success: response.output?.success })
-          sendNotification(
-            args.tokenIn,
-            args.tokenOut,
-            args.amountIn,
-            args.amountOut,
-            response.output?.version,
-            Boolean(response.output?.success),
-            response.output?.vm_status,
-          )
         }
+        setSwapState({ isSwapping: false, txVersion: response.output?.version, success: response.output?.success })
+        sendNotification(
+          args.tokenIn,
+          args.tokenOut,
+          args.amountIn,
+          args.amountOut,
+          response.output?.version,
+          Boolean(response.output?.success),
+          response.output?.vm_status,
+        )
       } catch (err) {
         console.log(err)
         console.error(err)
@@ -419,7 +405,7 @@ export default function useSwap() {
         }
       }
     },
-    [account, connected, isSwapping, sendNotification, signAndSubmitTransaction, signTransaction, telegramUser],
+    [account, connected, isSwapping, sendNotification, signAndSubmitTransaction],
   )
 
   const res = useMemo(

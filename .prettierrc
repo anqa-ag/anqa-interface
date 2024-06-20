@@ -16,6 +16,12 @@
       "options": {
         "printWidth": 150
       }
+    },
+    {
+      "files": "index.html",
+      "options": {
+        "printWidth": 100000
+      }
     }
   ]
 }

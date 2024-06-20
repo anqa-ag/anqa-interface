@@ -1,4 +1,5 @@
 import bs58 from "bs58"
+import { useMemo } from "react"
 import { useSearchParams } from "react-router-dom"
 
 export function useParseConnection() {
@@ -26,8 +27,12 @@ export function useParseConnection() {
     sharedSecret = bs58.decode(localStorage.getItem("anqa_shared_secret") || "")
     address = localStorage.getItem("anqa_address")
   }
-  return {
-    address,
-    sharedSecret,
-  }
+
+  return useMemo(
+    () => ({
+      address,
+      sharedSecret,
+    }),
+    [address, sharedSecret],
+  )
 }
