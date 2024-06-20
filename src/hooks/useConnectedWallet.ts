@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { useWalletDeep } from "./useWalletDeep.ts"
+import { useWalletDeep } from "./useWalletTelegram.ts"
 import { useWallet } from "@aptos-labs/wallet-adapter-react"
 
 export default function useConnectedWallet() {
@@ -10,7 +10,5 @@ export default function useConnectedWallet() {
     return account?.address || addressFromTelegramConnect
   }, [account, addressFromTelegramConnect])
 
-  return {
-    connectedWallet
-  }
+  return connectedWallet
 }

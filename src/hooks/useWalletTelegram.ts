@@ -3,7 +3,7 @@ import bs58 from "bs58"
 import { useParseConnection } from "./useParseConnection.ts"
 import { Buffer } from "buffer"
 import { closeTelegramWebApp, getTelegramWebApp } from "./useTelegramWebApp.ts"
-import { TELEGRAM_REDIRECT_URL } from "../constants"
+import { TELEGRAM_REDIRECT_URL } from "../constants/index.ts"
 
 export const encryptPayload = (payload: any, sharedSecret?: Uint8Array | null) => {
   if (!sharedSecret) throw new Error("missing shared secret")
@@ -26,7 +26,7 @@ export const sendEncryptedPayload = (openLink: string, payload: any, sharedSecre
   closeTelegramWebApp()
 }
 
-export function useWalletDeep(): {
+export function useWalletTelegram(): {
   address: string | null
   signTransaction: (transaction: any) => void
   connect: () => void

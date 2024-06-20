@@ -13,7 +13,7 @@ export function closeTelegramWebApp() {
 }
 
 export function useTelegramWebApp() {
-  const [telegramUser, setTelegramUser] = useState(null)
+  const [telegramUser, setTelegramUser] = useState(undefined)
 
   useEffect(() => {
     setTelegramUser(getTelegramUserAgent())

@@ -41,9 +41,10 @@ import {
   truncateValue,
 } from "./utils/number"
 import { SOURCES } from "./constants/source"
-import { useWalletDeep } from "./hooks/useWalletDeep.ts"
+import { useWalletTelegram } from "./hooks/useWalletTelegram.ts"
 import { useTelegramWebApp } from "./hooks/useTelegramWebApp.ts"
 import useConnectedWallet from "./hooks/useConnectedWallet.ts"
+import ButtonConnectWalletTelegram from "./pages/home/ButtonConnectWalletTelegram.tsx"
 
 function Menu() {
   return (
@@ -121,42 +122,15 @@ function ButtonConnectWallet({
   )
 }
 
-function ButtonConnectWalletDeep() {
-  const { address, connect, disconnect } = useWalletDeep()
-
-  return (
-    <div className="flex-1 text-end">
-      <Button
-        color="primary"
-        className={
-          "w-fit rounded px-4" +
-          " " +
-          (address
-            ? "border-buttonSecondary bg-background text-buttonSecondary"
-            : "border-primary bg-primary text-white")
-        }
-        onPress={address ? disconnect : connect}
-        variant={address ? "bordered" : "solid"}
-      >
-        {address ? (
-          <TitleT2>{address.slice(0, 4) + "..." + address.slice(-4)}</TitleT2>
-        ) : (
-          <TitleT2>Connect Wallet (Petra)</TitleT2>
-        )}
-      </Button>
-    </div>
-  )
-}
-
 export default function App() {
   const isSm = useIsSm()
   const isMd = useIsMd()
 
   const { telegramUser } = useTelegramWebApp()
-  const { connect } = useWalletDeep()
+  const { connect } = useWalletTelegram()
 
   const { balance } = useAppSelector((state) => state.wallet)
-  const { connectedWallet } = useConnectedWallet()
+  const connectedWallet = useConnectedWallet()
   const { isLoading: isLoadingWallet } = useWallet()
 
   const [typedAmountIn, _setTypedAmountIn] = useState("")
@@ -434,7 +408,7 @@ export default function App() {
                 </Button>
               </div>
               {telegramUser ? (
-                <ButtonConnectWalletDeep />
+                <ButtonConnectWalletTelegram />
               ) : isSm ? (
                 <ButtonConnectWallet
                   onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}

@@ -10,9 +10,9 @@ import { aptos } from "../utils/aptos"
 import { divpowToFraction } from "../utils/number"
 import { GetRouteResponseDataPath } from "./useQuote"
 import { isDesktop } from "react-device-detect"
-import { useWalletDeep } from "./useWalletDeep.ts"
 import { useTelegramWebApp } from "./useTelegramWebApp.ts"
 import useConnectedWallet from "./useConnectedWallet.ts"
+import { useWalletTelegram } from "./useWalletTelegram.ts"
 
 interface SwapState {
   isSwapping: boolean
@@ -197,9 +197,9 @@ export default function useSwap() {
   const { signAndSubmitTransaction } = useWallet()
 
   const { telegramUser } = useTelegramWebApp()
-  const { signTransaction } = useWalletDeep()
+  const { signTransaction } = useWalletTelegram()
 
-  const { connectedWallet: account } = useConnectedWallet()
+  const account = useConnectedWallet()
 
   const connected = useMemo(() => {
     return !!account;

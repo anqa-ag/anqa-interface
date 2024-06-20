@@ -5,7 +5,7 @@ import { aptos } from "../../utils/aptos"
 import { useAppDispatch } from "../hooks"
 import { addTokensToFollow } from "../slices/token"
 import { updateBalance } from "../slices/wallet"
-import { useWalletDeep } from "../../hooks/useWalletDeep.ts"
+import { useWalletDeep } from "../../hooks/useWalletTelegram.ts"
 
 function WalletUpdater() {
   const dispatch = useAppDispatch()
