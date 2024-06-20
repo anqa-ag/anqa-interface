@@ -472,6 +472,8 @@ export default function App() {
                       </div>
                       <div className="flex items-center justify-between gap-3">
                         <NumericFormat
+                          decimalSeparator="."
+                          allowedDecimalSeparators={[","]}
                           thousandSeparator
                           inputMode="decimal"
                           autoComplete="off"
@@ -580,6 +582,8 @@ export default function App() {
                           </div>
                         ) : (
                           <NumericFormat
+                            decimalSeparator="."
+                            allowedDecimalSeparators={[","]}
                             thousandSeparator
                             inputMode="decimal"
                             autoComplete="off"
