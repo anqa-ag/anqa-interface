@@ -8,6 +8,7 @@ export function useParseConnection() {
     const parsed = params.get("tgWebAppStartParam")
     try {
       const decodedData = JSON.parse(atob(parsed || ""))
+      console.log(`decodedData`, decodedData)
       const method = decodedData.method
       if (method === "connect") {
         address = decodedData.address
