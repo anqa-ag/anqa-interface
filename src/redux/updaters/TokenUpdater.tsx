@@ -60,7 +60,7 @@ function FollowingTokenUpdater() {
 }
 
 function FullTokensUpdater() {
-  useFullTokens()
+  useFullTokens() // Preload full tokens.
 
   return null
 }

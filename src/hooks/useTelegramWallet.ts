@@ -1,38 +1,15 @@
-import { AccountInfo, InputTransactionData } from "@aptos-labs/wallet-adapter-react"
+import { AccountInfo } from "@aptos-labs/wallet-adapter-react"
 import TelegramWebApp from "@twa-dev/sdk"
 import { Network } from "aptos"
 import bs58 from "bs58"
 import { Buffer } from "buffer"
-import eruda from "eruda"
-import { useCallback, useEffect, useMemo } from "react"
+import { useCallback, useMemo } from "react"
 import ReactGA from "react-ga4"
 import nacl from "tweetnacl"
 import { PETRA_ENCRYPTION_PUBLIC_KEY, TELEGRAM_REDIRECT_URL, petraWallet } from "../constants/index.ts"
+import { useAppDispatch, useAppSelector } from "../redux/hooks/index.ts"
+import { clearTelegramState } from "../redux/slices/telegram.ts"
 import { AnqaWalletState } from "./useAnqaWallet.ts"
-
-function initTelegramWebApp() {
-  TelegramWebApp.expand()
-  if (TelegramWebApp.initDataUnsafe.user) {
-    eruda.init({ autoScale: true })
-
-    const num = 9999
-    document.body.addEventListener("touchstart", function () {
-      document.documentElement.style.marginTop = num + "px"
-      document.documentElement.style.height = window.innerHeight + num + "px"
-      document.documentElement.style.overflow = "hidden"
-      window.scrollTo(0, num)
-    })
-    document.body.style.position = "fixed"
-    document.body.style.bottom = "0"
-    document.body.style.width = "100%"
-    document.body.style.height = "100vh"
-    const root = document.querySelector<HTMLDivElement>("#root")
-    if (root) {
-      root.style.overflowY = "scroll"
-      root.style.height = "100%"
-    }
-  }
-}
 
 function encryptPayload(payload: any, sharedSecret?: Uint8Array | null) {
   if (!sharedSecret) throw new Error("missing shared secret")
@@ -41,7 +18,7 @@ function encryptPayload(payload: any, sharedSecret?: Uint8Array | null) {
   return [nonce, encryptedPayload]
 }
 
-function sendEncryptedPayload(openLink: string, payload: any, sharedSecret: Uint8Array | undefined) {
+function getPetraWalletParams(payload: any, sharedSecret: Uint8Array | undefined) {
   const [nonce, encryptedPayload] = encryptPayload(payload, sharedSecret)
   const params = {
     appInfo: { domain: "https://" + window.location.hostname },
@@ -50,15 +27,17 @@ function sendEncryptedPayload(openLink: string, payload: any, sharedSecret: Uint
     redirectLink: TELEGRAM_REDIRECT_URL + `/ul/sendTx`,
     nonce: Buffer.from(nonce).toString("hex"),
   }
-  TelegramWebApp.openLink(openLink + btoa(JSON.stringify(params)))
+  return params
 }
 
-export default function useTelegramWallet(): AnqaWalletState {
-  useEffect(() => {
-    initTelegramWebApp()
-  }, [])
+export default function useTelegramWallet(): Omit<AnqaWalletState, "isTelegram"> {
+  const dispatch = useAppDispatch()
 
-  const account: AccountInfo | null = useMemo(() => null, [])
+  const { address, publicKey, sharedSecret } = useAppSelector((state) => state.telegram)
+  const account = useMemo<AccountInfo | null>(
+    () => (address && publicKey ? { address, publicKey } : null),
+    [address, publicKey],
+  )
 
   const connect = useCallback(() => {
     ReactGA.event({ category: "Telegram Web App", action: "TWA/connect" })
@@ -68,20 +47,27 @@ export default function useTelegramWallet(): AnqaWalletState {
       redirectLink: TELEGRAM_REDIRECT_URL + `/ul/connect`,
     }
     TelegramWebApp.openLink(`https://petra.app/api/v1/connect?data=${btoa(JSON.stringify(params))}`)
+    TelegramWebApp.close()
   }, [])
 
   const disconnect = useCallback(() => {
     ReactGA.event({ category: "Telegram Web App", action: "TWA/disconnect" })
-  }, [])
+    dispatch(clearTelegramState())
+  }, [dispatch])
 
-  // eslint-disable-next-line @typescript-eslint/require-await
-  const signAndSubmitTransaction = useCallback(async (transaction: InputTransactionData) => {
-    ReactGA.event({ category: "Telegram Web App", action: "TWA/signAndSubmitTransaction" })
-    sendEncryptedPayload(" https://petra.app/api/v1/signAndSubmit?data=", transaction, undefined)
-  }, [])
+  const signAndSubmitTransaction = useCallback(
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async (payload: any) => {
+      ReactGA.event({ category: "Telegram Web App", action: "TWA/signAndSubmitTransaction" })
+      const params = getPetraWalletParams(payload, sharedSecret)
+      TelegramWebApp.openLink("https://petra.app/api/v1/signAndSubmit?data=" + btoa(JSON.stringify(params)))
+      TelegramWebApp.close()
+    },
+    [sharedSecret],
+  )
 
   // Properties are based on account.
-  const res: AnqaWalletState = useMemo(
+  const res = useMemo<Omit<AnqaWalletState, "isTelegram">>(
     () => ({
       account,
       connect,

@@ -12,19 +12,18 @@ function WalletUpdater() {
   const { account } = useAnqaWallet()
 
   const fn = useCallback(async () => {
-    if (account) {
-      const _accountCoinsData = await aptos.getAccountCoinsData({
-        accountAddress: account.address,
-      })
-      const accountCoinsData = _accountCoinsData
-        .filter((item) => item.amount)
-        .reduce(
-          (prev, curr) => ({ ...prev, [curr.asset_type]: { ...curr, amount: curr.amount.toString() as string } }),
-          {},
-        )
-      dispatch(updateBalance(accountCoinsData))
-      dispatch(addTokensToFollow(_accountCoinsData.map((item) => item.asset_type)))
-    }
+    if (!account) return
+    const _accountCoinsData = await aptos.getAccountCoinsData({
+      accountAddress: account.address,
+    })
+    const accountCoinsData = _accountCoinsData
+      .filter((item) => item.amount)
+      .reduce(
+        (prev, curr) => ({ ...prev, [curr.asset_type]: { ...curr, amount: curr.amount.toString() as string } }),
+        {},
+      )
+    dispatch(updateBalance(accountCoinsData))
+    dispatch(addTokensToFollow(_accountCoinsData.map((item) => item.asset_type)))
   }, [account, dispatch])
 
   useEffect(() => {

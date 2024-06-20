@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
+    "dev": "vite",
     "build": "tsc && vite build --mode production",
     "build:dev": "tsc && vite build --mode development",
     "build:prod": "tsc && vite build --mode production",
@@ -22,7 +22,6 @@
     "@pontem/wallet-adapter-plugin": "^0.2.1",
     "@reduxjs/toolkit": "^2.2.4",
     "@twa-dev/sdk": "^7.0.0",
-    "@vitejs/plugin-basic-ssl": "^1.1.0",
     "aptos": "^1.21.0",
     "axios": "^1.7.2",
     "big.js": "^5.2.2",

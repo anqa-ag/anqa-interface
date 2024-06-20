@@ -1,13 +1,33 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit"
-import { FLUSH, PAUSE, PERSIST, PURGE, REGISTER, REHYDRATE, persistReducer, persistStore } from "redux-persist"
+import { UnknownAction, combineReducers, configureStore } from "@reduxjs/toolkit"
+import {
+  FLUSH,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  PersistConfig,
+  REGISTER,
+  REHYDRATE,
+  persistReducer,
+  persistStore,
+} from "redux-persist"
 import storage from "redux-persist/lib/storage" // defaults to localStorage for web
 
-import priceReducer from "./slices/price"
-import tokenReducer from "./slices/token"
-import userReducer from "./slices/user"
-import walletReducer from "./slices/wallet"
+import priceReducer, { PriceState } from "./slices/price"
+import tokenReducer, { TokenState } from "./slices/token"
+import userReducer, { UserState } from "./slices/user"
+import walletReducer, { WalletState } from "./slices/wallet"
+import telegramReducer, { TelegramState } from "./slices/telegram"
 
-const persistConfig = {
+const persistConfig: PersistConfig<
+  {
+    wallet: WalletState
+    token: TokenState
+    price: PriceState
+    user: UserState
+    telegram: TelegramState
+  },
+  UnknownAction
+> = {
   key: "root",
   storage,
   debug: false,
@@ -18,6 +38,7 @@ const rootReducer = combineReducers({
   token: tokenReducer,
   price: priceReducer,
   user: userReducer,
+  telegram: telegramReducer,
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
@@ -27,7 +48,8 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER, "telegram/updateTelegramState"],
+        ignoredPaths: ["telegram.sharedSecret"],
       },
     }),
 })

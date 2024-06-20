@@ -67,8 +67,21 @@ function ButtonConnectWallet({
   onOpenModalConnectWallet: () => void
   isOpenModalConnectWallet: boolean
 }) {
-  const { account, network, disconnect, wallet, connected, isLoading: isLoadingWallet } = useAnqaWallet()
+  const {
+    account,
+    network,
+    connect,
+    disconnect,
+    wallet,
+    connected,
+    isLoading: isLoadingWallet,
+    isTelegram,
+  } = useAnqaWallet()
   const isMainnet = network ? network.name === Network.MAINNET : undefined
+
+  const onPress = () => {
+    connected ? disconnect() : isTelegram ? connect(petraWallet.name) : onOpenModalConnectWallet()
+  }
 
   return (
     <div className="flex-1 text-end">
@@ -81,7 +94,7 @@ function ButtonConnectWallet({
             ? "border-buttonSecondary bg-background text-buttonSecondary"
             : "border-primary bg-primary text-white")
         }
-        onPress={connected ? disconnect : onOpenModalConnectWallet}
+        onPress={onPress}
         isLoading={isOpenModalConnectWallet || isLoadingWallet}
         variant={connected ? "bordered" : "solid"}
       >
