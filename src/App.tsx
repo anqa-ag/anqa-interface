@@ -44,6 +44,7 @@ import { SOURCES } from "./constants/source"
 import { useWalletDeep } from "./hooks/useWalletDeep.ts"
 import { useTelegramWebApp } from "./hooks/useTelegramWebApp.ts"
 import useConnectedWallet from "./hooks/useConnectedWallet.ts"
+import ReactGA from "react-ga4"
 
 function Menu() {
   return (
@@ -371,6 +372,15 @@ export default function App() {
       })
     }
   }
+
+  useEffect(() => {
+    if (telegramUser) {
+      ReactGA.event({
+        category: "Telegram Web App",
+        action: "TWA/view_index_page",
+      })
+    }
+  }, [telegramUser])
 
   const [searchParams] = useSearchParams()
   const isDebug = useMemo(() => searchParams.get("debug") === "true", [searchParams])

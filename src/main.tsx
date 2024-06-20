@@ -5,7 +5,7 @@ import ReactDOM from "react-dom/client"
 import { Provider as ReduxProvider } from "react-redux"
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { PersistGate } from "redux-persist/integration/react"
-
+import ReactGA from "react-ga4";
 import App from "./App"
 import { persistor, store } from "./redux/store"
 
@@ -21,6 +21,8 @@ const router = createBrowserRouter([
     element: <App />,
   },
 ])
+
+ReactGA.initialize('G-WQQBB7YC5W')
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

@@ -4,6 +4,7 @@ import { useParseConnection } from "./useParseConnection.ts"
 import { Buffer } from "buffer"
 import { closeTelegramWebApp, getTelegramWebApp } from "./useTelegramWebApp.ts"
 import { TELEGRAM_REDIRECT_URL } from "../constants"
+import ReactGA from "react-ga4"
 
 export const encryptPayload = (payload: any, sharedSecret?: Uint8Array | null) => {
   if (!sharedSecret) throw new Error("missing shared secret")
@@ -22,6 +23,10 @@ export const sendEncryptedPayload = (openLink: string, payload: any, sharedSecre
     redirectLink: TELEGRAM_REDIRECT_URL + `/ul/sendTx?fallback_env=${fallbackEnv}`,
     nonce: Buffer.from(nonce).toString("hex"),
   }
+  ReactGA.event({
+    category: "Telegram Web App",
+    action: "TWA/sign_transaction",
+  })
   getTelegramWebApp()?.openLink(openLink + btoa(JSON.stringify(params)))
   closeTelegramWebApp()
 }
@@ -41,6 +46,10 @@ export function useWalletDeep(): {
       appInfo: { domain: "https://" + window.location.hostname },
       redirectLink: TELEGRAM_REDIRECT_URL + `/ul/connect?fallback_env=${fallbackEnv}`,
     }
+    ReactGA.event({
+      category: "Telegram Web App",
+      action: "TWA/connect_wallet",
+    })
     getTelegramWebApp()?.openLink(`https://petra.app/api/v1/connect?data=${btoa(JSON.stringify(params))}`)
     closeTelegramWebApp()
   }
@@ -48,6 +57,10 @@ export function useWalletDeep(): {
   const disconnect = () => {
     localStorage.removeItem("anqa_address")
     localStorage.removeItem("anqa_shared_secret")
+    ReactGA.event({
+      category: "Telegram Web App",
+      action: "TWA/disconnect_wallet",
+    })
     window.location.href = "/"
   }
 
