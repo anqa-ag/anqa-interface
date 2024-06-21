@@ -1,8 +1,7 @@
 import TelegramWebApp from "@twa-dev/sdk"
-import bs58 from "bs58"
 import { useEffect } from "react"
-import { useSearchParams } from "react-router-dom"
 import ReactGA from "react-ga4"
+import { useSearchParams } from "react-router-dom"
 
 import { useAppDispatch } from "../hooks"
 import { updateTelegramState } from "../slices/telegram"
@@ -48,8 +47,8 @@ export default function TelegramUpdater() {
       if (method === "connect") {
         const address = decodedData.address
         const publicKey = decodedData.publicKey
-        const sharedSecret = bs58.decode(decodedData.petraPublicEncryptedKey)
-        dispatch(updateTelegramState({ address, publicKey, sharedSecret: sharedSecret as any }))
+        const petraPublicEncryptedKey = decodedData.petraPublicEncryptedKey
+        dispatch(updateTelegramState({ address, publicKey, petraPublicEncryptedKey }))
       }
     }
   }, [dispatch, params])

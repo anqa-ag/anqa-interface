@@ -5,13 +5,13 @@ import { PURGE } from "redux-persist"
 export interface TelegramState {
   address: string | undefined
   publicKey: string | undefined
-  sharedSecret: Uint8Array | undefined
+  petraPublicEncryptedKey: string | undefined
 }
 
 const initialState: TelegramState = {
   address: undefined,
   publicKey: undefined,
-  sharedSecret: undefined,
+  petraPublicEncryptedKey: undefined,
 }
 
 export const telegramSlice = createSlice({
@@ -19,15 +19,14 @@ export const telegramSlice = createSlice({
   initialState,
   reducers: {
     updateTelegramState: (state, action: PayloadAction<TelegramState>) => {
-      console.log(`action`, action.type)
       state.address = action.payload.address
       state.publicKey = action.payload.publicKey
-      state.sharedSecret = action.payload.sharedSecret
+      state.petraPublicEncryptedKey = action.payload.petraPublicEncryptedKey
     },
     clearTelegramState: (state) => {
       state.address = undefined
       state.publicKey = undefined
-      state.sharedSecret = undefined
+      state.petraPublicEncryptedKey = undefined
     },
   },
   extraReducers: (builder) => {

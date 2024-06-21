@@ -33,7 +33,7 @@ function getPetraWalletParams(payload: any, sharedSecret: Uint8Array | undefined
 export default function useTelegramWallet(): Omit<AnqaWalletState, "isTelegram"> {
   const dispatch = useAppDispatch()
 
-  const { address, publicKey, sharedSecret } = useAppSelector((state) => state.telegram)
+  const { address, publicKey, petraPublicEncryptedKey } = useAppSelector((state) => state.telegram)
   const account = useMemo<AccountInfo | null>(
     () => (address && publicKey ? { address, publicKey } : null),
     [address, publicKey],
@@ -59,11 +59,13 @@ export default function useTelegramWallet(): Omit<AnqaWalletState, "isTelegram">
     // eslint-disable-next-line @typescript-eslint/require-await
     async (payload: any) => {
       ReactGA.event({ category: "Telegram Web App", action: "TWA/signAndSubmitTransaction" })
-      const params = getPetraWalletParams(payload, sharedSecret)
+
+      if (!petraPublicEncryptedKey) return
+      const params = getPetraWalletParams(payload, bs58.decode(petraPublicEncryptedKey))
       TelegramWebApp.openLink("https://petra.app/api/v1/signAndSubmit?data=" + btoa(JSON.stringify(params)))
       TelegramWebApp.close()
     },
-    [sharedSecret],
+    [petraPublicEncryptedKey],
   )
 
   // Properties are based on account.

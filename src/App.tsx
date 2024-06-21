@@ -136,7 +136,7 @@ export default function App() {
   const isMd = useIsMd()
 
   const { balance } = useAppSelector((state) => state.wallet)
-  const { account, isLoading: isLoadingWallet } = useAnqaWallet()
+  const { account, isLoading: isLoadingWallet, isTelegram, connect } = useAnqaWallet()
 
   const [typedAmountIn, _setTypedAmountIn] = useState("")
   const [shouldUseDebounceAmountIn, setShouldUseDebounceAmountIn] = useState(true)
@@ -723,7 +723,7 @@ export default function App() {
                   <Button
                     color="primary"
                     className="h-[52px] rounded"
-                    onPress={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
+                    onPress={() => (isTelegram ? connect(petraWallet.name) : onOpenModal(MODAL_LIST.CONNECT_WALLET))}
                     isLoading={isLoadingWallet}
                   >
                     <TitleT2>{isLoadingWallet ? "Loading Wallet" : "Connect Wallet"}</TitleT2>
