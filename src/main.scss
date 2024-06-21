@@ -214,7 +214,7 @@ input[type="text"][disabled]::placeholder {
   background: #f44646;
 }
 
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
   width: 4px;
 }
 
@@ -230,7 +230,7 @@ input[type="text"][disabled]::placeholder {
 ::-webkit-scrollbar-thumb {
   background: #9aa0a6 !important;
   border-radius: 8px !important;
-}
+} */
 
 .hide-scrollbar {
   -ms-overflow-style: none; /* Internet Explorer 10+ */

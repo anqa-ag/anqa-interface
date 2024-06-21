@@ -10,6 +10,7 @@ import { PETRA_ENCRYPTION_PUBLIC_KEY, TELEGRAM_REDIRECT_URL, petraWallet } from 
 import { useAppDispatch, useAppSelector } from "../redux/hooks/index.ts"
 import { clearTelegramState } from "../redux/slices/telegram.ts"
 import { AnqaWalletState } from "./useAnqaWallet.ts"
+import { isDesktop } from "react-device-detect"
 
 function encryptPayload(payload: any, sharedSecret?: Uint8Array | null) {
   if (!sharedSecret) throw new Error("missing shared secret")
@@ -41,6 +42,10 @@ export default function useTelegramWallet(): Omit<AnqaWalletState, "isTelegram">
 
   const connect = useCallback(() => {
     ReactGA.event({ category: "Telegram Web App", action: "TWA/connect" })
+    if (isDesktop) {
+      TelegramWebApp.showAlert("Currently, the Anqa Telegram Bot is only supported on mobile devices with Petra wallet installed.")
+      return
+    }
     const params = {
       dappEncryptionPublicKey: Buffer.from(bs58.decode(PETRA_ENCRYPTION_PUBLIC_KEY)).toString("hex"),
       appInfo: { domain: "https://" + window.location.hostname },
