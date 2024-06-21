@@ -12,7 +12,6 @@ import { BodyB2, BodyB3, TitleT1, TitleT2, TitleT4 } from "./components/Texts"
 import Tooltips from "./components/Tooltips"
 import ModalConnectWallet from "./components/modals/ModalConnectWallet"
 import ModalSelectToken from "./components/modals/ModalSelectToken"
-import ModalTradeRoute from "./components/modals/ModalTradeRoute"
 import ModalUserSetting from "./components/modals/ModalUserSetting"
 import {
   BIP_BASE,
@@ -25,7 +24,7 @@ import {
 } from "./constants"
 import { SOURCES } from "./constants/source"
 import useAnqaWallet from "./hooks/useAnqaWallet"
-import { useIsMd, useIsSm } from "./hooks/useMedia"
+import { useIsSm } from "./hooks/useMedia"
 import useModal, { MODAL_LIST } from "./hooks/useModal"
 import useQuote from "./hooks/useQuote"
 import useSwap from "./hooks/useSwap"
@@ -133,7 +132,6 @@ function ButtonConnectWallet({
 
 export default function App() {
   const isSm = useIsSm()
-  const isMd = useIsMd()
 
   const { balance } = useAppSelector((state) => state.wallet)
   const { account, isLoading: isLoadingWallet, isTelegram, connect } = useAnqaWallet()
@@ -687,7 +685,6 @@ export default function App() {
                       className="anqa-hover-primary-all flex h-fit min-h-fit cursor-pointer items-center gap-3 rounded-none bg-transparent p-0 data-[hover]:bg-transparent"
                       disableAnimation
                       disableRipple
-                      onPress={() => onOpenModal(MODAL_LIST.TRADE_ROUTE)}
                     >
                       <BodyB2 className="whitespace-nowrap rounded border-1 border-primary p-2 text-primary">
                         {sourceInfo.numberOfPaths} split{sourceInfo.numberOfPaths >= 2 ? "s" : ""} &{" "}
@@ -977,20 +974,17 @@ export default function App() {
           onOpenChange={onOpenChangeModal}
           onClose={onCloseModal}
         />
-        {/* NOTE: Small view has bug, hide for now. */}
-        {!isMd && (
-          <ModalTradeRoute
-            isOpen={globalModal === MODAL_LIST.TRADE_ROUTE && isModalOpen}
-            onOpenChange={onOpenChangeModal}
-            onClose={onCloseModal}
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            readableAmountIn={numberWithCommas(typedAmountIn)}
-            readableAmountOut={readbleAmountOut}
-            rawAmountIn={fractionalAmountIn?.numerator?.toString()}
-            paths={paths}
-          />
-        )}
+        {/* <ModalTradeRoute
+          isOpen={globalModal === MODAL_LIST.TRADE_ROUTE && isModalOpen}
+          onOpenChange={onOpenChangeModal}
+          onClose={onCloseModal}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+          readableAmountIn={numberWithCommas(typedAmountIn)}
+          readableAmountOut={readbleAmountOut}
+          rawAmountIn={fractionalAmountIn?.numerator?.toString()}
+          paths={paths}
+        /> */}
         <Tooltips />
       </div>
     </>
