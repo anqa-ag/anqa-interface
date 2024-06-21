@@ -1,15 +1,9 @@
 import { InputEntryFunctionData, isUserTransactionResponse } from "@aptos-labs/ts-sdk"
-import { useWallet } from "@aptos-labs/wallet-adapter-react"
-import { Link } from "@nextui-org/react"
 import { useCallback, useMemo, useState } from "react"
-import { toast } from "react-toastify"
-import { BodyB2, TitleT2, TitleT4 } from "../components/Texts"
-import { useAppDispatch, useAppSelector } from "../redux/hooks"
-import { ITransactionHistory, addTransactionHistory } from "../redux/slices/user"
 import { aptos } from "../utils/aptos"
-import { divpowToFraction } from "../utils/number"
+import useAnqaWallet from "./useAnqaWallet"
 import { GetRouteResponseDataPath } from "./useQuote"
-import { isDesktop } from "react-device-detect"
+import useSwapNotificationFn from "./useSwapNotificationFn"
 
 interface SwapState {
   isSwapping: boolean
@@ -154,7 +148,12 @@ function getSwapDataFromPaths(args: SwapArgs): InputEntryFunctionData {
   console.log(`args`, args)
   const data: InputEntryFunctionData = {
     function: "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::swap_generic_v2",
-    functionArguments: [...Array(MAX_PATH * MAX_HOPS_PER_PATH).fill([0, 0, 0, "0"]), args.minAmountOut, args.amountInUsd, args.amountOutUsd],
+    functionArguments: [
+      ...Array(MAX_PATH * MAX_HOPS_PER_PATH).fill([0, 0, 0, "0"]),
+      args.minAmountOut,
+      args.amountInUsd,
+      args.amountOutUsd,
+    ],
     typeArguments: [args.tokenIn, args.tokenOut, ...Array(MAX_PATH * (MAX_HOPS_PER_PATH - 1)).fill(COIN_NULL)],
   }
   // Fill arguments.
@@ -185,82 +184,9 @@ export default function useSwap() {
     txVersion: undefined,
     success: undefined,
   })
-  const dispatch = useAppDispatch()
-  const { account, connected, signAndSubmitTransaction } = useWallet()
-  const { followingTokenData } = useAppSelector((state) => state.token)
+  const { signAndSubmitTransaction, account, connected, isTelegram } = useAnqaWallet()
 
-  const sendNotification = useCallback(
-    (
-      tokenIn: string,
-      tokenOut: string,
-      amountIn: string,
-      amountOut: string,
-      version: string | undefined,
-      isSuccess: boolean,
-      details: string | undefined,
-    ) => {
-      const tokenInData = followingTokenData[tokenIn]
-      const tokenOutData = followingTokenData[tokenOut]
-      if (tokenInData && tokenOutData) {
-        const payload: ITransactionHistory = {
-          version,
-          isSuccess,
-          details,
-          tokenInSymbol: tokenInData.symbol,
-          tokenOutSymbol: tokenOutData.symbol,
-          readableAmountIn: divpowToFraction(amountIn, tokenInData.decimals).toSignificant(6),
-          readableAmountOut: divpowToFraction(amountOut, tokenOutData.decimals).toSignificant(6),
-        }
-        dispatch(addTransactionHistory(payload))
-        toast(
-          payload.isSuccess ? (
-            <div className="rounded bg-[rgba(24,207,106,0.2)] p-4">
-              <TitleT2>
-                Swap {payload.readableAmountIn} {payload.tokenInSymbol} to {payload.readableAmountOut}{" "}
-                {payload.tokenOutSymbol}
-              </TitleT2>
-              {payload.version && (
-                <Link
-                  href={`https://aptoscan.com/transaction/${payload.version}`}
-                  isExternal
-                  showAnchorIcon
-                  className="text-buttonSecondary"
-                >
-                  <TitleT4>View on explorer</TitleT4>
-                </Link>
-              )}
-            </div>
-          ) : (
-            <div className="rounded bg-[rgba(244,70,70,0.2)] p-4">
-              <TitleT2>
-                Error swapping {payload.readableAmountIn} {payload.tokenInSymbol} to {payload.readableAmountOut}{" "}
-                {payload.tokenOutSymbol}
-              </TitleT2>
-              {payload.version && (
-                <Link
-                  href={`https://aptoscan.com/transaction/${payload.version}`}
-                  isExternal
-                  showAnchorIcon
-                  className="text-buttonSecondary"
-                >
-                  <TitleT4>View on explorer</TitleT4>
-                </Link>
-              )}
-              {details && <BodyB2>{details}</BodyB2>}
-            </div>
-          ),
-          {
-            className: "z-toast",
-            bodyClassName: "z-toast-body",
-            progressClassName: payload.isSuccess ? "z-toast-progress-success" : "z-toast-progress-failed",
-            autoClose: payload.isSuccess || isDesktop ? 4000 : false,
-            pauseOnHover: isDesktop,
-          },
-        )
-      }
-    },
-    [dispatch, followingTokenData],
-  )
+  const sendNotification = useSwapNotificationFn()
 
   const onSwap = useCallback(
     async (args: SwapArgs) => {
@@ -340,6 +266,20 @@ export default function useSwap() {
         // } else if (provider === "Martian") {
         //   if (!martian) return
         const swapData = getSwapDataFromPaths(args)
+
+        if (isTelegram) {
+          await signAndSubmitTransaction(
+            btoa(
+              JSON.stringify({
+                function: swapData.function,
+                arguments: swapData.functionArguments,
+                type_arguments: swapData.typeArguments,
+              }),
+            ) as any,
+          )
+          return
+        }
+
         const response: {
           hash: string
           output: Record<string, any>
@@ -371,7 +311,6 @@ export default function useSwap() {
           response.output?.vm_status,
         )
       } catch (err) {
-        console.log(err)
         console.error(err)
         setSwapState((prev) => ({ ...prev, isSwapping: false }))
 
@@ -388,7 +327,7 @@ export default function useSwap() {
         }
       }
     },
-    [account, connected, isSwapping, sendNotification, signAndSubmitTransaction],
+    [account, connected, isSwapping, isTelegram, sendNotification, signAndSubmitTransaction],
   )
 
   const res = useMemo(

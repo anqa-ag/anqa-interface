@@ -1,6 +1,6 @@
-import { useWallet } from "@aptos-labs/wallet-adapter-react"
 import { memo, useCallback, useEffect } from "react"
 import { useInterval } from "usehooks-ts"
+import useAnqaWallet from "../../hooks/useAnqaWallet"
 import { aptos } from "../../utils/aptos"
 import { useAppDispatch } from "../hooks"
 import { addTokensToFollow } from "../slices/token"
@@ -9,7 +9,7 @@ import { updateBalance } from "../slices/wallet"
 function WalletUpdater() {
   const dispatch = useAppDispatch()
 
-  const { account } = useWallet()
+  const { account } = useAnqaWallet()
 
   const fn = useCallback(async () => {
     if (!account) return

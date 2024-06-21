@@ -20,7 +20,7 @@ export function truncateValue(value: string, decimals: number): string {
 
     parts[1] = parts[1].slice(0, decimals)
     parts[1] = parts[1].replace(/^(\d*?[1-9])0+$/, "$1") // Remove trailing zeros.
-    
+
     const res = parts[0] + "." + parts[1]
     if (res.endsWith(".")) return res.slice(0, res.length - 1)
     return res

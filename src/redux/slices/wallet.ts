@@ -1,6 +1,7 @@
 import { GetAccountCoinsDataResponse } from "@aptos-labs/ts-sdk"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { createSlice } from "@reduxjs/toolkit"
+import { PURGE } from "redux-persist"
 import { ArrayElement } from "../../types"
 
 export type AccountCoinData = Omit<ArrayElement<GetAccountCoinsDataResponse>, "amount"> & { amount: string }
@@ -21,6 +22,11 @@ export const walletSlice = createSlice({
     updateBalance: (state, action: PayloadAction<WalletBalance>) => {
       state.balance = action.payload
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(PURGE, () => {
+      return initialState
+    })
   },
 })
 

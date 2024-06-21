@@ -5,6 +5,7 @@ import { persistor } from "../store"
 import PriceUpdater from "./PriceUpdater"
 import TokenUpdater from "./TokenUpdater"
 import WalletUpdater from "./WalletUpdater"
+import TelegramUpdater from "./TelegramUpdater"
 
 export default function Updaters() {
   const version = useAppSelector((state) => state.user.version)
@@ -17,6 +18,7 @@ export default function Updaters() {
       <WalletUpdater />
       <TokenUpdater />
       <PriceUpdater />
+      <TelegramUpdater />
     </>
   )
 }

@@ -1,10 +1,10 @@
-import { useWallet } from "@aptos-labs/wallet-adapter-react"
 import { Icon } from "@iconify/react"
 import { Button, Image, Input, Modal, ModalContent, Skeleton, Spacer } from "@nextui-org/react"
 import { CSSProperties, memo, useCallback, useEffect, useMemo, useState } from "react"
 import { FixedSizeList } from "react-window"
 import { useCopyToClipboard, useDebounceValue, useWindowSize } from "usehooks-ts"
 import { NOT_FOUND_TOKEN_LOGO_URL } from "../../constants"
+import useAnqaWallet from "../../hooks/useAnqaWallet"
 import useFullTokens from "../../hooks/useFullTokens"
 import { useAppDispatch, useAppSelector } from "../../redux/hooks"
 import { Token, addTokensToFollow } from "../../redux/slices/token"
@@ -147,7 +147,7 @@ function ModalSelectToken({
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
   const followingPriceData = useAppSelector((state) => state.price.followingPriceData)
   const { balance } = useAppSelector((state) => state.wallet)
-  const { connected } = useWallet()
+  const { connected } = useAnqaWallet()
   const followingTokenDataWithBalance = useMemo(() => {
     const res: Record<string, TokenWithBalance> = {}
     for (const address of Object.keys(followingTokenData)) {

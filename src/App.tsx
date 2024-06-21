@@ -1,5 +1,4 @@
 import { APTOS_COIN, Network } from "@aptos-labs/ts-sdk"
-import { useWallet } from "@aptos-labs/wallet-adapter-react"
 import { Icon } from "@iconify/react"
 import { Button, Image, Link, Skeleton, Spacer } from "@nextui-org/react"
 import { useCallback, useEffect, useMemo, useState } from "react"
@@ -24,6 +23,8 @@ import {
   petraWallet,
   pontemWallet,
 } from "./constants"
+import { SOURCES } from "./constants/source"
+import useAnqaWallet from "./hooks/useAnqaWallet"
 import { useIsMd, useIsSm } from "./hooks/useMedia"
 import useModal, { MODAL_LIST } from "./hooks/useModal"
 import useQuote from "./hooks/useQuote"
@@ -40,7 +41,6 @@ import {
   numberWithCommas,
   truncateValue,
 } from "./utils/number"
-import { SOURCES } from "./constants/source"
 
 function Menu() {
   return (
@@ -67,8 +67,21 @@ function ButtonConnectWallet({
   onOpenModalConnectWallet: () => void
   isOpenModalConnectWallet: boolean
 }) {
-  const { account, network, disconnect, wallet, connected, isLoading: isLoadingWallet } = useWallet()
+  const {
+    account,
+    network,
+    connect,
+    disconnect,
+    wallet,
+    connected,
+    isLoading: isLoadingWallet,
+    isTelegram,
+  } = useAnqaWallet()
   const isMainnet = network ? network.name === Network.MAINNET : undefined
+
+  const onPress = () => {
+    connected ? disconnect() : isTelegram ? connect(petraWallet.name) : onOpenModalConnectWallet()
+  }
 
   return (
     <div className="flex-1 text-end">
@@ -81,7 +94,7 @@ function ButtonConnectWallet({
             ? "border-buttonSecondary bg-background text-buttonSecondary"
             : "border-primary bg-primary text-white")
         }
-        onPress={connected ? disconnect : onOpenModalConnectWallet}
+        onPress={onPress}
         isLoading={isOpenModalConnectWallet || isLoadingWallet}
         variant={connected ? "bordered" : "solid"}
       >
@@ -123,8 +136,7 @@ export default function App() {
   const isMd = useIsMd()
 
   const { balance } = useAppSelector((state) => state.wallet)
-  const { isLoading: isLoadingWallet, account } = useWallet()
-  const connectedWallet = useMemo(() => (account ? account.address : undefined), [account])
+  const { account, isLoading: isLoadingWallet } = useAnqaWallet()
 
   const [typedAmountIn, _setTypedAmountIn] = useState("")
   const [shouldUseDebounceAmountIn, setShouldUseDebounceAmountIn] = useState(true)
@@ -454,7 +466,7 @@ export default function App() {
                     <div className="flex flex-col gap-2 rounded border-1 border-black900 bg-black900 p-3 transition focus-within:border-black600">
                       <div className="flex h-[24px] items-center justify-between">
                         <BodyB2 className="text-buttonSecondary">You&apos;re paying</BodyB2>
-                        {connectedWallet && (
+                        {account && (
                           <Button
                             className="anqa-hover-white-all flex h-fit w-fit min-w-fit items-center gap-1 bg-transparent p-0"
                             disableAnimation
@@ -559,7 +571,7 @@ export default function App() {
                     <div className="flex flex-col gap-2 rounded border-1 border-black900 bg-black900 p-3 transition">
                       <div className="flex h-[24px] items-center justify-between">
                         <BodyB2 className="text-buttonSecondary">To Receive</BodyB2>
-                        {connectedWallet && (
+                        {account && (
                           <Button
                             className="flex h-fit w-fit min-w-fit items-center gap-1 bg-transparent p-0 data-[hover]:opacity-100"
                             disableAnimation
@@ -692,7 +704,7 @@ export default function App() {
                   <Spacer y={4} />
                 )}
 
-                {connectedWallet ? (
+                {account ? (
                   <Button
                     className={
                       "h-[52px] rounded" +

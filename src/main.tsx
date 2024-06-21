@@ -5,15 +5,20 @@ import ReactDOM from "react-dom/client"
 import { Provider as ReduxProvider } from "react-redux"
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { PersistGate } from "redux-persist/integration/react"
+import eruda from "eruda"
+import ReactGA from "react-ga4"
 
 import App from "./App"
 import { persistor, store } from "./redux/store"
-
 import "react-toastify/dist/ReactToastify.css"
 import "react-tooltip/dist/react-tooltip.css"
 import "./main.css"
 import "./main.scss"
-import { MAINNET_WALLETS } from "./constants"
+import { ENV, MAINNET_WALLETS } from "./constants"
+
+ReactGA.initialize("G-B2297K89VL")
+
+ENV !== "production" && eruda.init()
 
 const router = createBrowserRouter([
   {
