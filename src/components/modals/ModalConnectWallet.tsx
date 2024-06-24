@@ -1,7 +1,7 @@
 import { WalletName } from "@aptos-labs/wallet-adapter-react"
 import { Button, Image, Modal, ModalContent, Spacer } from "@nextui-org/react"
 import { isDesktop } from "react-device-detect"
-import { martianWallet, okxWallet, petraWallet, pontemWallet } from "../../constants/index.ts"
+import { aptosConnectWallet, martianWallet, okxWallet, petraWallet, pontemWallet } from "../../constants/index.ts"
 import useAnqaWallet from "../../hooks/useAnqaWallet.ts"
 import { CloseIcon } from "../Icons"
 import { BodyB2, TitleT1, TitleT2, TitleT5 } from "../Texts"
@@ -15,7 +15,8 @@ export default function ModalConnectWallet({
   onClose: () => void
   onOpenChange: () => void
 }) {
-  const { connect } = useAnqaWallet()
+  const { connect, wallet } = useAnqaWallet()
+  console.log(`wallet`, wallet)
 
   const onConnect = (wantedProvider: WalletName) => () => {
     connect(wantedProvider)
@@ -42,6 +43,25 @@ export default function ModalConnectWallet({
               <Spacer y={4} />
 
               <div className="flex flex-col gap-3">
+                {/* GOOGLE */}
+                <div className="flex w-full flex-col gap-1">
+                  <Button
+                    className="flex items-center justify-between rounded bg-background px-4 py-3"
+                    onPress={onConnect(aptosConnectWallet.name as any)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Image width={20} src="/images/google.png" />
+                      <TitleT2>Google</TitleT2>
+                    </div>
+                    {
+                      <div className="flex items-center gap-2">
+                        <div className="h-[6.67px] w-[6.67px] rounded-full bg-buttonGreen"></div>
+                        <TitleT5>Detected</TitleT5>
+                      </div>
+                    }
+                  </Button>
+                </div>
+
                 {/* PETRA */}
                 <div className="flex w-full flex-col gap-1">
                   <Button

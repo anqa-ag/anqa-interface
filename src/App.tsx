@@ -17,6 +17,7 @@ import {
   BIP_BASE,
   NOT_FOUND_TOKEN_LOGO_URL,
   ZUSDC,
+  aptosConnectWallet,
   martianWallet,
   okxWallet,
   petraWallet,
@@ -102,15 +103,17 @@ function ButtonConnectWallet({
             width={20}
             className="min-w-[20px]"
             src={
-              wallet.name === petraWallet.name
-                ? "/images/petra.svg"
-                : wallet.name === martianWallet.name
-                  ? "/images/martian.jpeg"
-                  : wallet.name === pontemWallet.name
-                    ? "/images/pontem.svg"
-                    : wallet.name === okxWallet.name
-                      ? "/images/okx.png"
-                      : undefined
+              wallet.name === aptosConnectWallet.name
+                ? "/images/google.png"
+                : wallet.name === petraWallet.name
+                  ? "/images/petra.svg"
+                  : wallet.name === martianWallet.name
+                    ? "/images/martian.jpeg"
+                    : wallet.name === pontemWallet.name
+                      ? "/images/pontem.svg"
+                      : wallet.name === okxWallet.name
+                        ? "/images/okx.png"
+                        : undefined
             }
           />
         )}

@@ -1,3 +1,4 @@
+import { AptosConnectWallet } from "@aptos-connect/wallet-adapter-plugin"
 import { PetraWallet } from "petra-plugin-wallet-adapter"
 import { MartianWallet } from "@martianwallet/aptos-wallet-adapter"
 import { PontemWallet } from "@pontem/wallet-adapter-plugin"
@@ -18,8 +19,9 @@ export const TELEGRAM_REDIRECT_URL = import.meta.env.VITE_TELEGRAM_REDIRECT_URL
 export const PETRA_ENCRYPTION_PUBLIC_KEY = import.meta.env.VITE_PETRA_ENCRYPTION_PUBLIC_KEY
 export const VERSION = 1 // Pump version to purge state.
 
+export const aptosConnectWallet = new AptosConnectWallet({})
 export const petraWallet = new PetraWallet()
 export const martianWallet = new MartianWallet()
 export const pontemWallet = new PontemWallet()
 export const okxWallet = new OKXWallet()
-export const MAINNET_WALLETS = [petraWallet, martianWallet, pontemWallet, okxWallet]
+export const MAINNET_WALLETS = [aptosConnectWallet, petraWallet, martianWallet, pontemWallet, okxWallet]
