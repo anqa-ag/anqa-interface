@@ -15,8 +15,7 @@ export default function ModalConnectWallet({
   onClose: () => void
   onOpenChange: () => void
 }) {
-  const { connect, wallet } = useAnqaWallet()
-  console.log(`wallet`, wallet)
+  const { connect } = useAnqaWallet()
 
   const onConnect = (wantedProvider: WalletName) => () => {
     connect(wantedProvider)
