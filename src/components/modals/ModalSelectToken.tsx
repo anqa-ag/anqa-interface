@@ -15,15 +15,19 @@ import { BodyB3, TitleT1, TitleT2, TitleT5 } from "../Texts"
 
 const BANNERS = [
   {
-    address: "0xdcfa079344261bfde45e7f6281df091743b8d3098bf9e26e1c0212fc5b070621::zaaptos_token::ZaaptosCoin",
+    symbol: "ZAAP",
     logoUrl: "/banners/ZAAP.png",
   },
   {
-    address: "0xf891d2e004973430cc2bbbee69f3d0f4adb9c7ae03137b4579f7bb9979283ee6::APTOS_FOMO::APTOS_FOMO",
+    symbol: "DONK",
+    logoUrl: "/banners/DONK.jpg",
+  },
+  {
+    symbol: "FOMO",
     logoUrl: "/banners/FOMO.png",
   },
   {
-    address: "0x4fbed3f8a3fd8a11081c8b6392152a8b0cb14d70d0414586f0c9b858fcd2d6a7::UPTOS::UPTOS",
+    symbol: "UPTOS",
     logoUrl: "/banners/UPTOS.jpg",
   },
 ]
@@ -339,8 +343,8 @@ function ModalSelectToken({
             <div className="flex flex-col gap-2">
               {BANNERS.map((item) => (
                 <Button
-                  key={item.address}
-                  onPress={() => setTokenAndClose(item.address)}
+                  key={item.symbol}
+                  onPress={() => setTokenAndClose(item.symbol)}
                   className="relative rounded p-0"
                 >
                   <Skeleton
