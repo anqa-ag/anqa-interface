@@ -4,7 +4,7 @@ import { Button, Image, Link, Skeleton, Spacer } from "@nextui-org/react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { CountdownCircleTimer } from "react-countdown-circle-timer"
 import { NumericFormat } from "react-number-format"
-import { useSearchParams } from "react-router-dom"
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { ToastContainer } from "react-toastify"
 import { useDebounceValue } from "usehooks-ts"
 import { AnqaWithTextIcon, ArrowFilledDownIcon, SettingIcon, SwapIcon, WalletIcon } from "./components/Icons"
@@ -41,6 +41,7 @@ import {
   numberWithCommas,
   truncateValue,
 } from "./utils/number"
+import useFullTokens from "./hooks/useFullTokens"
 
 function Menu() {
   return (
@@ -134,6 +135,10 @@ function ButtonConnectWallet({
 }
 
 export default function App() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [params] = useSearchParams()
+
   const isSm = useIsSm()
 
   const { balance } = useAppSelector((state) => state.wallet)
@@ -155,12 +160,89 @@ export default function App() {
     }
   }, [])
 
-  const [tokenIn, _setTokenIn] = useState(APTOS_COIN)
-  const [tokenOut, _setTokenOut] = useState(ZUSDC)
-
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
+  const tokenIn = useMemo(
+    () =>
+      Object.values(followingTokenData).find((token) => {
+        try {
+          const tokenSymbolOrAddress = location.pathname.replace("/swap/", "").split("-")[0]
+          return token.symbol === tokenSymbolOrAddress || token.id === tokenSymbolOrAddress
+        } catch {
+          return false
+        }
+      })?.id || APTOS_COIN,
+    [followingTokenData, location.pathname],
+  )
+  const tokenOut = useMemo(
+    () =>
+      Object.values(followingTokenData).find((token) => {
+        try {
+          const tokenSymbolOrAddress = location.pathname.replace("/swap/", "").split("-")[1]
+          return token.symbol === tokenSymbolOrAddress || token.id === tokenSymbolOrAddress
+        } catch {
+          return false
+        }
+      })?.id || ZUSDC,
+    [followingTokenData, location.pathname],
+  )
   const tokenInInfo: Token | undefined = useMemo(() => followingTokenData[tokenIn], [followingTokenData, tokenIn])
   const tokenOutInfo: Token | undefined = useMemo(() => followingTokenData[tokenOut], [followingTokenData, tokenOut])
+
+  const { data: fullTokenData } = useFullTokens()
+  useEffect(() => {
+    if (!fullTokenData || Object.values(fullTokenData).length === 0) return
+    const pair = location.pathname.replace("/swap/", "")
+    try {
+      const tokenInSymbolOrAddress = pair.split("-")[0]
+      const tokenOutSymbolOrAddress = pair.split("-")[1]
+      if (!tokenInSymbolOrAddress || !tokenOutSymbolOrAddress) throw new Error(`invalid pair = ${pair}`)
+
+      const followingTokenDataList = Object.values(followingTokenData)
+      const fullTokenDataList = Object.values(fullTokenData)
+      const newTokenIn =
+        fullTokenDataList.find((token) => token.id === tokenInSymbolOrAddress) ||
+        followingTokenDataList.find((token) => token.symbol === tokenInSymbolOrAddress)
+      const newTokenOut =
+        fullTokenDataList.find((token) => token.id === tokenOutSymbolOrAddress) ||
+        followingTokenDataList.find((token) => token.symbol === tokenOutSymbolOrAddress)
+      if (!newTokenIn) throw new Error(`cannot find tokenIn = ${tokenInSymbolOrAddress}`)
+      if (!newTokenOut) throw new Error(`cannot find tokenOut = ${tokenOutSymbolOrAddress}`)
+    } catch (err) {
+      pair !== "/swap" && console.error(err)
+      navigate(`/swap/APT-zUSDC?${params.toString()}`, { replace: true })
+    }
+  }, [followingTokenData, fullTokenData, location.pathname, navigate, params])
+
+  const _setTokenIn = useCallback(
+    (symbolOrAddress: string) => {
+      const pair = location.pathname.replace("/swap/", "")
+      try {
+        const tokenInSymbolOrAddress = pair.split("-")[0]
+        const tokenOutSymbolOrAddress = pair.split("-")[1]
+        if (!tokenInSymbolOrAddress || !tokenOutSymbolOrAddress) throw new Error(`invalid pair = ${pair}`)
+        navigate(`/swap/${symbolOrAddress}-${tokenOutSymbolOrAddress}?${params.toString()}`, { replace: true })
+      } catch (err) {
+        pair !== "/swap" && console.error(err)
+        navigate(`/swap/APT-zUSDC?${params.toString()}`, { replace: true })
+      }
+    },
+    [location.pathname, navigate, params],
+  )
+  const _setTokenOut = useCallback(
+    (symbolOrAddress: string) => {
+      const pair = location.pathname.replace("/swap/", "")
+      try {
+        const tokenInSymbolOrAddress = pair.split("-")[0]
+        const tokenOutSymbolOrAddress = pair.split("-")[1]
+        if (!tokenInSymbolOrAddress || !tokenOutSymbolOrAddress) throw new Error(`invalid pair = ${pair}`)
+        navigate(`/swap/${tokenInSymbolOrAddress}-${symbolOrAddress}?${params.toString()}`, { replace: true })
+      } catch (err) {
+        pair !== "/swap" && console.error(err)
+        navigate(`/swap/APT-zUSDC?${params.toString()}`, { replace: true })
+      }
+    },
+    [location.pathname, navigate, params],
+  )
 
   const tokenInDecimals = tokenInInfo ? tokenInInfo.decimals : undefined
   const tokenOutDecimals = tokenOutInfo ? tokenOutInfo.decimals : undefined
@@ -309,29 +391,37 @@ export default function App() {
     } else {
       setTypedAmountIn("")
     }
-    _setTokenIn(tokenOut)
-    _setTokenOut(tokenIn)
-  }, [fractionalAmountOut, setTypedAmountIn, tokenIn, tokenOut, tokenOutDecimals])
+    const pair = location.pathname.replace("/swap/", "")
+    try {
+      const tokenInSymbolOrAddress = pair.split("-")[0]
+      const tokenOutSymbolOrAddress = pair.split("-")[1]
+      if (!tokenInSymbolOrAddress || !tokenOutSymbolOrAddress) throw new Error(`invalid pair = ${pair}`)
+      navigate(`/swap/${tokenOutSymbolOrAddress}-${tokenInSymbolOrAddress}?${params.toString()}`, { replace: true })
+    } catch (err) {
+      pair !== "/swap" && console.error(err)
+      navigate(`/swap/APT-zUSDC?${params.toString()}`, { replace: true })
+    }
+  }, [fractionalAmountOut, location.pathname, navigate, params, setTypedAmountIn, tokenOutDecimals])
 
   const setTokenIn = useCallback(
-    (id: string) => {
-      if (tokenOut === id) {
+    (symbolOrAddress: string) => {
+      if (tokenOut === symbolOrAddress || (tokenOutInfo && tokenOutInfo.symbol === symbolOrAddress)) {
         switchToken()
       } else {
-        _setTokenIn(id)
+        _setTokenIn(symbolOrAddress)
       }
     },
-    [switchToken, tokenOut],
+    [_setTokenIn, switchToken, tokenOut, tokenOutInfo],
   )
   const setTokenOut = useCallback(
-    (id: string) => {
-      if (tokenIn === id) {
+    (symbolOrAddress: string) => {
+      if (tokenIn === symbolOrAddress || (tokenInInfo && tokenInInfo.symbol === symbolOrAddress)) {
         switchToken()
       } else {
-        _setTokenOut(id)
+        _setTokenOut(symbolOrAddress)
       }
     },
-    [switchToken, tokenIn],
+    [_setTokenOut, switchToken, tokenIn, tokenInInfo],
   )
 
   const { globalModal, isModalOpen, onOpenModal, onCloseModal, onOpenChangeModal } = useModal()
@@ -352,8 +442,7 @@ export default function App() {
     }
   }
 
-  const [searchParams] = useSearchParams()
-  const isDebug = useMemo(() => searchParams.get("debug") === "true", [searchParams])
+  const isDebug = useMemo(() => params.get("debug") === "true", [params])
 
   return (
     <>

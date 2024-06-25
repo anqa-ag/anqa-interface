@@ -72,7 +72,7 @@ function TokenItem({
       }
       tabIndex={0}
       style={style}
-      onClick={() => setToken(items[index].id)}
+      onClick={() => setToken(items[index].whitelisted ? items[index].symbol : items[index].id)}
     >
       <Image
         width={20}
@@ -152,8 +152,9 @@ function ModalSelectToken({
     const res: Record<string, TokenWithBalance> = {}
     for (const address of Object.keys(followingTokenData)) {
       let fractionalBalance: Fraction | undefined
-      if (connected && balance[address] && balance[address]?.amount) {
-        fractionalBalance = divpowToFraction(balance[address]!.amount, followingTokenData[address].decimals)
+      const tokenBalance = balance[address]
+      if (connected && tokenBalance && tokenBalance.amount) {
+        fractionalBalance = divpowToFraction(tokenBalance.amount, followingTokenData[address].decimals)
       }
       let fractionalBalanceUsd: Fraction | undefined
       if (fractionalBalance && followingPriceData[address]) {
@@ -165,6 +166,7 @@ function ModalSelectToken({
         name: followingTokenData[address].name,
         symbol: followingTokenData[address].symbol,
         decimals: followingTokenData[address].decimals,
+        whitelisted: followingTokenData[address].whitelisted,
         logoUrl: followingTokenData[address].logoUrl,
         fractionalBalance,
         fractionalBalanceUsd,
@@ -254,6 +256,7 @@ function ModalSelectToken({
         name: token.name,
         symbol: token.symbol,
         decimals: token.decimals,
+        whitelisted: false,
         logoUrl: undefined,
         fractionalBalance: undefined,
         fractionalBalanceUsd: undefined,
@@ -335,12 +338,16 @@ function ModalSelectToken({
 
             <div className="flex flex-col gap-2">
               {BANNERS.map((item) => (
-                <Button key={item.address} onPress={() => setTokenAndClose(item.address)} className="relative rounded p-0">
+                <Button
+                  key={item.address}
+                  onPress={() => setTokenAndClose(item.address)}
+                  className="relative rounded p-0"
+                >
                   <Skeleton
                     className="absolute left-0 top-0 z-10 h-full w-full rounded"
                     classNames={{ base: "!bg-transparent after:!bg-transparent" }}
                   />
-                  <Image src={item.logoUrl} className="w-full z-0" />
+                  <Image src={item.logoUrl} className="z-0 w-full" />
                 </Button>
               ))}
             </div>

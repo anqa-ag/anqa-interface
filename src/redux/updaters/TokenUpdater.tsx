@@ -19,6 +19,7 @@ function FollowingTokenUpdater() {
           name: whitelistedTokenMap[key].name,
           symbol: whitelistedTokenMap[key].symbol,
           decimals: whitelistedTokenMap[key].decimals,
+          whitelisted: true,
           logoUrl: whitelistedTokenMap[key].logoUrl,
         }
       }
@@ -49,6 +50,7 @@ function FollowingTokenUpdater() {
           name: tokenInfoMap[address].name,
           symbol: tokenInfoMap[address].symbol,
           decimals: tokenInfoMap[address].decimals,
+          whitelisted: false,
           logoUrl: undefined,
         }
       }
