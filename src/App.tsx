@@ -29,8 +29,8 @@ import { useIsSm } from "./hooks/useMedia"
 import useModal, { MODAL_LIST } from "./hooks/useModal"
 import useQuote from "./hooks/useQuote"
 import useSwap from "./hooks/useSwap"
-import { useAppSelector } from "./redux/hooks"
-import { Token } from "./redux/slices/token"
+import { useAppDispatch, useAppSelector } from "./redux/hooks"
+import { Token, addTokensToFollow } from "./redux/slices/token"
 import Updaters from "./redux/updaters/Updaters"
 import { Fraction } from "./utils/fraction"
 import {
@@ -135,6 +135,8 @@ function ButtonConnectWallet({
 }
 
 export default function App() {
+  const disptach = useAppDispatch()
+
   const location = useLocation()
   const navigate = useNavigate()
   const [params] = useSearchParams()
@@ -190,7 +192,6 @@ export default function App() {
 
   const { data: fullTokenData } = useFullTokens()
   useEffect(() => {
-    if (!fullTokenData || Object.values(fullTokenData).length === 0) return
     const pair = location.pathname.replace("/swap/", "")
     try {
       const tokenInSymbolOrAddress = pair.split("-")[0]
@@ -198,7 +199,10 @@ export default function App() {
       if (!tokenInSymbolOrAddress || !tokenOutSymbolOrAddress) throw new Error(`invalid pair = ${pair}`)
 
       const followingTokenDataList = Object.values(followingTokenData)
+
+      if (!fullTokenData || Object.values(fullTokenData).length === 0) return
       const fullTokenDataList = Object.values(fullTokenData)
+
       const newTokenIn =
         fullTokenDataList.find((token) => token.id === tokenInSymbolOrAddress) ||
         followingTokenDataList.find((token) => token.symbol === tokenInSymbolOrAddress)
@@ -207,11 +211,12 @@ export default function App() {
         followingTokenDataList.find((token) => token.symbol === tokenOutSymbolOrAddress)
       if (!newTokenIn) throw new Error(`cannot find tokenIn = ${tokenInSymbolOrAddress}`)
       if (!newTokenOut) throw new Error(`cannot find tokenOut = ${tokenOutSymbolOrAddress}`)
+      disptach(addTokensToFollow([newTokenIn.id, newTokenOut.id]))
     } catch (err) {
       pair !== "/swap" && console.error(err)
       navigate(`/swap/APT-zUSDC?${params.toString()}`, { replace: true })
     }
-  }, [followingTokenData, fullTokenData, location.pathname, navigate, params])
+  }, [disptach, followingTokenData, fullTokenData, location.pathname, navigate, params])
 
   const _setTokenIn = useCallback(
     (symbolOrAddress: string) => {

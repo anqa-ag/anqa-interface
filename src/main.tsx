@@ -25,15 +25,15 @@ ENV !== "production" && eruda.init()
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <NavigateWithParams to="/swap" />,
-  },
-  {
-    path: "/swap",
-    element: <App />,
+    element: <NavigateWithParams to="/swap/APT-zUSDC" />,
   },
   {
     path: "/swap/:pair",
     element: <App />,
+  },
+  {
+    path: "*",
+    element: <NavigateWithParams to="/swap/APT-zUSDC" />,
   },
 ])
 
