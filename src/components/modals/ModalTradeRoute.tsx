@@ -531,7 +531,7 @@ export default function ModalTradeRoute({
                       <ChevronRight size={24} className="min-h-[24px] min-w-[24px]" />
                       <BodyB2 className="z-10 w-[52px] min-w-[52px] rounded border-1 border-tooltipBg bg-background px-2 py-1 text-center text-tooltipBg">
                         {rawAmountIn
-                          ? new Fraction(path[0].amountIn, rawAmountIn).multiply(100).toSignificant(4) + "%"
+                          ? new Fraction(path[0].srcAmount, rawAmountIn).multiply(100).toSignificant(4) + "%"
                           : "--"}
                       </BodyB2>
                       <div className="z-10 mx-4 flex flex-1 justify-center">
@@ -543,9 +543,9 @@ export default function ModalTradeRoute({
                                   width={20}
                                   height={20}
                                   className="min-h-[20px] min-w-[20px]"
-                                  src={followingTokenData?.[hop.tokenOut]?.logoUrl}
+                                  src={followingTokenData?.[hop.dstCoinType]?.logoUrl}
                                 />
-                                <TitleT5>{followingTokenData?.[hop.tokenOut]?.symbol || "--"}</TitleT5>
+                                <TitleT5>{followingTokenData?.[hop.dstCoinType]?.symbol || "--"}</TitleT5>
                               </div>
                               <div className="flex w-[160px] items-center gap-1 bg-background p-2">
                                 <Image

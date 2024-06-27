@@ -12,10 +12,10 @@ export interface GetRouteResponse {
 }
 
 export interface GetRouteResponseData {
-  tokenIn: string
-  tokenOut: string
-  amountIn: string
-  amountOut: string
+  srcCoinType: string
+  dstCoinType: string
+  srcAmount: string
+  dstAmount: string
   paths: GetRouteResponseDataPath[][]
 }
 
@@ -23,11 +23,11 @@ export interface GetRouteResponseDataPath {
   poolId: string
   source: string
   sourceType: string
-  tokenIn: string
-  tokenOut: string
-  amountIn: string
-  amountOut: string
-  extra: {
+  srcCoinType: string
+  dstCoinType: string
+  srcAmount: string
+  dstAmount: string
+  metadata: {
     isXToY?: boolean
     isStable?: boolean
     tokenInIndex?: number
@@ -54,14 +54,14 @@ const fn = async ({
   const excludeSources = ["bapt_swap_v1", "bapt_swap_v2", "bapt_swap_v2.1"]
   const response = await axios<GetRouteResponse>(`${AGGREGATOR_URL}/v1/quote`, {
     params: {
-      tokenIn,
-      tokenOut,
-      amountIn,
+      srcCoinType: tokenIn,
+      dstCoinType: tokenOut,
+      amount: amountIn,
       includeSources,
       excludeSources: excludeSources.join(","),
     },
   })
-  if (response.status === 200 && response.data.data.amountOut != "0") {
+  if (response.status === 200 && response.data.data.dstAmount != "0") {
     return response.data
   }
   return undefined
@@ -108,11 +108,11 @@ export default function useQuote(tokenIn?: string, tokenOut?: string, amountIn?:
     () => ({
       isValidating,
       error,
-      amountOut: response?.data.amountOut,
+      amountOut: response?.data.dstAmount,
       paths: response?.data.paths,
       sourceInfo,
     }),
-    [error, isValidating, response?.data.amountOut, response?.data.paths, sourceInfo],
+    [error, isValidating, response?.data.dstAmount, response?.data.paths, sourceInfo],
   )
   return res
 }
