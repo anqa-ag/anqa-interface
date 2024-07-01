@@ -86,12 +86,12 @@ export default function ModalTradeRoute({
                     <Image
                       src={followingTokenData[srcCoinType]?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL}
                       width="44px"
-                      className="min-w-[44px]"
+                      className="min-w-[44px] rounded-full"
                     />
                     <Image
                       src={followingTokenData[dstCoinType]?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL}
                       width="44px"
-                      className="min-w-[44px]"
+                      className="min-w-[44px] rounded-full"
                     />
                   </div>
                 )}
@@ -102,7 +102,7 @@ export default function ModalTradeRoute({
                         <Image
                           src={followingTokenData[srcCoinType]?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL}
                           width="44px"
-                          className="min-w-[44px]"
+                          className="min-w-[44px] rounded-full"
                         />
                       ) : (
                         <div className="h-[44px] w-[64px]" />
@@ -114,7 +114,7 @@ export default function ModalTradeRoute({
                         <Image
                           src={followingTokenData[dstCoinType]?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL}
                           width="44px"
-                          className="min-w-[44px]"
+                          className="min-w-[44px] rounded-full"
                         />
                       ) : (
                         <div className="h-[44px] w-[64px]" />
@@ -164,7 +164,7 @@ export default function ModalTradeRoute({
                               <Image
                                 width="16px"
                                 src={SOURCES[hop.source]?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL}
-                                className="min-w-[16px]"
+                                className="min-w-[16px] rounded-full"
                               />
                               <BodyB3 className="text-buttonSecondary">
                                 {(isLg ? SOURCES[hop.source]?.shortName : SOURCES[hop.source]?.name) || hop.source}
@@ -179,7 +179,7 @@ export default function ModalTradeRoute({
                             >
                               <Image
                                 width="32px"
-                                className="min-w-[32px]"
+                                className="min-w-[32px] rounded-full"
                                 src={followingTokenData[hop.dstCoinType]?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL}
                               />
                             </Button>
