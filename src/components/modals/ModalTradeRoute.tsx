@@ -39,16 +39,6 @@ export default function ModalTradeRoute({
     [isLg],
   )
   const longestPathLength = useMemo(() => paths.reduce<number>((max, path) => Math.max(max, path.length), 1), [paths])
-  const dynamicWidthTailwindClass = useMemo(() => {
-    if (!isLg) return "w-[max(100%,568px)]"
-    if (longestPathLength === 3) {
-      return "w-[max(100%,380px)]"
-    }
-    if (longestPathLength === 2) {
-      return "w-[max(100%,280px)]"
-    }
-    return "w-full"
-  }, [isLg, longestPathLength])
   const displayTokenSymbolInSeparateRow = isLg && longestPathLength >= 2
 
   if (!rawAmountIn) return null
@@ -64,7 +54,11 @@ export default function ModalTradeRoute({
         size={isLg ? "full" : undefined}
       >
         <ModalContent
-          className={"max-w-[800px] bg-black900 p-4 text-foreground dark" + " " + (isLg ? "h-fit max-h-[70vh] self-end" : "")}
+          className={
+            "max-w-[800px] bg-black900 p-4 text-foreground dark" +
+            " " +
+            (isLg ? "h-fit max-h-[70vh] min-h-[200px] self-end" : "")
+          }
         >
           <>
             <div className="flex items-center justify-between">
@@ -80,18 +74,18 @@ export default function ModalTradeRoute({
             <Spacer y={4} />
 
             <div className="overflow-auto">
-              <div className={`max-h-[70vh] ${dynamicWidthTailwindClass}`}>
+              <div className="max-h-[70vh] w-full">
                 {displayTokenSymbolInSeparateRow && (
                   <div className="flex items-center justify-between">
                     <Image
                       src={followingTokenData[srcCoinType]?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL}
                       width="44px"
-                      className="min-w-[44px] rounded-full"
+                      className="min-w-[44px] rounded-full bg-black900"
                     />
                     <Image
                       src={followingTokenData[dstCoinType]?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL}
                       width="44px"
-                      className="min-w-[44px] rounded-full"
+                      className="min-w-[44px] rounded-full bg-black900"
                     />
                   </div>
                 )}
@@ -102,7 +96,7 @@ export default function ModalTradeRoute({
                         <Image
                           src={followingTokenData[srcCoinType]?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL}
                           width="44px"
-                          className="min-w-[44px] rounded-full"
+                          className="min-w-[44px] rounded-full bg-black900"
                         />
                       ) : (
                         <div className="h-[44px] w-[64px]" />
@@ -114,7 +108,7 @@ export default function ModalTradeRoute({
                         <Image
                           src={followingTokenData[dstCoinType]?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL}
                           width="44px"
-                          className="min-w-[44px] rounded-full"
+                          className="min-w-[44px] rounded-full bg-black900"
                         />
                       ) : (
                         <div className="h-[44px] w-[64px]" />
@@ -164,7 +158,7 @@ export default function ModalTradeRoute({
                               <Image
                                 width="16px"
                                 src={SOURCES[hop.source]?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL}
-                                className="min-w-[16px] rounded-full"
+                                className="min-w-[16px] rounded-full bg-black900"
                               />
                               <BodyB3 className="text-buttonSecondary">
                                 {(isLg ? SOURCES[hop.source]?.shortName : SOURCES[hop.source]?.name) || hop.source}
@@ -179,7 +173,7 @@ export default function ModalTradeRoute({
                             >
                               <Image
                                 width="32px"
-                                className="min-w-[32px] rounded-full"
+                                className="min-w-[32px] rounded-full bg-black900"
                                 src={followingTokenData[hop.dstCoinType]?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL}
                               />
                             </Button>
