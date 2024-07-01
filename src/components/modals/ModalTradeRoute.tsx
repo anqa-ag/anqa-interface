@@ -2,7 +2,7 @@ import { Button, Image, Modal, ModalContent, Spacer } from "@nextui-org/react"
 import { Fragment, useMemo } from "react"
 import { NOT_FOUND_TOKEN_LOGO_URL } from "../../constants/index.ts"
 import { SOURCES } from "../../constants/source.ts"
-import { useIsLg } from "../../hooks/useMedia.ts"
+import { useIsMd } from "../../hooks/useMedia.ts"
 import { GetRouteResponseDataPath } from "../../hooks/useQuote.ts"
 import { useAppSelector } from "../../redux/hooks/index.ts"
 import { Fraction } from "../../utils/fraction.ts"
@@ -33,7 +33,7 @@ export default function ModalTradeRoute({
   paths = paths || []
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
 
-  const isLg = useIsLg()
+  const isLg = useIsMd()
   const gap = useMemo(
     () => (isLg ? { gap2: "gap-[0px]", gap3: "gap-[0px]" } : { gap2: "gap-[98px]", gap3: "gap-[32px]" }),
     [isLg],
@@ -115,19 +115,19 @@ export default function ModalTradeRoute({
                       )
                     ) : null}
                     {paths.length !== 1 && (
-                      <BodyB3 className="absolute left-[72px] top-1/2 z-10 -translate-y-1/2 bg-black900 px-1 text-primary lg:left-[16px]">
+                      <BodyB3 className="absolute left-[72px] top-1/2 z-10 -translate-y-1/2 bg-black900 px-1 text-primary md:left-[16px]">
                         {new Fraction(path[0].srcAmount, rawAmountIn).multiply(100).toSignificant(4)}%
                       </BodyB3>
                     )}
 
-                    <div className="absolute right-[72px] flex h-[20px] w-[16px] items-center justify-center bg-black900 lg:right-[16px]">
+                    <div className="absolute right-[72px] flex h-[20px] w-[16px] items-center justify-center bg-black900 md:right-[16px]">
                       <ChevronRight size={20} />
                     </div>
 
                     {pathIndex !== 0 && (
                       <div
                         className={
-                          "absolute left-[52px] top-[-22px] w-px border-l-1 border-dashed border-primary lg:left-0" +
+                          "absolute left-[52px] top-[-22px] w-px border-l-1 border-dashed border-primary md:left-0" +
                           " " +
                           (pathIndex === paths.length - 1 ? "h-[45px]" : "h-[52px]")
                         }
@@ -136,7 +136,7 @@ export default function ModalTradeRoute({
                     {pathIndex !== 0 && (
                       <div
                         className={
-                          "absolute right-[52px] top-[-22px] w-px border-l-1 border-dashed border-primary lg:right-0" +
+                          "absolute right-[52px] top-[-22px] w-px border-l-1 border-dashed border-primary md:right-0" +
                           " " +
                           (pathIndex === paths.length - 1 ? "h-[45px]" : "h-[52px]")
                         }
@@ -147,7 +147,7 @@ export default function ModalTradeRoute({
                     >
                       {path.map((hop, hopIndex) => (
                         <Fragment key={hopIndex}>
-                          <div className="flex w-[120px] items-center justify-center lg:w-[80px]">
+                          <div className="flex w-[120px] items-center justify-center md:w-[80px]">
                             <Button
                               className="flex h-[32px] items-center justify-center gap-1 bg-black900 p-0.5 data-[hover]:bg-black600"
                               onPress={() =>

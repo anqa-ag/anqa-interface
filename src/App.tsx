@@ -521,47 +521,21 @@ export default function App() {
           */}
             <main className="mt-[60px] w-full p-4 sm:mt-0">
               <div className="mx-auto flex max-w-[464px] flex-col">
-                <div className="flex justify-between">
-                  <div className="flex gap-3">
-                    {/* <Button className="h-[36px] min-w-min gap-1 rounded bg-primaryHover p-2">
-                      <TitleT2 className="text-black">Swap</TitleT2>
-                    </Button> */}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {/* <Button
-                      isIconOnly
-                      className={
-                        "flex h-[36px] w-[36px] min-w-min items-center justify-center rounded border-1 border-black600 bg-black"
-                      }
-                      disabled
-                    >
-                      <CountdownCircleTimer
-                        isPlaying
-                        duration={10}
-                        colors={["#9AA0A6", "#9AA0A6"]}
-                        colorsTime={[0, 0]}
-                        onComplete={() => ({ shouldRepeat: true, delay: 0 })}
-                        isSmoothColorTransition={false}
-                        trailColor="#282A2D"
-                        size={18}
-                        strokeWidth={3}
-                      />
-                    </Button> */}
-                    <Button
-                      isIconOnly
-                      className={
-                        "h-[36px] w-[36px] min-w-min rounded border-1 pl-3" +
-                        " " +
-                        (isHighSlippage ? "bg-[rgba(255,153,1,0.2)]" : "border-black600 bg-black")
-                      }
-                      onPress={() => onOpenModal(MODAL_LIST.USER_SETTING)}
-                    >
-                      <BodyB2 className={isHighSlippage ? "text-[rgba(255,153,1)]" : "text-buttonSecondary"}>
-                        {slippageBps / 100}%
-                      </BodyB2>
-                      <SettingIcon size={36} color={isHighSlippage ? "rgba(255,153,1)" : "#9AA0A6"} />
-                    </Button>
-                  </div>
+                <div className="flex justify-end">
+                  <Button
+                    isIconOnly
+                    className={
+                      "h-[36px] w-[36px] min-w-min rounded border-1 pl-3" +
+                      " " +
+                      (isHighSlippage ? "bg-[rgba(255,153,1,0.2)]" : "border-black600 bg-black")
+                    }
+                    onPress={() => onOpenModal(MODAL_LIST.USER_SETTING)}
+                  >
+                    <BodyB2 className={isHighSlippage ? "text-[rgba(255,153,1)]" : "text-buttonSecondary"}>
+                      {slippageBps / 100}%
+                    </BodyB2>
+                    <SettingIcon size={36} color={isHighSlippage ? "rgba(255,153,1)" : "#9AA0A6"} />
+                  </Button>
                 </div>
 
                 <Spacer y={4} />
