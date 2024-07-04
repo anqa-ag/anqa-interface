@@ -578,6 +578,7 @@ export default function App() {
                           className="w-full bg-transparent text-[36px] font-semibold outline-none placeholder:text-buttonSecondary"
                           pattern="^[0-9]*[.,]?[0-9]*$"
                           value={typedAmountIn}
+                          allowNegative={false}
                           onChange={(e) => setTypedAmountIn(e.currentTarget.value, tokenInDecimals)}
                         />
                         <Button
