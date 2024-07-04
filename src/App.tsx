@@ -21,6 +21,8 @@ import ModalConnectWallet from "./components/modals/ModalConnectWallet"
 import ModalSelectToken from "./components/modals/ModalSelectToken"
 import ModalTradeRoute from "./components/modals/ModalTradeRoute"
 import ModalUserSetting from "./components/modals/ModalUserSetting"
+import Histories from "./components/modals/Histories"
+
 import {
   BIP_BASE,
   NOT_FOUND_TOKEN_LOGO_URL,
@@ -54,9 +56,11 @@ import {
 function ButtonConnectWallet({
   onOpenModalConnectWallet,
   isOpenModalConnectWallet,
+  onOpenModalHistories,
 }: {
   onOpenModalConnectWallet: () => void
   isOpenModalConnectWallet: boolean
+  onOpenModalHistories: () => void,
 }) {
   const {
     account,
@@ -71,7 +75,7 @@ function ButtonConnectWallet({
   const isMainnet = network ? network.name === Network.MAINNET : undefined
 
   const onPress = () => {
-    connected ? disconnect() : isTelegram ? connect(petraWallet.name) : onOpenModalConnectWallet()
+    connected ? onOpenModalHistories() : onOpenModalConnectWallet()
   }
 
   return (
@@ -501,6 +505,7 @@ export default function App() {
                 <ButtonConnectWallet
                   onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
                   isOpenModalConnectWallet={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
+                  onOpenModalHistories={() => onOpenModal(MODAL_LIST.ACTIVITIES)}
                 />
               ) : (
                 <>
@@ -508,6 +513,8 @@ export default function App() {
                   <ButtonConnectWallet
                     onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
                     isOpenModalConnectWallet={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
+                    onOpenModalHistories={() => onOpenModal(MODAL_LIST.ACTIVITIES)}
+
                   />
                 </>
               )}
@@ -1054,6 +1061,7 @@ export default function App() {
           paths={paths}
         />
         <Tooltips />
+        <Histories isOpen={globalModal === MODAL_LIST.ACTIVITIES && isModalOpen} onOpenChange={onOpenChangeModal} />
       </div>
     </>
   )
