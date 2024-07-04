@@ -12,6 +12,7 @@ import { Fraction } from "../../utils/fraction"
 import { divpowToFraction, mulpowToFraction } from "../../utils/number"
 import { CloseIcon, SearchIcon } from "../Icons"
 import { BodyB3, TitleT1, TitleT2, TitleT5 } from "../Texts"
+import BasicTokenInfo from "../BasicTokenInfo.tsx"
 
 const BANNERS = [
   {
@@ -56,11 +57,6 @@ function TokenItem({
   const token = useMemo(() => {
     return items[index]
   }, [items, index])
-  const [src, setSrc] = useState(token.logoUrl || NOT_FOUND_TOKEN_LOGO_URL)
-
-  useEffect(() => {
-    setSrc(token.logoUrl || NOT_FOUND_TOKEN_LOGO_URL)
-  }, [index, items, onCopy, token.logoUrl])
 
   const isCopyingThisToken = useMemo(
     () => isCopying && copiedId === items[index].id,
@@ -78,59 +74,7 @@ function TokenItem({
       style={style}
       onClick={() => setToken(items[index].whitelisted ? items[index].symbol : items[index].id)}
     >
-      <Image
-        width={20}
-        height={20}
-        src={src}
-        onError={() => setSrc(NOT_FOUND_TOKEN_LOGO_URL)}
-        className="flex h-[20px] min-h-[20px] w-[20px] min-w-[20px] rounded-full bg-white"
-        disableSkeleton
-      />
-      <div className="flex w-full flex-col gap-1 overflow-hidden">
-        <div className="flex items-baseline gap-1">
-          <TitleT2 className="">{token.symbol}</TitleT2>
-          <Button
-            variant="light"
-            className="h-fit w-fit min-w-fit gap-1 self-center rounded-none p-0 font-normal data-[hover]:bg-transparent"
-            onPress={() => onCopy(items[index].id)}
-            disableAnimation
-            disableRipple
-          >
-            {isCopyingThisToken ? (
-              <>
-                <TitleT5
-                  className="overflow-hidden text-ellipsis whitespace-nowrap pt-1 text-tooltipBg"
-                  onClick={() => onCopy(items[index].id)}
-                >
-                  {token.id.slice(0, 10) + "..."}
-                </TitleT5>
-                <Icon icon="material-symbols:check" fontSize={16} className="text-tooltipBg" />
-              </>
-            ) : (
-              <>
-                <TitleT5
-                  className="overflow-hidden text-ellipsis whitespace-nowrap pt-1 text-tooltipBg"
-                  onClick={() => onCopy(items[index].id)}
-                >
-                  {token.id.slice(0, 10) + "..."}
-                </TitleT5>
-                <Icon icon="ph:copy" fontSize={16} className="text-tooltipBg" />
-              </>
-            )}
-          </Button>
-        </div>
-        <TitleT5 className="w-full flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-start text-tooltipBg">
-          {token.name}
-        </TitleT5>
-      </div>
-      <div className="flex flex-col items-end gap-1 justify-self-end">
-        <TitleT5 className="text-tooltipBg">
-          {items[index].fractionalBalance ? items[index].fractionalBalance?.toSignificant(6) : undefined}
-        </TitleT5>
-        <BodyB3 className="text-tooltipBg">
-          {items[index].fractionalBalanceUsd ? `~$${items[index].fractionalBalanceUsd?.toSignificant(6)}` : undefined}
-        </BodyB3>
-      </div>
+      <BasicTokenInfo token={token} onCopy={onCopy} isCopying={isCopyingThisToken} />
     </div>
   )
 }
@@ -165,6 +109,7 @@ function ModalSelectToken({
         const fractionalPrice = mulpowToFraction(followingPriceData[address])
         fractionalBalanceUsd = fractionalBalance.multiply(fractionalPrice)
       }
+
       const newItem: TokenWithBalance = {
         id: followingTokenData[address].id,
         name: followingTokenData[address].name,

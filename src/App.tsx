@@ -21,7 +21,7 @@ import ModalConnectWallet from "./components/modals/ModalConnectWallet"
 import ModalSelectToken from "./components/modals/ModalSelectToken"
 import ModalTradeRoute from "./components/modals/ModalTradeRoute"
 import ModalUserSetting from "./components/modals/ModalUserSetting"
-import Histories from "./components/modals/Histories"
+import AssetsAndActivities from "./components/modals/AssetsAndActivities.tsx"
 
 import {
   BIP_BASE,
@@ -52,6 +52,7 @@ import {
   numberWithCommas,
   truncateValue,
 } from "./utils/number"
+import { getWalletImagePath } from "./utils/resources.ts"
 
 function ButtonConnectWallet({
   onOpenModalConnectWallet,
@@ -65,12 +66,9 @@ function ButtonConnectWallet({
   const {
     account,
     network,
-    connect,
-    disconnect,
     wallet,
     connected,
     isLoading: isLoadingWallet,
-    isTelegram,
   } = useAnqaWallet()
   const isMainnet = network ? network.name === Network.MAINNET : undefined
 
@@ -98,17 +96,7 @@ function ButtonConnectWallet({
             width={20}
             className="min-w-[20px]"
             src={
-              wallet.name === aptosConnectWallet.name
-                ? "/images/google.png"
-                : wallet.name === petraWallet.name
-                  ? "/images/petra.svg"
-                  : wallet.name === martianWallet.name
-                    ? "/images/martian.jpeg"
-                    : wallet.name === pontemWallet.name
-                      ? "/images/pontem.svg"
-                      : wallet.name === okxWallet.name
-                        ? "/images/okx.png"
-                        : undefined
+              getWalletImagePath(wallet.name)
             }
           />
         )}
@@ -1061,7 +1049,7 @@ export default function App() {
           paths={paths}
         />
         <Tooltips />
-        <Histories isOpen={globalModal === MODAL_LIST.ACTIVITIES && isModalOpen} onOpenChange={onOpenChangeModal} />
+        <AssetsAndActivities isOpen={globalModal === MODAL_LIST.ACTIVITIES && isModalOpen} onOpenChange={onOpenChangeModal} />
       </div>
     </>
   )
