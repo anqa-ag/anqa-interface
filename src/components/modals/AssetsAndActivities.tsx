@@ -3,7 +3,7 @@ import { Button, Image, Link, Modal, ModalContent, Tab, Tabs } from "@nextui-org
 
 import { ArrowRightIcon, PowerIcon } from "../Icons"
 import useAnqaWallet from "../../hooks/useAnqaWallet"
-import { TitleT1, TitleT2, TitleT5 } from "../Texts"
+import { TitleT1, TitleT2, TitleT4, TitleT5 } from "../Texts"
 import { Network } from "@aptos-labs/ts-sdk"
 import {
   NOT_FOUND_TOKEN_LOGO_URL
@@ -237,18 +237,26 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
           <Tabs radius="sm" variant="light" size="md" color="primary">
             <Tab key="assets" title="Assets" className="pt-0">
               <div className="h-[calc(100vh-12rem)] overflow-auto">
-                {assetTokenList.map((assetToken) => (
-
-                  <AssetRow key={assetToken.id} token={assetToken} onCopy={onCopy} isCopying={isCopying}
-                    copiedId={copiedId} />
-                ))}
+                {assetTokenList.length === 0 ? (
+                  <TitleT4 className="pt-4 text-center">No asset found</TitleT4>
+                ) : (
+                  assetTokenList.map((assetToken) => (
+                    <AssetRow key={assetToken.id} token={assetToken} onCopy={onCopy} isCopying={isCopying}
+                      copiedId={copiedId} />
+                  ))
+                )
+                }
               </div>
             </Tab>
             <Tab key="activities" title="Activities" className="pt-0">
               <div className="h-[calc(100vh-12rem)] overflow-auto">
-                {renderTransactionHistories.sort((a, b) => b.timestamp - a.timestamp).map((transactionHistory) => {
-                  return <ActivityRow key={transactionHistory.timestamp} transactionHistory={transactionHistory} />
-                })}
+                {
+                  renderTransactionHistories.length === 0 ? (
+                    <TitleT4 className="pt-4 text-center">No activity found</TitleT4>
+                  ) : (renderTransactionHistories.sort((a, b) => b.timestamp - a.timestamp).map((transactionHistory) => {
+                    return <ActivityRow key={transactionHistory.timestamp} transactionHistory={transactionHistory} />
+                  }))
+                }
               </div>
             </Tab>
           </Tabs>
