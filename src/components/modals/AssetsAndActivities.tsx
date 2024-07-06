@@ -132,8 +132,9 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
 
   const totalBalanceInUSD = useMemo(() => {
     if (!assets) return 0
-    else return Object.values(assets).reduce((prev, curr) => (curr.fractionalBalanceUsd?.add(prev)),
-      new Fraction(0))
+    else return Object.values(assets).reduce((prev, curr) => curr.fractionalBalanceUsd?.add(prev) ?? prev,
+      new Fraction(0)
+    )
   }, [assets])
   return (
     <Modal
@@ -242,7 +243,7 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
                 ) : (
                   assetTokenList.map((assetToken) => (
                     <AssetRow key={assetToken.id} token={assetToken} onCopy={onCopy} isCopying={isCopying}
-                              copiedId={copiedId} />
+                              copiedId={copiedId ?? ""} />
                   ))
                 )
                 }
