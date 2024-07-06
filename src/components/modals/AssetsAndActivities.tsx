@@ -5,9 +5,7 @@ import { ArrowRightIcon, PowerIcon } from "../Icons"
 import useAnqaWallet from "../../hooks/useAnqaWallet"
 import { TitleT1, TitleT2, TitleT4, TitleT5 } from "../Texts"
 import { Network } from "@aptos-labs/ts-sdk"
-import {
-  NOT_FOUND_TOKEN_LOGO_URL
-} from "../../constants"
+import { NOT_FOUND_TOKEN_LOGO_URL } from "../../constants"
 import { Fraction } from "../../utils/fraction.ts"
 import { divpowToFraction, mulpowToFraction } from "../../utils/number.ts"
 import { TokenWithBalance } from "./ModalSelectToken.tsx"
@@ -21,26 +19,18 @@ import useFullTokens from "../../hooks/useFullTokens.ts"
 import { Icon } from "@iconify/react"
 import { getWalletImagePath } from "../../utils/resources.ts"
 
-
 interface Props extends React.HTMLProps<HTMLDivElement> {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
+  isOpen: boolean
+  onOpenChange: (open: boolean) => void
 }
 
 export interface TransactionHistoryWithLogoUrl extends ITransactionHistory {
-  tokenLogoIn: string;
-  tokenLogoOut: string;
+  tokenLogoIn: string
+  tokenLogoOut: string
 }
 
 const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
-  const {
-    account,
-    network,
-    disconnect,
-    wallet,
-    connected,
-    isLoading: isLoadingWallet
-  } = useAnqaWallet()
+  const { account, network, disconnect, wallet, connected, isLoading: isLoadingWallet } = useAnqaWallet()
   const isMainnet = network ? network.name === Network.MAINNET : undefined
   const { balance } = useAppSelector((state) => state.wallet)
   const assetSymbols = useMemo(() => Object.keys(balance), [balance])
@@ -67,11 +57,11 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
           name: tokenInfo.name,
           symbol: tokenInfo.symbol,
           decimals: tokenInfo.decimals,
-          whitelisted: (followingTokenData?.[key]) ? followingTokenData[key].whitelisted : false,
-          logoUrl: (followingTokenData?.[key]) ? followingTokenData[key].logoUrl : undefined,
+          whitelisted: followingTokenData?.[key] ? followingTokenData[key].whitelisted : false,
+          logoUrl: followingTokenData?.[key] ? followingTokenData[key].logoUrl : undefined,
           fractionalBalance,
           fractionalBalanceUsd,
-          isFollowing: true
+          isFollowing: true,
         }
       }
     }
@@ -105,13 +95,16 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
         setIsCopying(false)
       }
     },
-    [copy]
+    [copy],
   )
   const transactionHistories = useAppSelector((state) => state.user.txHistoryMap)
   const renderTransactionHistories = useMemo(() => {
     return Object.values(transactionHistories).map((transactionHistory) => {
-      const tokenLogoIn = Object.values(followingTokenData).find((token) => token.id === transactionHistory.tokenInAddress)?.logoUrl ?? ""
-      const tokenLogoOut = Object.values(followingTokenData).find((token) => token.id === transactionHistory.tokenOutAddress)?.logoUrl ?? ""
+      const tokenLogoIn =
+        Object.values(followingTokenData).find((token) => token.id === transactionHistory.tokenInAddress)?.logoUrl ?? ""
+      const tokenLogoOut =
+        Object.values(followingTokenData).find((token) => token.id === transactionHistory.tokenOutAddress)?.logoUrl ??
+        ""
       const res: TransactionHistoryWithLogoUrl = {
         version: transactionHistory.version,
         isSuccess: transactionHistory.isSuccess,
@@ -124,7 +117,7 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
         tokenLogoOut: tokenLogoOut,
         timestamp: transactionHistory.timestamp,
         tokenInAddress: transactionHistory.tokenInAddress,
-        tokenOutAddress: transactionHistory.tokenOutAddress
+        tokenOutAddress: transactionHistory.tokenOutAddress,
       }
       return res
     })
@@ -132,9 +125,7 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
 
   const totalBalanceInUSD = useMemo(() => {
     if (!assets) return 0
-    return Object.values(assets).reduce((prev, curr) => curr.fractionalBalanceUsd?.add(prev) ?? prev,
-      new Fraction(0)
-    )
+    return Object.values(assets).reduce((prev, curr) => curr.fractionalBalanceUsd?.add(prev) ?? prev, new Fraction(0))
   }, [assets])
   return (
     <Modal
@@ -145,7 +136,7 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
       backdrop="transparent"
       size="full"
       classNames={{
-        wrapper: "flex justify-end"
+        wrapper: "flex justify-end",
       }}
       motionProps={{
         variants: {
@@ -154,62 +145,62 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
             opacity: 1,
             transition: {
               duration: 0.3,
-              ease: "easeOut"
-            }
+              ease: "easeOut",
+            },
           },
           exit: {
             x: 50,
             opacity: 0,
             transition: {
               duration: 0.2,
-              ease: "easeIn"
-            }
-          }
-        }
+              ease: "easeIn",
+            },
+          },
+        },
       }}
-      className="max-w-sm w-full h-screen max-h-screen"
+      className="h-screen max-h-screen w-full max-w-sm"
       hideCloseButton
     >
-      <ModalContent className="flex flex-col px-6 pt-6 dark rounded-lg text-foreground">
-        <div className="flex flex-row justify-between mb-6">
-          <Button className="h-[20px] w-[20px] bg-transparent p-0 justify-start"
-                  isIconOnly
-                  onClick={() => props.onOpenChange(false)}>
+      <ModalContent className="flex flex-col rounded-lg px-6 pt-6 text-foreground dark">
+        <div className="mb-6 flex flex-row justify-between">
+          <Button
+            className="h-[20px] w-[20px] justify-start bg-transparent p-0"
+            isIconOnly
+            onClick={() => props.onOpenChange(false)}
+          >
             <ArrowRightIcon size={20} className="flex-none" />
           </Button>
           <div className="flex flex-row">
             {wallet && connected && (
-              <Image
-                width={20}
-                className="min-w-[20px] mr-2"
-                src={
-                  getWalletImagePath(wallet.name)
-                }
-              />
+              <Image width={20} className="mr-2 min-w-[20px]" src={getWalletImagePath(wallet.name)} />
             )}
             {connected && account?.address ? (
               isMainnet ? (
-                <TitleT2
-                  className="leading-5 mr-2">{account.address.slice(0, 4) + "..." + account.address.slice(-4)}</TitleT2>
+                <TitleT2 className="mr-2 leading-5">
+                  {account.address.slice(0, 4) + "..." + account.address.slice(-4)}
+                </TitleT2>
               ) : (
-                <TitleT2 className="text-buttonRed leading-5 mr-2">Wrong Network ({network})</TitleT2>
+                <TitleT2 className="mr-2 leading-5 text-buttonRed">Wrong Network ({network})</TitleT2>
               )
             ) : isLoadingWallet ? (
-              <TitleT2 className="text-buttonRed leading-5 mr-2">Loading Wallet</TitleT2>
+              <TitleT2 className="mr-2 leading-5 text-buttonRed">Loading Wallet</TitleT2>
             ) : (
-              <TitleT2 className="text-buttonRed leading-5 mr-2">Connect Wallet</TitleT2>
+              <TitleT2 className="mr-2 leading-5 text-buttonRed">Connect Wallet</TitleT2>
             )}
-            <Button className="h-[20px] w-[20px] bg-transparent p-0 min-w-0 mr-2"
-                    isIconOnly
-                    onClick={async () => {
-                      if (account?.address) {
-                        await onCopy(account.address)
-                      }
-                    }}
+            <Button
+              className="mr-2 h-[20px] w-[20px] min-w-0 bg-transparent p-0"
+              isIconOnly
+              onClick={async () => {
+                if (account?.address) {
+                  await onCopy(account.address)
+                }
+              }}
             >
-              {(isCopying && copiedId === account?.address) ? (
-                <Icon icon="material-symbols:check" fontSize={20} className="text-tooltipBg" />) : (
-                <Icon icon="ph:copy" fontSize={20} className="text-tooltipBg" />)}
+              {isCopying && copiedId === account?.address ? (
+                <Icon icon="material-symbols:check" fontSize={20} className="text-tooltipBg" />
+              ) : (
+                <Icon icon="ph:copy" fontSize={20} className="text-tooltipBg" />
+              )}
             </Button>
             <Link
               href={`https://aptoscan.com/account/${account?.address}`}
@@ -219,20 +210,20 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
             />
           </div>
           <Button
-            className="h-[20px] w-[20px] bg-transparent p-0 justify-end flex-none min-w-0"
+            className="h-[20px] w-[20px] min-w-0 flex-none justify-end bg-transparent p-0"
             isIconOnly
             onClick={() => {
               props.onOpenChange(false)
               disconnect()
-            }
-            }
+            }}
           >
             <PowerIcon size={20} />
           </Button>
         </div>
         <div>
-          <TitleT1
-            className="mb-6">${totalBalanceInUSD ? `${totalBalanceInUSD?.toSignificant(6)}` : undefined}</TitleT1>
+          <TitleT1 className="mb-6">
+            ${totalBalanceInUSD ? `${totalBalanceInUSD?.toSignificant(6)}` : undefined}
+          </TitleT1>
         </div>
         <div className="flex w-full flex-col">
           <Tabs radius="sm" variant="light" size="md" color="primary">
@@ -242,22 +233,28 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
                   <TitleT4 className="pt-4 text-center">No asset found</TitleT4>
                 ) : (
                   assetTokenList.map((assetToken) => (
-                    <AssetRow key={assetToken.id} token={assetToken} onCopy={onCopy} isCopying={isCopying}
-                              copiedId={copiedId ?? ""} />
+                    <AssetRow
+                      key={assetToken.id}
+                      token={assetToken}
+                      onCopy={onCopy}
+                      isCopying={isCopying}
+                      copiedId={copiedId ?? ""}
+                    />
                   ))
-                )
-                }
+                )}
               </div>
             </Tab>
             <Tab key="activities" title="Activities" className="pt-0">
               <div className="h-[calc(100vh-12rem)] overflow-auto">
-                {
-                  renderTransactionHistories.length === 0 ? (
-                    <TitleT4 className="pt-4 text-center">No activity found</TitleT4>
-                  ) : (renderTransactionHistories.sort((a, b) => b.timestamp - a.timestamp).map((transactionHistory) => {
-                    return <ActivityRow key={transactionHistory.timestamp} transactionHistory={transactionHistory} />
-                  }))
-                }
+                {renderTransactionHistories.length === 0 ? (
+                  <TitleT4 className="pt-4 text-center">No activity found</TitleT4>
+                ) : (
+                  renderTransactionHistories
+                    .sort((a, b) => b.timestamp - a.timestamp)
+                    .map((transactionHistory) => {
+                      return <ActivityRow key={transactionHistory.timestamp} transactionHistory={transactionHistory} />
+                    })
+                )}
               </div>
             </Tab>
           </Tabs>
@@ -267,67 +264,71 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
   )
 }
 
-function AssetRow({ token, onCopy, copiedId, isCopying }: {
-  token: TokenWithBalance,
-  onCopy: (id: string) => void,
-  copiedId: string,
+function AssetRow({
+  token,
+  onCopy,
+  copiedId,
+  isCopying,
+}: {
+  token: TokenWithBalance
+  onCopy: (id: string) => void
+  copiedId: string
   isCopying: boolean
 }) {
-  const isCopyingThisToken = useMemo(
-    () => isCopying && copiedId === token.id,
-    [copiedId, isCopying, token.id]
+  const isCopyingThisToken = useMemo(() => isCopying && copiedId === token.id, [copiedId, isCopying, token.id])
+  return (
+    <div className="py-2">
+      <BasicTokenInfo token={token} onCopy={onCopy} isCopying={isCopyingThisToken} />
+    </div>
   )
-  return <div className="py-2">
-    <BasicTokenInfo token={token} onCopy={onCopy} isCopying={isCopyingThisToken} />
-  </div>
 }
 
-function ActivityRow({
-                       transactionHistory
-                     }: {
-  transactionHistory: TransactionHistoryWithLogoUrl,
-}) {
+function ActivityRow({ transactionHistory }: { transactionHistory: TransactionHistoryWithLogoUrl }) {
   const [tokenInLogoSrc, setTokenInLogoSrc] = useState(transactionHistory.tokenLogoIn || NOT_FOUND_TOKEN_LOGO_URL)
   const [tokenOutLogoSrc, setTokenOutLogoSrc] = useState(transactionHistory.tokenLogoOut || NOT_FOUND_TOKEN_LOGO_URL)
-  return <div className="flex flex-row py-2 items-center justify-between">
-    <div className="flex flex-col gap-1">
-      <div className="flex flex-row gap-1 items-center">
-        <TitleT2>Swapped</TitleT2>
-        <Link
-          href={`https://aptoscan.com/transaction/${transactionHistory.version}`}
-          isExternal
-          className="text-buttonSecondary"
-          showAnchorIcon
-        />
+  return (
+    <div className="flex flex-row items-center justify-between py-2">
+      <div className="flex flex-col gap-1">
+        <div className="flex flex-row items-center gap-1">
+          <TitleT2>Swapped</TitleT2>
+          <Link
+            href={`https://aptoscan.com/transaction/${transactionHistory.version}`}
+            isExternal
+            className="text-buttonSecondary"
+            showAnchorIcon
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-1">
+          <Image
+            width={16}
+            height={16}
+            src={tokenInLogoSrc}
+            onError={() => setTokenInLogoSrc(NOT_FOUND_TOKEN_LOGO_URL)}
+          />
+          <TitleT5 className="text-buttonSecondary">
+            {transactionHistory.readableAmountIn} {transactionHistory.tokenInSymbol} to{" "}
+          </TitleT5>
+          <Image
+            width={16}
+            height={16}
+            src={tokenOutLogoSrc}
+            onError={() => setTokenOutLogoSrc(NOT_FOUND_TOKEN_LOGO_URL)}
+          />
+          <TitleT5 className="text-buttonSecondary">
+            {transactionHistory.readableAmountOut} {transactionHistory.tokenOutSymbol}
+          </TitleT5>
+        </div>
       </div>
-      <div className="flex gap-1 items-center flex-wrap">
-        <Image
-          width={16}
-          height={16}
-          src={tokenInLogoSrc}
-          onError={() => setTokenInLogoSrc(NOT_FOUND_TOKEN_LOGO_URL)}
-        />
-        <TitleT5
-          className="text-buttonSecondary">{transactionHistory.readableAmountIn} {transactionHistory.tokenInSymbol} to </TitleT5>
-        <Image
-          width={16}
-          height={16}
-          src={tokenOutLogoSrc}
-          onError={() => setTokenOutLogoSrc(NOT_FOUND_TOKEN_LOGO_URL)}
-        />
-        <TitleT5
-          className="text-buttonSecondary">{transactionHistory.readableAmountOut} {transactionHistory.tokenOutSymbol}</TitleT5>
+      <div className="flex flex-col">
+        <div className="flex flex-col items-end gap-1">
+          <TitleT2 className="leading-5 text-white">{transactionHistory.isSuccess ? "Success" : "Failed"}</TitleT2>
+          <TitleT5 className="text-buttonSecondary">
+            {getDisplayPeriod(Date.now() - transactionHistory.timestamp)}
+          </TitleT5>
+        </div>
       </div>
     </div>
-    <div className="flex flex-col">
-      <div className="flex flex-col items-end gap-1">
-        <TitleT2 className="leading-5 text-white">{transactionHistory.isSuccess ? "Success" : "Failed"}</TitleT2>
-        <TitleT5
-          className="text-buttonSecondary">{getDisplayPeriod(Date.now() - transactionHistory.timestamp)}</TitleT5>
-      </div>
-    </div>
-  </div>
+  )
 }
-
 
 export default AssetsAndActivities

@@ -43,7 +43,9 @@ export default function useTelegramWallet(): Omit<AnqaWalletState, "isTelegram">
   const connect = useCallback(() => {
     ReactGA.event({ category: "Telegram Web App", action: "TWA/connect" })
     if (isDesktop) {
-      TelegramWebApp.showAlert("Currently, the Anqa Telegram Bot is only supported on mobile devices with Petra wallet installed.")
+      TelegramWebApp.showAlert(
+        "Currently, the Anqa Telegram Bot is only supported on mobile devices with Petra wallet installed.",
+      )
       return
     }
     const params = {

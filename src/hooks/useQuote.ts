@@ -77,14 +77,13 @@ const fn = async ({
 //       }
 //     : { refreshInterval: 10_000 }
 
-const swrOptions = { refreshInterval: 10_000 }
-
 export default function useQuote(tokenIn?: string, tokenOut?: string, amountIn?: string, includeSources?: string) {
   const {
     data: response,
     error,
     isValidating,
-  } = useSWR({ key: "useQuote", tokenIn, tokenOut, amountIn, includeSources }, fn, swrOptions)
+    mutate,
+  } = useSWR({ key: "useQuote", tokenIn, tokenOut, amountIn, includeSources }, fn)
 
   const sourceInfo = useMemo(() => {
     if (!response?.data.paths) return undefined
@@ -107,8 +106,10 @@ export default function useQuote(tokenIn?: string, tokenOut?: string, amountIn?:
       amountOut: response?.data.dstAmount,
       paths: response?.data.paths,
       sourceInfo,
+      reFetch: mutate,
     }),
-    [error, isValidating, response?.data.dstAmount, response?.data.paths, sourceInfo],
+    [error, isValidating, mutate, response?.data.dstAmount, response?.data.paths, sourceInfo],
   )
+
   return res
 }

@@ -43,16 +43,13 @@ export default function useTokenInfo(tokens: string[]) {
     revalidateOnReconnect: false,
   })
 
-  const res = useMemo(
-    () => {
-      return ({
+  const res = useMemo(() => {
+    return {
       isValidating,
       error,
       tokenInfoMap: response?.data.tokenById,
-    })
-    },
-    [error, isValidating, response?.data.tokenById],
-  )
+    }
+  }, [error, isValidating, response?.data.tokenById])
 
   return res
 }
