@@ -27,11 +27,7 @@ import {
   BIP_BASE,
   NOT_FOUND_TOKEN_LOGO_URL,
   ZUSDC,
-  aptosConnectWallet,
-  martianWallet,
-  okxWallet,
   petraWallet,
-  pontemWallet,
 } from "./constants"
 import { SOURCES } from "./constants/source"
 import useAnqaWallet from "./hooks/useAnqaWallet"
