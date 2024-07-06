@@ -1,8 +1,7 @@
-name: Default workflow
+name: Pull Request
 on:
-  push:
-    branches:
-      - "main"
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 env:
   IMAGE_REPOSITORY: anqa-interface
@@ -74,7 +73,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: true
+          push: false
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/${{ steps.before_script.outputs.IMAGE_URL }}
           cache-from: type=local,src=/tmp/.buildx-cache
