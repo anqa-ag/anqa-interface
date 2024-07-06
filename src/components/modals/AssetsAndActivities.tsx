@@ -132,7 +132,7 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
 
   const totalBalanceInUSD = useMemo(() => {
     if (!assets) return 0
-    else return Object.values(assets).reduce((prev, curr) => curr.fractionalBalanceUsd?.add(prev) ?? prev,
+    return Object.values(assets).reduce((prev, curr) => curr.fractionalBalanceUsd?.add(prev) ?? prev,
       new Fraction(0)
     )
   }, [assets])
@@ -300,7 +300,7 @@ function ActivityRow({
           showAnchorIcon
         />
       </div>
-      <div className="flex flex-row gap-1 items-center">
+      <div className="flex gap-1 items-center flex-wrap">
         <Image
           width={16}
           height={16}
