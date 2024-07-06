@@ -10,7 +10,6 @@ env:
 jobs:
   docker:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/release' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/release')
     steps:
       - uses: actions/checkout@v4
 
