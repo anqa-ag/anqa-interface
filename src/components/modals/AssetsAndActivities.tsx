@@ -67,7 +67,7 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
           name: tokenInfo.name,
           symbol: tokenInfo.symbol,
           decimals: tokenInfo.decimals,
-          whitelisted: tokenInfo.whitelisted,
+          whitelisted: (followingTokenData?.[key]) ? followingTokenData[key].whitelisted : false,
           logoUrl: (followingTokenData?.[key]) ? followingTokenData[key].logoUrl : undefined,
           fractionalBalance,
           fractionalBalanceUsd,
@@ -110,8 +110,8 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
   const transactionHistories = useAppSelector((state) => state.user.txHistoryMap)
   const renderTransactionHistories = useMemo(() => {
     return Object.values(transactionHistories).map((transactionHistory) => {
-      const tokenLogoIn = Object.values(followingTokenData).find((token) => token.id === transactionHistory.tokenInAddress)?.logoUrl
-      const tokenLogoOut = Object.values(followingTokenData).find((token) => token.id === transactionHistory.tokenOutAddress)?.logoUrl
+      const tokenLogoIn = Object.values(followingTokenData).find((token) => token.id === transactionHistory.tokenInAddress)?.logoUrl ?? ""
+      const tokenLogoOut = Object.values(followingTokenData).find((token) => token.id === transactionHistory.tokenOutAddress)?.logoUrl ?? ""
       const res: TransactionHistoryWithLogoUrl = {
         version: transactionHistory.version,
         isSuccess: transactionHistory.isSuccess,
@@ -172,8 +172,8 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
       <ModalContent className="flex flex-col px-6 pt-6 dark rounded-lg text-foreground">
         <div className="flex flex-row justify-between mb-6">
           <Button className="h-[20px] w-[20px] bg-transparent p-0 justify-start"
-            isIconOnly
-            onClick={() => props.onOpenChange(false)}>
+                  isIconOnly
+                  onClick={() => props.onOpenChange(false)}>
             <ArrowRightIcon size={20} className="flex-none" />
           </Button>
           <div className="flex flex-row">
@@ -199,12 +199,12 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
               <TitleT2 className="text-buttonRed leading-5 mr-2">Connect Wallet</TitleT2>
             )}
             <Button className="h-[20px] w-[20px] bg-transparent p-0 min-w-0 mr-2"
-              isIconOnly
-              onClick={async () => {
-                if (account?.address) {
-                  await onCopy(account.address)
-                }
-              }}
+                    isIconOnly
+                    onClick={async () => {
+                      if (account?.address) {
+                        await onCopy(account.address)
+                      }
+                    }}
             >
               {(isCopying && copiedId === account?.address) ? (
                 <Icon icon="material-symbols:check" fontSize={20} className="text-tooltipBg" />) : (
@@ -242,7 +242,7 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
                 ) : (
                   assetTokenList.map((assetToken) => (
                     <AssetRow key={assetToken.id} token={assetToken} onCopy={onCopy} isCopying={isCopying}
-                      copiedId={copiedId} />
+                              copiedId={copiedId} />
                   ))
                 )
                 }
@@ -282,8 +282,8 @@ function AssetRow({ token, onCopy, copiedId, isCopying }: {
 }
 
 function ActivityRow({
-  transactionHistory
-}: {
+                       transactionHistory
+                     }: {
   transactionHistory: TransactionHistoryWithLogoUrl,
 }) {
   const [tokenInLogoSrc, setTokenInLogoSrc] = useState(transactionHistory.tokenLogoIn || NOT_FOUND_TOKEN_LOGO_URL)
