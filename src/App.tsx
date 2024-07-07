@@ -506,7 +506,9 @@ export default function App() {
                     isIconOnly
                     className={"h-[36px] w-[36px] min-w-min rounded border-1 border-black600 bg-black"}
                     disableAnimation
-                    onPress={() => resetTimerFunction.current()}
+                    onPress={async () => {
+                      if (!isValidatingQuote) await reFetch()
+                    }}
                   >
                     <CountdownSpinner
                       timeInSeconds={10}
