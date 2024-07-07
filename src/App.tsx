@@ -1,7 +1,7 @@
 import { APTOS_COIN, Network } from "@aptos-labs/ts-sdk"
 import { Icon } from "@iconify/react"
 import { Button, Image, Link, Skeleton, Spacer } from "@nextui-org/react"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState, useRef } from "react"
 import { NumericFormat } from "react-number-format"
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { ToastContainer } from "react-toastify"
@@ -23,12 +23,7 @@ import ModalTradeRoute from "./components/modals/ModalTradeRoute"
 import ModalUserSetting from "./components/modals/ModalUserSetting"
 import AssetsAndActivities from "./components/modals/AssetsAndActivities.tsx"
 
-import {
-  BIP_BASE,
-  NOT_FOUND_TOKEN_LOGO_URL,
-  ZUSDC,
-  petraWallet,
-} from "./constants"
+import { BIP_BASE, NOT_FOUND_TOKEN_LOGO_URL, ZUSDC, petraWallet } from "./constants"
 import { SOURCES } from "./constants/source"
 import useAnqaWallet from "./hooks/useAnqaWallet"
 import useFullTokens from "./hooks/useFullTokens"
@@ -49,6 +44,7 @@ import {
   truncateValue,
 } from "./utils/number"
 import { getWalletImagePath } from "./utils/resources.ts"
+import CountdownSpinner from "./components/CountdownSpinner.tsx"
 
 function ButtonConnectWallet({
   onOpenModalConnectWallet,
@@ -57,15 +53,9 @@ function ButtonConnectWallet({
 }: {
   onOpenModalConnectWallet: () => void
   isOpenModalConnectWallet: boolean
-  onOpenModalHistories: () => void,
+  onOpenModalHistories: () => void
 }) {
-  const {
-    account,
-    network,
-    wallet,
-    connected,
-    isLoading: isLoadingWallet,
-  } = useAnqaWallet()
+  const { account, network, wallet, connected, isLoading: isLoadingWallet } = useAnqaWallet()
   const isMainnet = network ? network.name === Network.MAINNET : undefined
 
   const onPress = () => {
@@ -87,15 +77,7 @@ function ButtonConnectWallet({
         isLoading={isOpenModalConnectWallet || isLoadingWallet}
         variant={connected ? "bordered" : "solid"}
       >
-        {wallet && connected && (
-          <Image
-            width={20}
-            className="min-w-[20px]"
-            src={
-              getWalletImagePath(wallet.name)
-            }
-          />
-        )}
+        {wallet && connected && <Image width={20} className="min-w-[20px]" src={getWalletImagePath(wallet.name)} />}
         {connected && account?.address ? (
           isMainnet ? (
             <TitleT2>{account.address.slice(0, 4) + "..." + account.address.slice(-4)}</TitleT2>
@@ -118,6 +100,9 @@ export default function App() {
   const location = useLocation()
   const navigate = useNavigate()
   const [params] = useSearchParams()
+
+  const resetTimerFunction = useRef(() => {})
+  const setResetTimerFunc = (f: () => void) => (resetTimerFunction.current = f)
 
   const isSm = useIsSm()
 
@@ -267,6 +252,7 @@ export default function App() {
     isValidating: isValidatingQuote,
     sourceInfo,
     paths,
+    reFetch,
   } = useQuote(tokenIn, tokenOut, fractionalAmountIn?.numerator?.toString(), source)
   const fractionalAmountOut = useMemo(
     () =>
@@ -427,6 +413,10 @@ export default function App() {
 
   const isDebug = useMemo(() => params.get("debug") === "true", [params])
 
+  useEffect(() => {
+    resetTimerFunction.current()
+  }, [fractionalAmountIn, tokenIn, tokenOut, isValidatingQuote])
+
   return (
     <>
       <Updaters />
@@ -498,7 +488,6 @@ export default function App() {
                     onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
                     isOpenModalConnectWallet={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
                     onOpenModalHistories={() => onOpenModal(MODAL_LIST.ACTIVITIES)}
-
                   />
                 </>
               )}
@@ -512,7 +501,21 @@ export default function App() {
           */}
             <main className="mt-[60px] w-full p-4 sm:mt-0">
               <div className="mx-auto flex max-w-[464px] flex-col">
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-2">
+                  <Button
+                    isIconOnly
+                    className={"h-[36px] w-[36px] min-w-min rounded border-1 border-black600 bg-black"}
+                    disableAnimation
+                    onPress={() => resetTimerFunction.current()}
+                  >
+                    <CountdownSpinner
+                      timeInSeconds={10}
+                      onFinishCountdown={reFetch}
+                      setResetTimerFunc={setResetTimerFunc}
+                      isLoading={isValidatingQuote}
+                      size={20}
+                    />
+                  </Button>
                   <Button
                     isIconOnly
                     className={
@@ -521,6 +524,7 @@ export default function App() {
                       (isHighSlippage ? "bg-[rgba(255,153,1,0.2)]" : "border-black600 bg-black")
                     }
                     onPress={() => onOpenModal(MODAL_LIST.USER_SETTING)}
+                    disableAnimation
                   >
                     <BodyB2 className={isHighSlippage ? "text-[rgba(255,153,1)]" : "text-buttonSecondary"}>
                       {slippageBps / 100}%
@@ -1045,7 +1049,10 @@ export default function App() {
           paths={paths}
         />
         <Tooltips />
-        <AssetsAndActivities isOpen={globalModal === MODAL_LIST.ACTIVITIES && isModalOpen} onOpenChange={onOpenChangeModal} />
+        <AssetsAndActivities
+          isOpen={globalModal === MODAL_LIST.ACTIVITIES && isModalOpen}
+          onOpenChange={onOpenChangeModal}
+        />
       </div>
     </>
   )

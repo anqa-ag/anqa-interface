@@ -5,17 +5,15 @@ import { BodyB3, TitleT2, TitleT5 } from "./Texts.tsx"
 import { Icon } from "@iconify/react"
 import { TokenWithBalance } from "./modals/ModalSelectToken.tsx"
 
-
 export default function BasicTokenInfo({
   token,
   onCopy,
-  isCopying
+  isCopying,
 }: {
-  token: TokenWithBalance,
+  token: TokenWithBalance
   onCopy: (id: string) => void
   isCopying: boolean
-}
-) {
+}) {
   const [src, setSrc] = useState(token.logoUrl || NOT_FOUND_TOKEN_LOGO_URL)
 
   useEffect(() => {
@@ -23,10 +21,7 @@ export default function BasicTokenInfo({
   }, [token, onCopy])
 
   return (
-    <div
-      className="flex w-full items-center gap-2"
-      tabIndex={0}
-    >
+    <div className="flex w-full items-center gap-2" tabIndex={0}>
       <Image
         width={20}
         height={20}
@@ -35,7 +30,7 @@ export default function BasicTokenInfo({
         className="flex h-[20px] min-h-[20px] w-[20px] min-w-[20px] rounded-full bg-white"
         disableSkeleton
       />
-      <div className="flex flex-col grow gap-1 overflow-hidden">
+      <div className="flex grow flex-col gap-1 overflow-hidden">
         <div className="flex items-baseline gap-1">
           <TitleT2 className="">{token.symbol}</TitleT2>
           <Button
@@ -72,7 +67,7 @@ export default function BasicTokenInfo({
           {token.name}
         </TitleT5>
       </div>
-      <div className="flex flex-col items-end gap-1 justify-between">
+      <div className="flex flex-col items-end justify-between gap-1">
         <TitleT5 className="text-tooltipBg">
           {token.fractionalBalance ? token.fractionalBalance?.toSignificant(6) : undefined}
         </TitleT5>

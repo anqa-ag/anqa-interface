@@ -39,6 +39,7 @@ module.exports = {
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/unbound-method": "off",
     "@typescript-eslint/no-unsafe-argument": "off",
+    "@typescript-eslint/no-empty-function": "off",
   },
   settings: {
     react: {
