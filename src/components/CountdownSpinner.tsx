@@ -18,11 +18,11 @@ export default function CountdownSpinner({
   const [timerValue, setTimerValue] = useState(0)
   useEffect(() => {
     const interval = setInterval(() => {
-      setTimerValue((value) => (!isLoading ? (value + 200 > timeInSeconds * 1000 ? 0 : timerValue + 200) : 0))
+      setTimerValue((value) => (!isLoading ? (value + 200 > timeInSeconds * 1000 ? 0 : value + 200) : 0))
     }, 200)
 
     return () => clearInterval(interval)
-  }, [isLoading, timeInSeconds, timerValue])
+  }, [isLoading, timeInSeconds])
 
   useEffect(() => {
     if (timerValue === timeInSeconds * 1000) {
