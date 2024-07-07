@@ -44,11 +44,13 @@ export default function useTokenInfo(tokens: string[]) {
   })
 
   const res = useMemo(
-    () => ({
+    () => {
+      return ({
       isValidating,
       error,
       tokenInfoMap: response?.data.tokenById,
-    }),
+    })
+    },
     [error, isValidating, response?.data.tokenById],
   )
 

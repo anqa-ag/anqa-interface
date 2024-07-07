@@ -21,15 +21,13 @@ import ModalConnectWallet from "./components/modals/ModalConnectWallet"
 import ModalSelectToken from "./components/modals/ModalSelectToken"
 import ModalTradeRoute from "./components/modals/ModalTradeRoute"
 import ModalUserSetting from "./components/modals/ModalUserSetting"
+import AssetsAndActivities from "./components/modals/AssetsAndActivities.tsx"
+
 import {
   BIP_BASE,
   NOT_FOUND_TOKEN_LOGO_URL,
   ZUSDC,
-  aptosConnectWallet,
-  martianWallet,
-  okxWallet,
   petraWallet,
-  pontemWallet,
 } from "./constants"
 import { SOURCES } from "./constants/source"
 import useAnqaWallet from "./hooks/useAnqaWallet"
@@ -50,28 +48,28 @@ import {
   numberWithCommas,
   truncateValue,
 } from "./utils/number"
+import { getWalletImagePath } from "./utils/resources.ts"
 
 function ButtonConnectWallet({
   onOpenModalConnectWallet,
   isOpenModalConnectWallet,
+  onOpenModalHistories,
 }: {
   onOpenModalConnectWallet: () => void
   isOpenModalConnectWallet: boolean
+  onOpenModalHistories: () => void,
 }) {
   const {
     account,
     network,
-    connect,
-    disconnect,
     wallet,
     connected,
     isLoading: isLoadingWallet,
-    isTelegram,
   } = useAnqaWallet()
   const isMainnet = network ? network.name === Network.MAINNET : undefined
 
   const onPress = () => {
-    connected ? disconnect() : isTelegram ? connect(petraWallet.name) : onOpenModalConnectWallet()
+    connected ? onOpenModalHistories() : onOpenModalConnectWallet()
   }
 
   return (
@@ -94,17 +92,7 @@ function ButtonConnectWallet({
             width={20}
             className="min-w-[20px]"
             src={
-              wallet.name === aptosConnectWallet.name
-                ? "/images/google.png"
-                : wallet.name === petraWallet.name
-                  ? "/images/petra.svg"
-                  : wallet.name === martianWallet.name
-                    ? "/images/martian.jpeg"
-                    : wallet.name === pontemWallet.name
-                      ? "/images/pontem.svg"
-                      : wallet.name === okxWallet.name
-                        ? "/images/okx.png"
-                        : undefined
+              getWalletImagePath(wallet.name)
             }
           />
         )}
@@ -501,6 +489,7 @@ export default function App() {
                 <ButtonConnectWallet
                   onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
                   isOpenModalConnectWallet={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
+                  onOpenModalHistories={() => onOpenModal(MODAL_LIST.ACTIVITIES)}
                 />
               ) : (
                 <>
@@ -508,6 +497,8 @@ export default function App() {
                   <ButtonConnectWallet
                     onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
                     isOpenModalConnectWallet={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
+                    onOpenModalHistories={() => onOpenModal(MODAL_LIST.ACTIVITIES)}
+
                   />
                 </>
               )}
@@ -1054,6 +1045,7 @@ export default function App() {
           paths={paths}
         />
         <Tooltips />
+        <AssetsAndActivities isOpen={globalModal === MODAL_LIST.ACTIVITIES && isModalOpen} onOpenChange={onOpenChangeModal} />
       </div>
     </>
   )

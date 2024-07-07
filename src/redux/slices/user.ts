@@ -10,6 +10,9 @@ export interface ITransactionHistory {
   tokenOutSymbol: string | undefined
   readableAmountIn: string
   readableAmountOut: string
+  timestamp: number
+  tokenInAddress: string
+  tokenOutAddress: string
 }
 
 export interface UserState {

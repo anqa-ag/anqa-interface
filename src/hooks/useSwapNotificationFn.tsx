@@ -32,6 +32,9 @@ export default function useSwapNotificationFn() {
           tokenOutSymbol: tokenOutData.symbol,
           readableAmountIn: divpowToFraction(amountIn, tokenInData.decimals).toSignificant(6),
           readableAmountOut: divpowToFraction(amountOut, tokenOutData.decimals).toSignificant(6),
+          timestamp: Date.now(),
+          tokenInAddress: tokenInData.id,
+          tokenOutAddress: tokenOutData.id
         }
         dispatch(addTransactionHistory(payload))
         toast(
