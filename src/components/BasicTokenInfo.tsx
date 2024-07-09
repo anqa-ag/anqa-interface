@@ -68,8 +68,8 @@ export default function BasicTokenInfo({
         </TitleT5>
       </div>
       <div className="flex flex-col items-end justify-between gap-1">
-        <TitleT5>{token.fractionalBalance ? token.fractionalBalance?.toSignificant(6) : undefined}</TitleT5>
-        <BodyB3>{token.fractionalBalanceUsd ? `~$${token.fractionalBalanceUsd?.toSignificant(6)}` : undefined}</BodyB3>
+        <TitleT2>{token.fractionalBalance ? token.fractionalBalance?.toSignificant(6) : undefined}</TitleT2>
+        <BodyB3 className="text-buttonSecondary">{token.fractionalBalanceUsd ? `~$${token.fractionalBalanceUsd?.toSignificant(6)}` : undefined}</BodyB3>
       </div>
     </div>
   )
