@@ -3,19 +3,19 @@ import { useMemo } from "react"
 import useSWR from "swr"
 import { AGGREGATOR_URL } from "../constants"
 
-export interface TokenInfo {
+interface TokenInfo {
   id: string
   decimals: number
   name: string
   symbol: string
 }
 
-export interface GetTokenInfoResponseData {
+interface GetTokenInfoResponseData {
   tokenById: Record<string, TokenInfo>
   nextCursor: number
 }
 
-export interface GetTokenInfoResponse {
+interface GetTokenInfoResponse {
   code: number
   message: string
   data: GetTokenInfoResponseData

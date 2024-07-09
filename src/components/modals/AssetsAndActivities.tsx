@@ -1,23 +1,22 @@
-import React, { useCallback, useMemo, useState } from "react"
 import { Button, Image, Link, Modal, ModalContent, Tab, Tabs } from "@nextui-org/react"
+import React, { useCallback, useMemo, useState } from "react"
 
-import { ArrowRightIcon, PowerIcon } from "../Icons"
-import useAnqaWallet from "../../hooks/useAnqaWallet"
-import { TitleT1, TitleT2, TitleT4, TitleT5 } from "../Texts"
 import { Network } from "@aptos-labs/ts-sdk"
-import { NOT_FOUND_TOKEN_LOGO_URL } from "../../constants"
-import { Fraction } from "../../utils/fraction.ts"
-import { divpowToFraction, mulpowToFraction } from "../../utils/number.ts"
-import { TokenWithBalance } from "./ModalSelectToken.tsx"
-import { useAppSelector } from "../../redux/hooks"
-import BasicTokenInfo from "../BasicTokenInfo.tsx"
-import { useCopyToClipboard } from "usehooks-ts"
-import useTokenPrice from "../../hooks/useTokenPrice.ts"
-import { ITransactionHistory } from "../../redux/slices/user.ts"
-import { getDisplayPeriod } from "../../utils/time.ts"
-import useFullTokens from "../../hooks/useFullTokens.ts"
 import { Icon } from "@iconify/react"
+import { useCopyToClipboard } from "usehooks-ts"
+import { NOT_FOUND_TOKEN_LOGO_URL } from "../../constants"
+import useAnqaWallet from "../../hooks/useAnqaWallet"
+import useFullTokens from "../../hooks/useFullTokens.ts"
+import { useAppSelector } from "../../redux/hooks"
+import { ITransactionHistory } from "../../redux/slices/user.ts"
+import { Fraction } from "../../utils/fraction.ts"
+import { divpowToFraction, mulpowToFraction, numberWithCommas } from "../../utils/number.ts"
 import { getWalletImagePath } from "../../utils/resources.ts"
+import { getDisplayPeriod } from "../../utils/time.ts"
+import BasicTokenInfo from "../BasicTokenInfo.tsx"
+import { ArrowRightIcon, PowerIcon } from "../Icons"
+import { TitleT2, TitleT4, TitleT5 } from "../Texts"
+import { TokenWithBalance } from "./ModalSelectToken.tsx"
 
 interface Props extends React.HTMLProps<HTMLDivElement> {
   isOpen: boolean
@@ -33,10 +32,9 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
   const { account, network, disconnect, wallet, connected, isLoading: isLoadingWallet } = useAnqaWallet()
   const isMainnet = network ? network.name === Network.MAINNET : undefined
   const { balance } = useAppSelector((state) => state.wallet)
-  const assetSymbols = useMemo(() => Object.keys(balance), [balance])
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
   const { data: fullTokenData } = useFullTokens()
-  const { tokenPriceMap } = useTokenPrice(assetSymbols)
+  const followingPriceData = useAppSelector((state) => state.price.followingPriceData)
   const assets = useMemo(() => {
     const res: Record<string, TokenWithBalance> = {}
     for (const key of Object.keys(balance)) {
@@ -48,8 +46,8 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
           fractionalBalance = divpowToFraction(tokenBalance.amount, tokenInfo.decimals)
         }
         let fractionalBalanceUsd: Fraction | undefined
-        if (fractionalBalance && tokenPriceMap?.[key]) {
-          const fractionalPrice = mulpowToFraction(tokenPriceMap?.[key].price)
+        if (fractionalBalance && followingPriceData?.[key]) {
+          const fractionalPrice = mulpowToFraction(followingPriceData?.[key], tokenInfo.decimals)
           fractionalBalanceUsd = fractionalBalance.multiply(fractionalPrice)
         }
         res[key] = {
@@ -66,7 +64,7 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
       }
     }
     return res
-  }, [balance, fullTokenData, connected, tokenPriceMap, followingTokenData])
+  }, [balance, fullTokenData, connected, followingPriceData, followingTokenData])
 
   const assetTokenList = useMemo(() => {
     const list = Object.values(assets)
@@ -220,14 +218,18 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
             <PowerIcon size={20} />
           </Button>
         </div>
-        <div>
-          <TitleT1 className="mb-6">
-            ${totalBalanceInUSD ? `${totalBalanceInUSD?.toSignificant(6)}` : undefined}
-          </TitleT1>
+        <div className="mb-6 text-[36px] font-semibold">
+          ${totalBalanceInUSD ? `${numberWithCommas(totalBalanceInUSD?.toSignificant(6), false)}` : undefined}
         </div>
         <div className="flex w-full flex-col">
-          <Tabs radius="sm" variant="light" size="md" color="primary">
-            <Tab key="assets" title="Assets" className="pt-0">
+          <Tabs
+            radius="sm"
+            variant="light"
+            size="md"
+            color="primary"
+            classNames={{ tabList: "rounded p-0", cursor: "rounded" }}
+          >
+            <Tab key="assets" title="Assets">
               <div className="h-[calc(100vh-12rem)] overflow-auto">
                 {assetTokenList.length === 0 ? (
                   <TitleT4 className="pt-4 text-center">No asset found</TitleT4>
