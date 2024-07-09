@@ -4,6 +4,7 @@ import { aptos } from "../utils/aptos"
 import useAnqaWallet from "./useAnqaWallet"
 import useSwapNotificationFn from "./useSwapNotificationFn"
 import { SwapArgs, SwapState, getSwapDataFromPaths } from "../utils/swap"
+import useRefreshBalanceFn from "./useRefreshBalanceFn"
 
 export default function useSwap() {
   const [{ isSwapping, txVersion, success }, setSwapState] = useState<SwapState>({
@@ -14,6 +15,7 @@ export default function useSwap() {
   const { signAndSubmitTransaction, account, connected, isTelegram } = useAnqaWallet()
 
   const sendNotification = useSwapNotificationFn()
+  const refreshBalance = useRefreshBalanceFn()
 
   const onSwap = useCallback(
     async (args: SwapArgs) => {
@@ -137,6 +139,7 @@ export default function useSwap() {
           Boolean(response.output?.success),
           response.output?.vm_status,
         )
+        void refreshBalance()
       } catch (err) {
         console.error(err)
         setSwapState((prev) => ({ ...prev, isSwapping: false }))
