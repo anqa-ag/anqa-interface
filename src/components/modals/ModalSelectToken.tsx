@@ -54,13 +54,10 @@ function TokenItem({
   style: CSSProperties
 }) {
   const token = useMemo(() => {
-    return items[index]
+    return items[index]!
   }, [items, index])
 
-  const isCopyingThisToken = useMemo(
-    () => isCopying && copiedId === items[index].id,
-    [copiedId, index, isCopying, items],
-  )
+  const isCopyingThisToken = useMemo(() => isCopying && copiedId === token.id, [copiedId, isCopying, token.id])
 
   return (
     <div
@@ -71,7 +68,7 @@ function TokenItem({
       }
       tabIndex={0}
       style={style}
-      onClick={() => setToken(items[index].whitelisted ? items[index].symbol : items[index].id)}
+      onClick={() => setToken(token.whitelisted ? token.symbol : token.id)}
     >
       <BasicTokenInfo token={token} onCopy={onCopy} isCopying={isCopyingThisToken} />
     </div>
@@ -98,10 +95,11 @@ function ModalSelectToken({
   const followingTokenDataWithBalance = useMemo(() => {
     const res: Record<string, TokenWithBalance> = {}
     for (const address of Object.keys(followingTokenData)) {
+      const tokenData = followingTokenData[address]!
       let fractionalBalance: Fraction | undefined
       const tokenBalance = balance[address]
       if (connected && tokenBalance && tokenBalance.amount) {
-        fractionalBalance = divpowToFraction(tokenBalance.amount, followingTokenData[address].decimals)
+        fractionalBalance = divpowToFraction(tokenBalance.amount, tokenData.decimals)
       }
       let fractionalBalanceUsd: Fraction | undefined
       if (fractionalBalance && followingPriceData[address]) {
@@ -110,12 +108,12 @@ function ModalSelectToken({
       }
 
       const newItem: TokenWithBalance = {
-        id: followingTokenData[address].id,
-        name: followingTokenData[address].name,
-        symbol: followingTokenData[address].symbol,
-        decimals: followingTokenData[address].decimals,
-        whitelisted: followingTokenData[address].whitelisted,
-        logoUrl: followingTokenData[address].logoUrl,
+        id: tokenData.id,
+        name: tokenData.name,
+        symbol: tokenData.symbol,
+        decimals: tokenData.decimals,
+        whitelisted: tokenData.whitelisted,
+        logoUrl: tokenData.logoUrl,
         fractionalBalance,
         fractionalBalanceUsd,
         isFollowing: true,
