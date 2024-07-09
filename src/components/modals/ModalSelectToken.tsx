@@ -11,6 +11,7 @@ import { divpowToFraction, mulpowToFraction } from "../../utils/number"
 import { CloseIcon, SearchIcon } from "../Icons"
 import { TitleT1, TitleT2 } from "../Texts"
 import BasicTokenInfo from "../BasicTokenInfo.tsx"
+import { useIsSm } from "../../hooks/useMedia.ts"
 
 const BANNERS = [
   {
@@ -235,6 +236,8 @@ function ModalSelectToken({
   const { height: windowHeight } = useWindowSize()
   const listHeight = useMemo(() => Math.min(680, Math.round(windowHeight / 2 / 68) * 68), [windowHeight])
 
+  const isSm = useIsSm()
+
   return (
     <>
       <Modal
@@ -244,8 +247,15 @@ function ModalSelectToken({
         backdrop="blur"
         hideCloseButton
         disableAnimation
+        size={isSm ? "full" : undefined}
       >
-        <ModalContent className="max-w-[420px] bg-buttonDisabled p-4 pb-0 text-foreground dark">
+        <ModalContent
+          className={
+            "max-w-[420px] bg-buttonDisabled p-4 pb-0 text-foreground dark" +
+            " " +
+            (isSm ? "h-fit max-h-[70vh] self-end" : "")
+          }
+        >
           <>
             <div className="flex items-center justify-between">
               <TitleT1>Select a token</TitleT1>
