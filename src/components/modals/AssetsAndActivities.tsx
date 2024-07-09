@@ -40,8 +40,8 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
     for (const key of Object.keys(balance)) {
       let fractionalBalance: Fraction | undefined
       const tokenBalance = balance[key]
-      if (fullTokenData && tokenBalance) {
-        const tokenInfo = fullTokenData[key]
+      const tokenInfo = fullTokenData?.[key]
+      if (fullTokenData && tokenBalance && tokenInfo) {
         if (connected && tokenBalance && tokenBalance.amount) {
           fractionalBalance = divpowToFraction(tokenBalance.amount, tokenInfo.decimals)
         }
