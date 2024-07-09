@@ -983,6 +983,17 @@ export default function App() {
                   <div className="flex items-center gap-5 md:gap-0">
                     <Link
                       isBlock
+                      href="https://docs.anqa.ag"
+                      color="primary"
+                      className="text-buttonSecondary"
+                      size="sm"
+                      isExternal
+                      showAnchorIcon
+                    >
+                      <BodyB2>Documentations</BodyB2>
+                    </Link>
+                    <Link
+                      isBlock
                       href="/docs/Terms_of_Use.pdf"
                       color="primary"
                       className="text-buttonSecondary"

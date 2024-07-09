@@ -17,5 +17,5 @@ export function useIsMd() {
 }
 
 export function useIsSm() {
-  return useMediaQuery("(max-width: 6392px)")
+  return useMediaQuery("(max-width: 639px)")
 }
