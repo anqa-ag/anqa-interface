@@ -2,8 +2,9 @@ import axios from "axios"
 import { useMemo } from "react"
 import useSWR from "swr"
 import { AGGREGATOR_URL } from "../constants"
+import { PartialRecord } from "../types"
 
-interface TokenInfo {
+export interface TokenInfo {
   id: string
   decimals: number
   name: string
@@ -11,7 +12,7 @@ interface TokenInfo {
 }
 
 interface GetTokenInfoResponseData {
-  tokenById: Record<string, TokenInfo>
+  tokenById: PartialRecord<string, TokenInfo>
   nextCursor: number
 }
 
@@ -26,7 +27,7 @@ const CHUNK_SIZE = 1e4
 
 const fn = async () => {
   let cursor = 0
-  let data: Record<string, TokenInfo> = {}
+  let data: PartialRecord<string, TokenInfo> = {}
   while (true) {
     const url = `${AGGREGATOR_URL}/v1/tokens?count=${CHUNK_SIZE}&cursor=${cursor}`
     const response = await axios<GetTokenInfoResponse>(url)

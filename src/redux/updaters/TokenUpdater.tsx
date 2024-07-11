@@ -5,6 +5,7 @@ import { AGGREGATOR_URL } from "../../constants"
 import useFullTokens from "../../hooks/useFullTokens"
 import { useAppDispatch, useAppSelector } from "../hooks"
 import { Token, addTokensToFollow, updateTokenData } from "../slices/token"
+import { PartialRecord } from "../../types"
 
 interface TokenInfo {
   id: string
@@ -14,7 +15,7 @@ interface TokenInfo {
 }
 
 interface GetTokenInfoResponseData {
-  tokenById: Record<string, TokenInfo>
+  tokenById: PartialRecord<string, TokenInfo>
 }
 
 interface GetTokenInfoResponse {
@@ -78,7 +79,7 @@ function useWhitelistedTokens() {
   const { data } = useSWR("useWhitelistedTokens", fn)
   const res = useMemo(() => {
     if (!data) return undefined
-    const m: Record<string, RawCoinInfo> = {}
+    const m: PartialRecord<string, RawCoinInfo> = {}
     for (const token of data) {
       m[token.id] = token
     }
@@ -94,15 +95,15 @@ function FollowingTokenUpdater() {
   useEffect(() => {
     if (whitelistedTokenMap) {
       dispatch(addTokensToFollow(Object.keys(whitelistedTokenMap)))
-      const newTokenData: Record<string, Token> = {}
+      const newTokenData: PartialRecord<string, Token> = {}
       for (const key of Object.keys(whitelistedTokenMap)) {
         newTokenData[key] = {
           id: key,
-          name: whitelistedTokenMap[key].name,
-          symbol: whitelistedTokenMap[key].symbol,
-          decimals: whitelistedTokenMap[key].decimals,
+          name: whitelistedTokenMap[key]!.name,
+          symbol: whitelistedTokenMap[key]!.symbol,
+          decimals: whitelistedTokenMap[key]!.decimals,
           whitelisted: true,
-          logoUrl: whitelistedTokenMap[key].logoUrl,
+          logoUrl: whitelistedTokenMap[key]!.logoUrl,
         }
       }
       dispatch(updateTokenData(newTokenData))
@@ -125,13 +126,13 @@ function FollowingTokenUpdater() {
   const { tokenInfoMap } = useTokenInfo(missingTokenInfoAddresses)
   useEffect(() => {
     if (tokenInfoMap) {
-      const newTokenData: Record<string, Token> = {}
+      const newTokenData: PartialRecord<string, Token> = {}
       for (const address of Object.keys(tokenInfoMap)) {
         newTokenData[address] = {
-          id: tokenInfoMap[address].id,
-          name: tokenInfoMap[address].name,
-          symbol: tokenInfoMap[address].symbol,
-          decimals: tokenInfoMap[address].decimals,
+          id: tokenInfoMap[address]!.id,
+          name: tokenInfoMap[address]!.name,
+          symbol: tokenInfoMap[address]!.symbol,
+          decimals: tokenInfoMap[address]!.decimals,
           whitelisted: false,
           logoUrl: undefined,
         }

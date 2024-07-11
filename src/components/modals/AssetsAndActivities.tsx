@@ -17,6 +17,8 @@ import BasicTokenInfo from "../BasicTokenInfo.tsx"
 import { ArrowRightIcon, PowerIcon } from "../Icons"
 import { TitleT2, TitleT4, TitleT5 } from "../Texts"
 import { TokenWithBalance } from "./ModalSelectToken.tsx"
+import { PartialRecord } from "../../types.ts"
+import { Token } from "../../redux/slices/token.ts"
 
 interface Props extends React.HTMLProps<HTMLDivElement> {
   isOpen: boolean
@@ -36,7 +38,7 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
   const { data: fullTokenData } = useFullTokens()
   const followingPriceData = useAppSelector((state) => state.price.followingPriceData)
   const assets = useMemo(() => {
-    const res: Record<string, TokenWithBalance> = {}
+    const res: PartialRecord<string, TokenWithBalance> = {}
     for (const key of Object.keys(balance)) {
       let fractionalBalance: Fraction | undefined
       const tokenBalance = balance[key]
@@ -67,7 +69,7 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
   }, [balance, fullTokenData, connected, followingPriceData, followingTokenData])
 
   const assetTokenList = useMemo(() => {
-    const list = Object.values(assets)
+    const list = Object.values(assets) as TokenWithBalance[]
     list.sort((a: TokenWithBalance, b: TokenWithBalance) => {
       const x = a.fractionalBalanceUsd ?? new Fraction(0)
       const y = b.fractionalBalanceUsd ?? new Fraction(0)
@@ -95,14 +97,15 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
     },
     [copy],
   )
-  const transactionHistories = useAppSelector((state) => state.user.txHistoryMap)
+  const txHistoryMap = useAppSelector((state) => state.user.txHistoryMap)
   const renderTransactionHistories = useMemo(() => {
-    return Object.values(transactionHistories).map((transactionHistory) => {
+    const transactionHistories = Object.values(txHistoryMap) as ITransactionHistory[]
+    const followingTokenDataList = Object.values(followingTokenData) as Token[]
+    return transactionHistories.map((transactionHistory) => {
       const tokenLogoIn =
-        Object.values(followingTokenData).find((token) => token.id === transactionHistory.tokenInAddress)?.logoUrl ?? ""
+        followingTokenDataList.find((token) => token.id === transactionHistory.tokenInAddress)?.logoUrl ?? ""
       const tokenLogoOut =
-        Object.values(followingTokenData).find((token) => token.id === transactionHistory.tokenOutAddress)?.logoUrl ??
-        ""
+        followingTokenDataList.find((token) => token.id === transactionHistory.tokenOutAddress)?.logoUrl ?? ""
       const res: TransactionHistoryWithLogoUrl = {
         version: transactionHistory.version,
         isSuccess: transactionHistory.isSuccess,
@@ -119,11 +122,14 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
       }
       return res
     })
-  }, [transactionHistories, followingTokenData])
+  }, [txHistoryMap, followingTokenData])
 
   const totalBalanceInUSD = useMemo(() => {
     if (!assets) return 0
-    return Object.values(assets).reduce((prev, curr) => curr.fractionalBalanceUsd?.add(prev) ?? prev, new Fraction(0))
+    return (Object.values(assets) as TokenWithBalance[]).reduce(
+      (prev, curr) => curr.fractionalBalanceUsd?.add(prev) ?? prev,
+      new Fraction(0),
+    )
   }, [assets])
   return (
     <Modal
@@ -178,7 +184,7 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
                   {account.address.slice(0, 4) + "..." + account.address.slice(-4)}
                 </TitleT2>
               ) : (
-                <TitleT2 className="mr-2 leading-5 text-buttonRed">Wrong Network ({network})</TitleT2>
+                <TitleT2 className="mr-2 leading-5 text-buttonRed">Wrong Network ({network?.name || "N/A"})</TitleT2>
               )
             ) : isLoadingWallet ? (
               <TitleT2 className="mr-2 leading-5 text-buttonRed">Loading Wallet</TitleT2>
