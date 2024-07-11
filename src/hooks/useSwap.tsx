@@ -5,6 +5,7 @@ import useAnqaWallet from "./useAnqaWallet"
 import useSwapNotificationFn from "./useSwapNotificationFn"
 import { SwapArgs, SwapState, getSwapDataFromPaths } from "../utils/swap"
 import useRefreshBalanceFn from "./useRefreshBalanceFn"
+import { PartialRecord } from "../types"
 
 export default function useSwap() {
   const [{ isSwapping, txVersion, success }, setSwapState] = useState<SwapState>({
@@ -111,7 +112,7 @@ export default function useSwap() {
 
         const response: {
           hash: string
-          output: Record<string, any>
+          output: PartialRecord<string, any>
         } = await signAndSubmitTransaction({ sender: account.address, data: swapData })
         console.log(`response`, response)
         if (

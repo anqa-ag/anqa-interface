@@ -1,9 +1,10 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 import { PURGE } from "redux-persist"
+import { PartialRecord } from "../../types"
 
 export interface PriceState {
   // followingPriceAddresses: string[]
-  followingPriceData: Record<string, string>
+  followingPriceData: PartialRecord<string, string>
 }
 
 const initialState: PriceState = {
@@ -20,7 +21,7 @@ export const priceSlice = createSlice({
     //   for (const address of action.payload) set.add(address)
     //   state.followingPriceAddresses = Array.from(set)
     // },
-    updatePriceData: (state, action: PayloadAction<Record<string, string>>) => {
+    updatePriceData: (state, action: PayloadAction<PartialRecord<string, string>>) => {
       for (const key of Object.keys(action.payload)) {
         state.followingPriceData[key] = action.payload[key]
       }

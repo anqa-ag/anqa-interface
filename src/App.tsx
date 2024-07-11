@@ -26,7 +26,7 @@ import AssetsAndActivities from "./components/modals/AssetsAndActivities.tsx"
 import { BIP_BASE, NOT_FOUND_TOKEN_LOGO_URL, ZUSDC, petraWallet } from "./constants"
 import { SOURCES } from "./constants/source"
 import useAnqaWallet from "./hooks/useAnqaWallet"
-import useFullTokens from "./hooks/useFullTokens"
+import useFullTokens, { TokenInfo } from "./hooks/useFullTokens"
 import { useIsSm } from "./hooks/useMedia"
 import useModal, { MODAL_LIST } from "./hooks/useModal"
 import useQuote from "./hooks/useQuote"
@@ -82,7 +82,7 @@ function ButtonConnectWallet({
           isMainnet ? (
             <TitleT2>{account.address.slice(0, 4) + "..." + account.address.slice(-4)}</TitleT2>
           ) : (
-            <TitleT2>Wrong Network ({network})</TitleT2>
+            <TitleT2>Wrong Network ({network?.name || "N/A"})</TitleT2>
           )
         ) : isLoadingWallet ? (
           <TitleT2>Loading Wallet</TitleT2>
@@ -128,7 +128,7 @@ export default function App() {
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
   const tokenIn = useMemo(
     () =>
-      Object.values(followingTokenData).find((token) => {
+      (Object.values(followingTokenData) as Token[]).find((token) => {
         try {
           const tokenSymbolOrAddress = location.pathname.replace("/swap/", "").split("-")[0]
           return token.symbol === tokenSymbolOrAddress || token.id === tokenSymbolOrAddress
@@ -140,7 +140,7 @@ export default function App() {
   )
   const tokenOut = useMemo(
     () =>
-      Object.values(followingTokenData).find((token) => {
+      (Object.values(followingTokenData) as Token[]).find((token) => {
         try {
           const tokenSymbolOrAddress = location.pathname.replace("/swap/", "").split("-")[1]
           return token.symbol === tokenSymbolOrAddress || token.id === tokenSymbolOrAddress
@@ -161,10 +161,10 @@ export default function App() {
       const tokenOutSymbolOrAddress = pair.split("-")[1]
       if (!tokenInSymbolOrAddress || !tokenOutSymbolOrAddress) throw new Error(`invalid pair = ${pair}`)
 
-      const followingTokenDataList = Object.values(followingTokenData)
+      const followingTokenDataList = Object.values(followingTokenData) as Token[]
 
       if (!fullTokenData || Object.values(fullTokenData).length === 0) return
-      const fullTokenDataList = Object.values(fullTokenData)
+      const fullTokenDataList = Object.values(fullTokenData) as TokenInfo[]
 
       const newTokenIn =
         fullTokenDataList.find((token) => token.id === tokenInSymbolOrAddress) ||

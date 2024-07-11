@@ -114,7 +114,7 @@ export default function ModalTradeRoute({
                         <div className="h-[44px] w-[64px]" />
                       )
                     ) : null}
-                    {paths.length !== 1 && (
+                    {paths.length !== 1 && path[0] && (
                       <BodyB3 className="absolute left-[72px] top-1/2 z-10 -translate-y-1/2 bg-black900 px-1 text-primary md:left-[16px]">
                         {new Fraction(path[0].srcAmount, rawAmountIn).multiply(100).toSignificant(4)}%
                       </BodyB3>

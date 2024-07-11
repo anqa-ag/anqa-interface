@@ -4,6 +4,7 @@ import { updatePriceData } from "../slices/price"
 import { AGGREGATOR_URL } from "../../constants"
 import axios from "axios"
 import useSWR from "swr"
+import { PartialRecord } from "../../types"
 
 interface GetTokenPriceResponse {
   code: number
@@ -13,7 +14,7 @@ interface GetTokenPriceResponse {
 }
 
 interface GetTokenPriceResponseData {
-  priceById: Record<string, TokenPrice>
+  priceById: PartialRecord<string, TokenPrice>
 }
 
 interface TokenPrice {
@@ -64,9 +65,9 @@ function PriceUpdater() {
   const { tokenPriceMap } = useTokenPrice(followingTokenAddresses)
   useEffect(() => {
     if (tokenPriceMap) {
-      const newPriceData: Record<string, string> = {}
+      const newPriceData: PartialRecord<string, string> = {}
       for (const address of Object.keys(tokenPriceMap)) {
-        newPriceData[address] = tokenPriceMap[address].price
+        newPriceData[address] = tokenPriceMap[address]!.price
       }
       dispatch(updatePriceData(newPriceData))
     }
