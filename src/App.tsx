@@ -521,9 +521,9 @@ export default function App() {
                   <Button
                     isIconOnly
                     className={
-                      "h-[36px] w-[36px] min-w-min rounded border-1 pl-3" +
+                      "h-[36px] w-[36px] min-w-min rounded border-1 pl-3 border-black600" +
                       " " +
-                      (isHighSlippage ? "bg-[rgba(255,153,1,0.2)]" : "border-black600 bg-black")
+                      (isHighSlippage ? "bg-[rgba(255,153,1,0.2)]" : "bg-black")
                     }
                     onPress={() => onOpenModal(MODAL_LIST.USER_SETTING)}
                     disableAnimation

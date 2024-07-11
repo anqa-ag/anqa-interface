@@ -1,14 +1,15 @@
 import { Button, Image, Link, Modal, ModalContent, Tab, Tabs } from "@nextui-org/react"
 import React, { useCallback, useMemo, useState } from "react"
 
-import { Network } from "@aptos-labs/ts-sdk"
 import { Icon } from "@iconify/react"
 import { useCopyToClipboard } from "usehooks-ts"
 import { NOT_FOUND_TOKEN_LOGO_URL } from "../../constants"
 import useAnqaWallet from "../../hooks/useAnqaWallet"
 import useFullTokens from "../../hooks/useFullTokens.ts"
 import { useAppSelector } from "../../redux/hooks"
+import { Token } from "../../redux/slices/token.ts"
 import { ITransactionHistory } from "../../redux/slices/user.ts"
+import { PartialRecord } from "../../types.ts"
 import { Fraction } from "../../utils/fraction.ts"
 import { divpowToFraction, mulpowToFraction, numberWithCommas } from "../../utils/number.ts"
 import { getWalletImagePath } from "../../utils/resources.ts"
@@ -17,8 +18,6 @@ import BasicTokenInfo from "../BasicTokenInfo.tsx"
 import { ArrowRightIcon, PowerIcon } from "../Icons"
 import { TitleT2, TitleT4, TitleT5 } from "../Texts"
 import { TokenWithBalance } from "./ModalSelectToken.tsx"
-import { PartialRecord } from "../../types.ts"
-import { Token } from "../../redux/slices/token.ts"
 
 interface Props extends React.HTMLProps<HTMLDivElement> {
   isOpen: boolean
@@ -31,8 +30,7 @@ export interface TransactionHistoryWithLogoUrl extends ITransactionHistory {
 }
 
 const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
-  const { account, network, disconnect, wallet, connected, isLoading: isLoadingWallet } = useAnqaWallet()
-  const isMainnet = network ? network.name === Network.MAINNET : undefined
+  const { account, disconnect, wallet, connected, isLoading: isLoadingWallet } = useAnqaWallet()
   const { balance } = useAppSelector((state) => state.wallet)
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
   const { data: fullTokenData } = useFullTokens()
@@ -179,13 +177,9 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
               <Image width={20} className="mr-2 min-w-[20px]" src={getWalletImagePath(wallet.name)} />
             )}
             {connected && account?.address ? (
-              isMainnet ? (
-                <TitleT2 className="mr-2 leading-5">
-                  {account.address.slice(0, 4) + "..." + account.address.slice(-4)}
-                </TitleT2>
-              ) : (
-                <TitleT2 className="mr-2 leading-5 text-buttonRed">Wrong Network ({network?.name || "N/A"})</TitleT2>
-              )
+              <TitleT2 className="mr-2 leading-5">
+                {account.address.slice(0, 4) + "..." + account.address.slice(-4)}
+              </TitleT2>
             ) : isLoadingWallet ? (
               <TitleT2 className="mr-2 leading-5 text-buttonRed">Loading Wallet</TitleT2>
             ) : (
