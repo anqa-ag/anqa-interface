@@ -18,7 +18,7 @@ export interface SwapArgs {
   paths: GetRouteResponseDataPath[][]
 }
 
-export const MAX_PATH = 15
+export const MAX_PATH = 14
 export const MAX_HOPS_PER_PATH = 3
 export const COIN_NULL = "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::Null"
 
@@ -143,14 +143,22 @@ function pathToSwapArgument(path: GetRouteResponseDataPath): [number, number, nu
 export function getSwapDataFromPaths(args: SwapArgs): InputEntryFunctionData {
   console.log(`args`, args)
   const data: InputEntryFunctionData = {
-    function: "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::swap_generic_v2",
+    function: "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3::router::swap_generic_v4",
     functionArguments: [
       ...Array(MAX_PATH * MAX_HOPS_PER_PATH).fill([0, 0, 0, "0"]),
-      args.minAmountOut,
+      "0x57b057e189f60ed079bbfe11b88b187cc6bea5016d1bc58aee5ec087f76ce44e",
+      5000,
+      args.amountIn,
+      "0",
       args.amountInUsd,
       args.amountOutUsd,
     ],
-    typeArguments: [args.tokenIn, args.tokenOut, ...Array(MAX_PATH * (MAX_HOPS_PER_PATH - 1)).fill(COIN_NULL)],
+    typeArguments: [
+      args.tokenIn,
+      args.tokenOut,
+      args.tokenIn,
+      ...Array(MAX_PATH * (MAX_HOPS_PER_PATH - 1)).fill(COIN_NULL),
+    ],
   }
   // Fill arguments.
   for (let i = 0; i < args.paths.length; i++) {
