@@ -149,14 +149,14 @@ export function getSwapDataFromPaths(args: SwapArgs): InputEntryFunctionData {
       "0x57b057e189f60ed079bbfe11b88b187cc6bea5016d1bc58aee5ec087f76ce44e",
       5000,
       args.amountIn,
-      "0",
+      args.minAmountOut,
       args.amountInUsd,
       args.amountOutUsd,
     ],
     typeArguments: [
       args.tokenIn,
       args.tokenOut,
-      args.tokenIn,
+      args.tokenOut,
       ...Array(MAX_PATH * (MAX_HOPS_PER_PATH - 1)).fill(COIN_NULL),
     ],
   }
@@ -170,11 +170,11 @@ export function getSwapDataFromPaths(args: SwapArgs): InputEntryFunctionData {
   if (data.typeArguments) {
     for (let i = 0; i < args.paths.length; i++) {
       if (args.paths[i].length === 1) {
-        data.typeArguments[2 + i * (MAX_HOPS_PER_PATH - 1)] = args.tokenOut
+        data.typeArguments[3 + i * (MAX_HOPS_PER_PATH - 1)] = args.tokenOut
         continue
       }
       for (let j = 0; j < args.paths[i].length; j++) {
-        data.typeArguments[2 + i * (MAX_HOPS_PER_PATH - 1) + j] = args.paths[i][j].dstCoinType
+        data.typeArguments[3 + i * (MAX_HOPS_PER_PATH - 1) + j] = args.paths[i][j].dstCoinType
       }
     }
   }
