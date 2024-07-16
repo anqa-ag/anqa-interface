@@ -23,11 +23,7 @@ export default function AppHeader() {
       </div>
       {isSm ? (
         <div className="flex flex-row">
-          <ButtonExploreNow
-            onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
-            isOpenModalConnectWallet={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
-            onOpenModalHistories={() => onOpenModal(MODAL_LIST.ACTIVITIES)}
-          />
+          <ButtonExploreNow />
           <Spacer x={6} />
           <ButtonConnectWallet
             onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
