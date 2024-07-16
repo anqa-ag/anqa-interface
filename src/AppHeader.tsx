@@ -12,7 +12,7 @@ import AssetsAndActivities from "./components/modals/AssetsAndActivities.tsx"
 
 export default function AppHeader() {
   const isSm = useIsSm()
-  const { globalModal, isModalOpen, onOpenModal, onCloseModal, onOpenChangeModal  } = useModal()
+  const { globalModal, isModalOpen, onOpenModal, onCloseModal, onOpenChangeModal } = useModal()
 
   return (
     <header className="flex h-[84px] items-center justify-between px-[60px] lg:px-[30px] md:justify-center md:px-[16px]">

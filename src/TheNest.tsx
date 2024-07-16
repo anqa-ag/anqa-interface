@@ -7,12 +7,16 @@ import HowToEarnExp from "./components/HowToEarnExp.tsx"
 import YourTotalExp from "./components/YourTotalExp.tsx"
 import { useContext, useEffect } from "react"
 import { MenuContext } from "./contexts/MenuContext.ts"
+import usePoint from "./hooks/usePoint.ts"
+import useAnqaWallet from "./hooks/useAnqaWallet.ts"
 
 export default function TheNest() {
   const { setActiveMenu } = useContext(MenuContext)
   useEffect(() => {
     setActiveMenu?.("the-nest")
   }, [setActiveMenu])
+  const { account } = useAnqaWallet()
+  const { totalPoint } = usePoint(account?.address)
 
   return (
     <AppLayout>
@@ -42,7 +46,7 @@ export default function TheNest() {
           </div>
           <VolumeBadges />
         </div>
-        <YourTotalExp totalExp={25000} />
+        <YourTotalExp totalExp={totalPoint ? Math.floor(totalPoint) : 0} />
       </div>
     </AppLayout>
   )
