@@ -2,6 +2,7 @@ import React from "react"
 import Updaters from "./redux/updaters/Updaters.tsx"
 import AppHeader from "./AppHeader.tsx"
 import AppFooter from "./AppFooter.tsx"
+import Tooltips from "./components/Tooltips.tsx"
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,6 +14,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <AppHeader />
           {children}
           <AppFooter />
+          <Tooltips />
         </div>
       </div>
     </div>
