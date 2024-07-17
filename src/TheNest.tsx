@@ -5,16 +5,10 @@ import { YourNestIcon } from "./components/Icons.tsx"
 import VolumeBadges from "./components/VolumeBadges.tsx"
 import HowToEarnExp from "./components/HowToEarnExp.tsx"
 import YourTotalExp from "./components/YourTotalExp.tsx"
-import { useContext, useEffect } from "react"
-import { MenuContext } from "./contexts/MenuContext.ts"
 import usePoint from "./hooks/usePoint.ts"
 import useAnqaWallet from "./hooks/useAnqaWallet.ts"
 
 export default function TheNest() {
-  const { setActiveMenu } = useContext(MenuContext)
-  useEffect(() => {
-    setActiveMenu?.("the-nest")
-  }, [setActiveMenu])
   const { account } = useAnqaWallet()
   const { totalPoint } = usePoint(account?.address)
 
@@ -36,8 +30,8 @@ export default function TheNest() {
             <div className="relative text-white">
               <Image width={683} src={"/images/character.png"} className="static" />
               <div className="absolute left-8 top-16 xl:left-4 xl:top-10">
-                <div className="mb-1.5 font-ClassDisplayBold text-5xl xl:text-3xl">Season I</div>
-                <div className="rounded-md bg-[#2667FE] px-2 py-1 font-ClassDisplay text-xs font-medium">
+                <div className="mb-1.5 font-classDisplayBold text-5xl xl:text-3xl">Season I</div>
+                <div className="rounded-md bg-[#2667FE] px-2 py-1 font-classDisplay text-xs font-medium">
                   00:00 UTC Jan 01 -2024 - 00:00 UTC Mar 01- 2024
                 </div>
               </div>
@@ -46,7 +40,7 @@ export default function TheNest() {
           </div>
           <VolumeBadges />
         </div>
-        <YourTotalExp totalExp={totalPoint ? Math.floor(totalPoint) : 0} />
+        <YourTotalExp totalExp={totalPoint ? totalPoint : "0"} />
       </div>
     </AppLayout>
   )

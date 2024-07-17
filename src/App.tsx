@@ -32,7 +32,6 @@ import {
 import CountdownSpinner from "./components/CountdownSpinner.tsx"
 import AppLayout from "./AppLayout.tsx"
 import { SOURCES } from "./constants/source.ts"
-import { MenuContext } from "./contexts/MenuContext.ts"
 import { SwapContext } from "./contexts/SwapContext.ts"
 
 export default function App() {
@@ -42,7 +41,6 @@ export default function App() {
   const navigate = useNavigate()
 
   const [params] = useSearchParams()
-  const { setActiveMenu } = useContext(MenuContext)
   const resetTimerFunction = useRef(() => {})
   const { setSwapLocation } = useContext(SwapContext)
 
@@ -358,10 +356,6 @@ export default function App() {
   useEffect(() => {
     resetTimerFunction.current()
   }, [fractionalAmountIn, tokenIn, tokenOut, isValidatingQuote])
-
-  useEffect(() => {
-    setActiveMenu("swap")
-  }, [setActiveMenu])
 
   useEffect(() => {
     setSwapLocation?.(location.pathname)

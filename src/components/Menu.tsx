@@ -1,17 +1,16 @@
 import { Button } from "@nextui-org/react"
 import { BodyB3, TitleT2 } from "./Texts"
 import { TheNestIcon } from "./Icons.tsx"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { useContext } from "react"
-import { MenuContext } from "../contexts/MenuContext.ts"
 import { SwapContext } from "../contexts/SwapContext.ts"
 
 export default function Menu() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { swapLocation } = useContext(SwapContext)
-  const { activeMenu } = useContext(MenuContext)
-  const isActiveSwap = activeMenu === "swap"
-  const isActiveTheNest = activeMenu === "the-nest"
+  const isActiveSwap = location.pathname.startsWith("/swap")
+  const isActiveTheNest = location.pathname.startsWith("/the-nest")
   return (
     <div className="flex items-center gap-4 md:justify-center md:gap-2">
       <Button
