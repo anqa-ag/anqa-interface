@@ -16,13 +16,16 @@ export default function useRefreshBalanceFn() {
       accountAddress: account.address,
     })
     const accountCoinsData = _accountCoinsData
-      .filter((item) => item.amount)
+      .filter((item) => item.asset_type && item.amount)
       .reduce(
-        (prev, curr) => ({ ...prev, [curr.asset_type]: { ...curr, amount: curr.amount.toString() as string } }),
+        (prev, curr) => ({
+          ...prev,
+          [curr.asset_type!]: { ...curr, amount: curr.amount.toString() },
+        }),
         {},
       )
     dispatch(updateBalance(accountCoinsData))
-    dispatch(addTokensToFollow(_accountCoinsData.map((item) => item.asset_type)))
+    dispatch(addTokensToFollow(_accountCoinsData.map((item) => item.asset_type!)))
   }, [account, dispatch])
 
   return fn
