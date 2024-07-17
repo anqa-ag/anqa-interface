@@ -19,7 +19,6 @@ import "./main.scss"
 import { persistor, store } from "./redux/store"
 import TheNest from "./TheNest.tsx"
 import SwapContextProvider from "./contexts/SwapContextProvider.tsx"
-import MenuContextProvider from "./contexts/MenuContextProvider.tsx"
 
 ReactGA.initialize("G-B2297K89VL")
 
@@ -51,9 +50,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <PersistGate persistor={persistor} loading={null}>
           <AptosWalletAdapterProvider plugins={MAINNET_WALLETS} autoConnect={true}>
             <SwapContextProvider>
-              <MenuContextProvider>
-                <RouterProvider router={router} />
-              </MenuContextProvider>
+              <RouterProvider router={router} />
             </SwapContextProvider>
           </AptosWalletAdapterProvider>
         </PersistGate>

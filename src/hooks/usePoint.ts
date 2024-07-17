@@ -11,7 +11,7 @@ interface GetPointResponse {
 }
 
 interface GetPointResponseData {
-  totalPoint: number
+  totalPoint: string
 }
 
 const fn = async ({ walletAddress }: { walletAddress: string }) => {
@@ -39,7 +39,7 @@ export default function usePoint(walletAddress: string | undefined) {
       isValidating,
       error,
       mutatePoint: mutate,
-      totalPoint: response?.data.totalPoint,
+      totalPoint: response?.data?.totalPoint,
     }
   }, [error, isValidating, response?.data.totalPoint, mutate])
 

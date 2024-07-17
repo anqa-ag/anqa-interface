@@ -11,9 +11,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        ClassDisplay: ["ClashDisplay-Regular", "serif"],
-        ClassDisplayBold: ["ClashDisplay-Bold", "serif"],
-        ClassDisplayMedium: ["ClashDisplay-Medium", "serif"],
+        classDisplay: ["ClashDisplay-Regular", "serif"],
+        classDisplayBold: ["ClashDisplay-Bold", "serif"],
+        classDisplayMedium: ["ClashDisplay-Medium", "serif"],
       },
     },
     screens: {

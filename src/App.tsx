@@ -6,8 +6,6 @@ import { NumericFormat } from "react-number-format"
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { ToastContainer } from "react-toastify"
 import { useDebounceValue } from "usehooks-ts"
-import AppLayout from "./AppLayout.tsx"
-import CountdownSpinner from "./components/CountdownSpinner.tsx"
 import { ArrowFilledDownIcon, ChevronRight, SettingIcon, SwapIcon, WalletIcon } from "./components/Icons"
 import { BodyB2, TitleT1, TitleT2, TitleT4 } from "./components/Texts"
 import ModalSelectToken from "./components/modals/ModalSelectToken"
@@ -15,7 +13,6 @@ import ModalTradeRoute from "./components/modals/ModalTradeRoute"
 import ModalUserSetting from "./components/modals/ModalUserSetting"
 import { BIP_BASE, NOT_FOUND_TOKEN_LOGO_URL, ZUSDC, petraWallet } from "./constants"
 import { SOURCES } from "./constants/source.ts"
-import { MenuContext } from "./contexts/MenuContext.ts"
 import { SwapContext } from "./contexts/SwapContext.ts"
 import useAnqaWallet from "./hooks/useAnqaWallet"
 import useFullTokens, { TokenInfo } from "./hooks/useFullTokens"
@@ -33,6 +30,8 @@ import {
   numberWithCommas,
   truncateValue,
 } from "./utils/number"
+import CountdownSpinner from "./components/CountdownSpinner.tsx"
+import AppLayout from "./AppLayout.tsx"
 
 export default function App() {
   const dispatch = useAppDispatch()
@@ -41,7 +40,6 @@ export default function App() {
   const navigate = useNavigate()
 
   const [params] = useSearchParams()
-  const { setActiveMenu } = useContext(MenuContext)
   const resetTimerFunction = useRef(() => {})
   const { setSwapLocation } = useContext(SwapContext)
 
@@ -357,10 +355,6 @@ export default function App() {
   useEffect(() => {
     resetTimerFunction.current()
   }, [fractionalAmountIn, tokenIn, tokenOut, isValidatingQuote])
-
-  useEffect(() => {
-    setActiveMenu("swap")
-  }, [setActiveMenu])
 
   useEffect(() => {
     setSwapLocation?.(location.pathname)

@@ -11,8 +11,8 @@ export default function VolumeBadges() {
         <Rank image="/images/megawhale.png" name="Mega Whale" minimumExp={120000} />
       </div>
       <div className="flex items-center gap-8 justify-self-start xl:gap-6 lg:gap-4 ">
-        <div className="font-ClassDisplayBold text-4xl xl:text-2xl">Volume Badges</div>
-        <div className="max-w-[600px] flex-auto font-ClassDisplayMedium text-base text-buttonSecondary">
+        <div className="font-classDisplayBold text-4xl xl:text-2xl">Volume Badges</div>
+        <div className="max-w-[600px] flex-auto font-classDisplayMedium text-base text-buttonSecondary">
           Swap and unlock exclusive Anqa Badges. Each badge celebrates your trading achievements and enhances your
           profile. Keep swapping to collect them all!
         </div>
