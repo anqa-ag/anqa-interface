@@ -25,7 +25,7 @@ export default function Menu() {
       <Button
         variant="light"
         className={"gap-1 rounded px-4" + (isActiveTheNest ? " border-1 border-primaryHover" : "")}
-        onPress={() => navigate("/the-nest", { replace: true })}
+        onPress={() => navigate("/the-nest")}
       >
         <TitleT2 className={"mr-3" + (!isActiveTheNest ? " text-disable" : " text-primaryHover")}>The Nest</TitleT2>
         <TheNestIcon size={25} />

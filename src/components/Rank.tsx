@@ -8,7 +8,7 @@ export default function Rank({ image, name, minimumExp }: { image: string; name:
       <Image width={134} src={image} />
       <Image src={"/images/starrank.png"} />
       <div className="flex items-center">
-        <div className="mr-1.5 font-classDisplay text-base font-bold text-white">{name}</div>
+        <div className="mr-1.5 font-clashDisplay text-base font-bold text-white">{name}</div>
         <Icon icon="material-symbols:info-outline" color="#9AA0A6" data-tooltip-id={`tooltip-badge-${name}`} />
       </div>
       <ReactTooltip
