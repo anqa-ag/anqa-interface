@@ -43,7 +43,7 @@ export function numberWithCommas(x: string, keepDot = true, truncateDecimals: nu
   } else if (keepDot && x.includes(".")) {
     res += "."
   }
-  if (truncateDecimals) {
+  if (truncateDecimals != undefined && truncateDecimals >= 0) {
     res = truncateValue(res, truncateDecimals)
   }
   return res

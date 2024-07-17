@@ -1,39 +1,26 @@
-import { APTOS_COIN, Network } from "@aptos-labs/ts-sdk"
+import { APTOS_COIN } from "@aptos-labs/ts-sdk"
 import { Icon } from "@iconify/react"
-import { Button, Image, Link, Skeleton, Spacer } from "@nextui-org/react"
-import { useCallback, useEffect, useMemo, useState, useRef } from "react"
+import { Button, Image, Skeleton, Spacer } from "@nextui-org/react"
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { NumericFormat } from "react-number-format"
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { ToastContainer } from "react-toastify"
 import { useDebounceValue } from "usehooks-ts"
-import {
-  AnqaWithTextIcon,
-  ArrowFilledDownIcon,
-  ChevronRight,
-  SettingIcon,
-  SwapIcon,
-  WalletIcon,
-} from "./components/Icons"
-import Menu from "./components/Menu"
+import { ArrowFilledDownIcon, ChevronRight, SettingIcon, SwapIcon, WalletIcon } from "./components/Icons"
 import { BodyB2, TitleT1, TitleT2, TitleT4 } from "./components/Texts"
-import Tooltips from "./components/Tooltips"
-import ModalConnectWallet from "./components/modals/ModalConnectWallet"
 import ModalSelectToken from "./components/modals/ModalSelectToken"
 import ModalTradeRoute from "./components/modals/ModalTradeRoute"
 import ModalUserSetting from "./components/modals/ModalUserSetting"
-import AssetsAndActivities from "./components/modals/AssetsAndActivities.tsx"
-
 import { BIP_BASE, NOT_FOUND_TOKEN_LOGO_URL, ZUSDC, petraWallet } from "./constants"
-import { SOURCES } from "./constants/source"
+import { SOURCES } from "./constants/source.ts"
+import { SwapContext } from "./contexts/SwapContext.ts"
 import useAnqaWallet from "./hooks/useAnqaWallet"
 import useFullTokens, { TokenInfo } from "./hooks/useFullTokens"
-import { useIsSm } from "./hooks/useMedia"
 import useModal, { MODAL_LIST } from "./hooks/useModal"
 import useQuote from "./hooks/useQuote"
 import useSwap from "./hooks/useSwap"
 import { useAppDispatch, useAppSelector } from "./redux/hooks"
 import { Token, addTokensToFollow } from "./redux/slices/token"
-import Updaters from "./redux/updaters/Updaters"
 import { Fraction } from "./utils/fraction"
 import {
   divpowToFraction,
@@ -43,68 +30,20 @@ import {
   numberWithCommas,
   truncateValue,
 } from "./utils/number"
-import { getWalletImagePath } from "./utils/resources.ts"
 import CountdownSpinner from "./components/CountdownSpinner.tsx"
-
-function ButtonConnectWallet({
-  onOpenModalConnectWallet,
-  isOpenModalConnectWallet,
-  onOpenModalHistories,
-}: {
-  onOpenModalConnectWallet: () => void
-  isOpenModalConnectWallet: boolean
-  onOpenModalHistories: () => void
-}) {
-  const { account, network, wallet, connected, isLoading: isLoadingWallet } = useAnqaWallet()
-  const isMainnet = network ? network.name === Network.MAINNET : undefined
-
-  const onPress = () => {
-    connected ? onOpenModalHistories() : onOpenModalConnectWallet()
-  }
-
-  return (
-    <div className="flex-1 text-end">
-      <Button
-        color="primary"
-        className={
-          "w-fit rounded px-4" +
-          " " +
-          (connected
-            ? "border-buttonSecondary bg-background text-buttonSecondary"
-            : "border-primary bg-primary text-white")
-        }
-        onPress={onPress}
-        isLoading={isOpenModalConnectWallet || isLoadingWallet}
-        variant={connected ? "bordered" : "solid"}
-      >
-        {wallet && connected && <Image width={20} className="min-w-[20px]" src={getWalletImagePath(wallet.name)} />}
-        {connected && account?.address ? (
-          isMainnet ? (
-            <TitleT2>{account.address.slice(0, 4) + "..." + account.address.slice(-4)}</TitleT2>
-          ) : (
-            <TitleT2>Wrong Network ({network?.name || "N/A"})</TitleT2>
-          )
-        ) : isLoadingWallet ? (
-          <TitleT2>Loading Wallet</TitleT2>
-        ) : (
-          <TitleT2>Connect Wallet</TitleT2>
-        )}
-      </Button>
-    </div>
-  )
-}
+import AppLayout from "./AppLayout.tsx"
 
 export default function App() {
-  const disptach = useAppDispatch()
+  const dispatch = useAppDispatch()
 
   const location = useLocation()
   const navigate = useNavigate()
+
   const [params] = useSearchParams()
-
   const resetTimerFunction = useRef(() => {})
-  const setResetTimerFunc = (f: () => void) => (resetTimerFunction.current = f)
+  const { setSwapLocation } = useContext(SwapContext)
 
-  const isSm = useIsSm()
+  const setResetTimerFunc = (f: () => void) => (resetTimerFunction.current = f)
 
   const { balance } = useAppSelector((state) => state.wallet)
   const { account, isLoading: isLoadingWallet, isTelegram, connect } = useAnqaWallet()
@@ -174,12 +113,12 @@ export default function App() {
         followingTokenDataList.find((token) => token.symbol === tokenOutSymbolOrAddress)
       if (!newTokenIn) throw new Error(`cannot find tokenIn = ${tokenInSymbolOrAddress}`)
       if (!newTokenOut) throw new Error(`cannot find tokenOut = ${tokenOutSymbolOrAddress}`)
-      disptach(addTokensToFollow([newTokenIn.id, newTokenOut.id]))
+      dispatch(addTokensToFollow([newTokenIn.id, newTokenOut.id]))
     } catch (err) {
       pair !== "/swap" && console.error(err)
       navigate(`/swap/APT-zUSDC?${params.toString()}`, { replace: true })
     }
-  }, [disptach, followingTokenData, fullTokenData, location.pathname, navigate, params])
+  }, [dispatch, followingTokenData, fullTokenData, location.pathname, navigate, params])
 
   const _setTokenIn = useCallback(
     (symbolOrAddress: string) => {
@@ -417,13 +356,18 @@ export default function App() {
     resetTimerFunction.current()
   }, [fractionalAmountIn, tokenIn, tokenOut, isValidatingQuote])
 
+  useEffect(() => {
+    setSwapLocation?.(location.pathname)
+  }, [setSwapLocation, location])
+
   return (
-    <>
-      <Updaters />
-      <div className="h-full bg-background text-foreground dark">
-        <div className="h-full w-screen">
-          <div className="fixed top-0 h-full w-screen bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
-          <div className="isolate flex min-h-screen flex-col">
+    <AppLayout>
+      {/* for review easier, can remove anytime later */}
+      <div>
+        {/* for review easier, can remove anytime later */}
+        <div>
+          {/* for review easier, can remove anytime later */}
+          <div>
             {isDebug && (
               <div className="absolute left-0 top-1/2 w-[250px] -translate-y-1/2 border-1 border-red-500 p-4">
                 <div>💡 Press cmd and click to multiple select source.</div>
@@ -456,49 +400,6 @@ export default function App() {
                 </div>
               </div>
             )}
-
-            {/*
-          ###############################################################################
-          #
-          #                                                                        HEADER
-          #
-          ###############################################################################
-          */}
-            <header className="flex h-[84px] items-center justify-between px-[60px] lg:px-[30px] md:justify-center md:px-[16px]">
-              <div className="flex flex-1">
-                <Button
-                  isIconOnly
-                  variant="light"
-                  className="h-fit w-fit px-3 py-1 data-[hover]:bg-transparent"
-                  disableRipple
-                >
-                  <AnqaWithTextIcon size={40} />
-                </Button>
-              </div>
-              {isSm ? (
-                <ButtonConnectWallet
-                  onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
-                  isOpenModalConnectWallet={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
-                  onOpenModalHistories={() => onOpenModal(MODAL_LIST.ACTIVITIES)}
-                />
-              ) : (
-                <>
-                  <Menu />
-                  <ButtonConnectWallet
-                    onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
-                    isOpenModalConnectWallet={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
-                    onOpenModalHistories={() => onOpenModal(MODAL_LIST.ACTIVITIES)}
-                  />
-                </>
-              )}
-            </header>
-            {/*
-          ###############################################################################
-          #
-          #                                                                          MAIN
-          #
-          ###############################################################################
-          */}
             <main className="mt-[60px] w-full p-4 sm:mt-0">
               <div className="mx-auto flex max-w-[464px] flex-col">
                 <div className="flex justify-end gap-2">
@@ -521,7 +422,7 @@ export default function App() {
                   <Button
                     isIconOnly
                     className={
-                      "h-[36px] w-[36px] min-w-min rounded border-1 pl-3 border-black600" +
+                      "h-[36px] w-[36px] min-w-min rounded border-1 border-black600 pl-3" +
                       " " +
                       (isHighSlippage ? "bg-[rgba(255,153,1,0.2)]" : "bg-black")
                     }
@@ -938,86 +839,6 @@ export default function App() {
                 */}
               </div>
             </main>
-
-            {/*
-          ###############################################################################
-          #
-          #                                                                        FOOTER
-          #
-          ###############################################################################
-          */}
-            <footer className="flex w-full flex-1 items-end">
-              <div className="flex h-[84px] w-full content-center items-center justify-between px-[60px] lg:px-[30px] md:static md:px-[16px] sm:justify-center">
-                <div className="flex items-center gap-2">
-                  <BodyB2 className="text-buttonSecondary">© Anqa 2024</BodyB2>
-
-                  <div className="flex items-center">
-                    <Link
-                      isBlock
-                      href="https://x.com/anqa_apt"
-                      color="primary"
-                      className="text-buttonSecondary"
-                      disableAnimation
-                      size="sm"
-                      isExternal
-                    >
-                      <Icon icon="mdi:twitter" fontSize={16} />
-                    </Link>
-                    <Link
-                      isBlock
-                      href="https://discord.gg/UR7fasRR"
-                      color="primary"
-                      className="text-buttonSecondary"
-                      disableAnimation
-                      size="sm"
-                      isExternal
-                    >
-                      <Icon icon="ic:baseline-discord" fontSize={16} />
-                    </Link>
-                  </div>
-                </div>
-
-                {isSm ? (
-                  <div />
-                ) : (
-                  <div className="flex items-center gap-5 md:gap-0">
-                    <Link
-                      isBlock
-                      href="https://docs.anqa.ag"
-                      color="primary"
-                      className="text-buttonSecondary"
-                      size="sm"
-                      isExternal
-                      showAnchorIcon
-                    >
-                      <BodyB2>Documentations</BodyB2>
-                    </Link>
-                    <Link
-                      isBlock
-                      href="/docs/Terms_of_Use.pdf"
-                      color="primary"
-                      className="text-buttonSecondary"
-                      size="sm"
-                      isExternal
-                      showAnchorIcon
-                    >
-                      <BodyB2>Terms & Conditions</BodyB2>
-                    </Link>
-                    <Link
-                      isBlock
-                      href="/docs/Privacy_and_Policy.pdf"
-                      color="primary"
-                      className="text-buttonSecondary"
-                      size="sm"
-                      isExternal
-                      showAnchorIcon
-                    >
-                      <BodyB2>Privacy Policy</BodyB2>
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </footer>
           </div>
         </div>
         <ToastContainer
@@ -1027,11 +848,6 @@ export default function App() {
           position="top-right"
           closeButton={false}
           pauseOnHover={false}
-        />
-        <ModalConnectWallet
-          isOpen={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
-          onOpenChange={onOpenChangeModal}
-          onClose={onCloseModal}
         />
         <ModalSelectToken
           isOpen={globalModal === MODAL_LIST.SELECT_TOKEN_IN && isModalOpen}
@@ -1061,12 +877,7 @@ export default function App() {
           rawAmountIn={fractionalAmountIn?.numerator?.toString()}
           paths={paths}
         />
-        <Tooltips />
-        <AssetsAndActivities
-          isOpen={globalModal === MODAL_LIST.ACTIVITIES && isModalOpen}
-          onOpenChange={onOpenChangeModal}
-        />
       </div>
-    </>
+    </AppLayout>
   )
 }
