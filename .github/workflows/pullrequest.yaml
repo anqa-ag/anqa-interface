@@ -7,13 +7,13 @@ on:
       - 'main'
   pull_request:
     branches:
-      - "*"
+      - '*'
     paths-ignore:
       - 'main'
 
 jobs:
   call-workflow:
-    uses: anqa-ag/workflow-templates/.github/workflows/docker-pr.yml@main
+    uses: anqa-ag/workflow-templates/.github/workflows/pullrequest.yml@main
     with:
       IMAGE_REPOSITORY: interface-pr
     secrets: inherit
