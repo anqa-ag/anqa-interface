@@ -3,13 +3,13 @@ on:
   push:
     branches:
       - '*'
-    # paths-ignore:
-    #   - 'main'
+    paths-ignore:
+      - 'main'
   pull_request:
     branches:
       - '*'
-    # paths-ignore:
-    #   - 'main'
+    paths-ignore:
+      - 'main'
 
 jobs:
   call-workflow:
