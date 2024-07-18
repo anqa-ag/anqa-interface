@@ -3,17 +3,17 @@ on:
   push:
     branches:
       - '*'
-    paths-ignore:
-      - 'main'
+    # paths-ignore:
+    #   - 'main'
   pull_request:
     branches:
       - '*'
-    paths-ignore:
-      - 'main'
+    # paths-ignore:
+    #   - 'main'
 
 jobs:
   call-workflow:
-    uses: anqa-ag/workflow-templates/.github/workflows/pullrequest.yml@main
+    uses: anqa-ag/workflow-templates/.github/workflows/docker.yml@main
     with:
       IMAGE_REPOSITORY: interface-pr
     secrets: inherit
