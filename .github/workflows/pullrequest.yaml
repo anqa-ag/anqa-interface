@@ -15,6 +15,6 @@ jobs:
   call-workflow:
     uses: anqa-ag/workflow-templates/.github/workflows/docker-pr.yml@main
     with:
-      IMAGE_REPOSITORY: anqa-interface-pr
+      IMAGE_REPOSITORY: interface-pr
     secrets: inherit
        
