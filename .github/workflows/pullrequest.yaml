@@ -1,4 +1,4 @@
-name: Default workflow
+name: pr workflow
 on:
   push:
     branches:
