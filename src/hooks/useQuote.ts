@@ -1,7 +1,7 @@
 import axios from "axios"
 import { useMemo } from "react"
 import useSWR from "swr"
-import { AGGREGATOR_URL, BIP_BASE } from "../constants"
+import { AGGREGATOR_URL, BIP_BASE_BN } from "../constants"
 
 export interface GetRouteResponse {
   code: number
@@ -84,7 +84,7 @@ export default function useQuote({
   const amountInAfterFee = useMemo(
     () =>
       amountIn && feeBps && chargeFeeBy === "token_in"
-        ? ((BigInt(amountIn) * BigInt(feeBps)) / BigInt(BIP_BASE)).toString()
+        ? ((BigInt(amountIn) * (BIP_BASE_BN - BigInt(feeBps))) / BIP_BASE_BN).toString()
         : amountIn,
     [amountIn, chargeFeeBy, feeBps],
   )
@@ -113,7 +113,7 @@ export default function useQuote({
     const amountOut = response?.data.dstAmount
     if (!amountOut || !feeBps) return
     if (chargeFeeBy === "token_out") {
-      const amountOutAfterFee = ((BigInt(amountOut) * BigInt(feeBps)) / BigInt(BIP_BASE)).toString()
+      const amountOutAfterFee = ((BigInt(amountOut) * (BIP_BASE_BN - BigInt(feeBps))) / BIP_BASE_BN).toString()
       return amountOutAfterFee
     }
     return amountOut
