@@ -16,7 +16,7 @@ export default function AppHeader() {
 
   return (
     <header
-      className="flex h-[84px] sm:h-[46px] items-center justify-between px-[60px] sm:px-4 lg:px-[30px] md:justify-center sm:justify-between md:px-[16px]">
+      className="flex h-[84px] sm:h-[46px] items-center justify-between px-[60px] sm:px-2 lg:px-[30px] md:justify-center sm:justify-between md:px-[16px]">
       <div className="flex basis-2/12 justify-start">
         <Button isIconOnly variant="light" className="h-fit w-fit px-3 py-1 data-[hover]:bg-transparent" disableRipple>
           <AnqaWithTextIcon size={isSm ? 18 : 40} />
@@ -67,6 +67,7 @@ function ButtonConnectWallet({
   isOpenModalConnectWallet: boolean
   onOpenModalHistories: () => void
 }) {
+  const isSm = useIsSm()
   const { account, network, wallet, connected, isLoading: isLoadingWallet } = useAnqaWallet()
   const isMainnet = network ? network.name === Network.MAINNET : undefined
 
@@ -79,7 +80,7 @@ function ButtonConnectWallet({
       <Button
         color="primary"
         className={
-          "w-fit rounded px-4 sm:px-1 sm:py-1.5 sm:h-fit" +
+          "w-fit rounded px-4 sm:px-2 sm:py-2 sm:h-fit" +
           " " +
           (connected
             ? "border-buttonSecondary bg-background text-buttonSecondary"
@@ -87,6 +88,28 @@ function ButtonConnectWallet({
         }
         onPress={onPress}
         isLoading={isOpenModalConnectWallet || isLoadingWallet}
+        spinner={
+          <svg
+            className={"animate-spin h-5 w-5 text-current" + isSm ? " hidden" : ""}
+            fill="none"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              fill="currentColor"
+            />
+          </svg>
+        }
         variant={connected ? "bordered" : "solid"}
       >
         {wallet && connected &&
