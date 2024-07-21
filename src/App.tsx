@@ -355,7 +355,7 @@ export default function App() {
 
   const { txVersion: swapTxVersion, isSwapping, onSwap: _onSwap, success: isSwapSuccess } = useSwap()
   const onSwap = () => {
-    if (fractionalAmountIn && fractionalAmountOut && minimumReceived && paths && account) {
+    if (fractionalAmountIn && fractionalAmountOut && minimumReceived && paths) {
       void _onSwap({
         tokenIn,
         tokenOut,
