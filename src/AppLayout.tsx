@@ -6,17 +6,18 @@ import Tooltips from "./components/Tooltips.tsx"
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="h-full bg-background text-foreground dark">
-      <div className="h-full w-screen">
-        <div className="isolate flex min-h-screen flex-col">
-          <div className="fixed top-0 h-full w-screen bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
-          <Updaters />
-          <AppHeader />
-          {children}
-          <AppFooter />
-          <Tooltips />
+    <Updaters>
+      <div className="h-full bg-background text-foreground dark">
+        <div className="h-full w-screen">
+          <div className="isolate flex min-h-screen flex-col">
+            <div className="fixed top-0 h-full w-screen bg-[url('/images/background.svg')] bg-cover bg-bottom bg-no-repeat opacity-40" />
+            <AppHeader />
+            {children}
+            <AppFooter />
+            <Tooltips />
+          </div>
         </div>
       </div>
-    </div>
+    </Updaters>
   )
 }
