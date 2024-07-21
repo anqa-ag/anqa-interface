@@ -1,6 +1,7 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 import { VERSION } from "../../constants"
 import { PURGE } from "redux-persist"
+import { PartialRecord } from "../../types"
 
 export interface ITransactionHistory {
   version: string | undefined
@@ -18,7 +19,7 @@ export interface ITransactionHistory {
 export interface UserState {
   version: number
   slippageBps: number
-  txHistoryMap: Record<string, ITransactionHistory>
+  txHistoryMap: PartialRecord<string, ITransactionHistory>
 }
 
 const initialState: UserState = {

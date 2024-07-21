@@ -3,7 +3,7 @@ import { CSSProperties, memo, useCallback, useMemo, useState } from "react"
 import { FixedSizeList } from "react-window"
 import { useCopyToClipboard, useDebounceValue, useWindowSize } from "usehooks-ts"
 import useAnqaWallet from "../../hooks/useAnqaWallet"
-import useFullTokens from "../../hooks/useFullTokens"
+import useFullTokens, { TokenInfo } from "../../hooks/useFullTokens"
 import { useAppDispatch, useAppSelector } from "../../redux/hooks"
 import { Token, addTokensToFollow } from "../../redux/slices/token"
 import { Fraction } from "../../utils/fraction"
@@ -12,6 +12,7 @@ import { CloseIcon, SearchIcon } from "../Icons"
 import { TitleT1, TitleT2 } from "../Texts"
 import BasicTokenInfo from "../BasicTokenInfo.tsx"
 import { useIsSm } from "../../hooks/useMedia.ts"
+import { PartialRecord } from "../../types.ts"
 
 const BANNERS = [
   {
@@ -93,7 +94,7 @@ function ModalSelectToken({
   const { balance } = useAppSelector((state) => state.wallet)
   const { connected } = useAnqaWallet()
   const followingTokenDataWithBalance = useMemo(() => {
-    const res: Record<string, TokenWithBalance> = {}
+    const res: PartialRecord<string, TokenWithBalance> = {}
     for (const address of Object.keys(followingTokenData)) {
       const tokenData = followingTokenData[address]!
       let fractionalBalance: Fraction | undefined
@@ -123,7 +124,7 @@ function ModalSelectToken({
     return res
   }, [balance, connected, followingPriceData, followingTokenData])
   const followingTokenDataWithBalanceList = useMemo(() => {
-    const list = Object.values(followingTokenDataWithBalance)
+    const list = Object.values(followingTokenDataWithBalance) as TokenWithBalance[]
     list.sort((a: TokenWithBalance, b: TokenWithBalance) => {
       const x = a.fractionalBalanceUsd ?? new Fraction(0)
       const y = b.fractionalBalanceUsd ?? new Fraction(0)
@@ -190,7 +191,8 @@ function ModalSelectToken({
     const str = searchValue.trim()
     if (!str) return []
 
-    const fullTokenList: TokenWithBalance[] = Object.values(fullTokenData)
+    const fullTokenDataList = Object.values(fullTokenData) as TokenInfo[]
+    const fullTokenList: TokenWithBalance[] = fullTokenDataList
       .filter((token) => {
         if (token.id === str) return true
         if (token.symbol.toLowerCase().includes(str.toLowerCase())) return true

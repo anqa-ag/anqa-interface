@@ -1,4 +1,6 @@
-export const SOURCES: Record<string, { name: string; shortName: string; logoUrl: string }> = {
+import { PartialRecord } from "../types"
+
+export const SOURCES: PartialRecord<string, { name: string; shortName: string; logoUrl: string }> = {
   pancake_swap: { name: "PancakeSwap", shortName: "Pancake", logoUrl: "/images/pancakeswap.ico" },
   sushi_swap: { name: "SushiSwap", shortName: "Sushi", logoUrl: "/images/sushiswap.ico" },
   liquid_swap_v0: { name: "LiquidSwap", shortName: "Liquid", logoUrl: "/images/liquidswap.ico" },

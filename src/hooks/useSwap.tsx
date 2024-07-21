@@ -5,6 +5,8 @@ import { aptos } from "../utils/aptos"
 import useAnqaWallet from "./useAnqaWallet"
 import useRefreshBalanceFn from "./useRefreshBalanceFn"
 import useSwapNotificationFn from "./useSwapNotificationFn"
+import { PartialRecord } from "../types"
+import usePoint from "./usePoint.ts"
 
 export interface SwapState {
   isSwapping: boolean
@@ -22,6 +24,7 @@ export default function useSwap() {
 
   const sendNotification = useSwapNotificationFn()
   const refreshBalance = useRefreshBalanceFn()
+  const { mutatePoint } = usePoint(account?.address)
 
   const onSwap = useCallback(
     async (args: SwapArgs) => {
@@ -56,7 +59,7 @@ export default function useSwap() {
 
         const response: {
           hash: string
-          output: Record<string, any>
+          output: PartialRecord<string, any>
         } = await signAndSubmitTransaction({ sender: account.address, data: swapData })
         console.log(`response`, response)
         if (
@@ -84,6 +87,9 @@ export default function useSwap() {
           Boolean(response.output?.success),
           response.output?.vm_status,
         )
+        setTimeout(() => {
+          void mutatePoint()
+        }, 1500)
         void refreshBalance()
       } catch (err) {
         console.error(err)
@@ -102,7 +108,16 @@ export default function useSwap() {
         }
       }
     },
-    [account, connected, isSwapping, isTelegram, refreshBalance, sendNotification, signAndSubmitTransaction],
+    [
+      account,
+      connected,
+      isSwapping,
+      isTelegram,
+      refreshBalance,
+      sendNotification,
+      signAndSubmitTransaction,
+      mutatePoint,
+    ],
   )
 
   const res = useMemo(

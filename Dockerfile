@@ -1,8 +1,9 @@
-FROM node:20.12.2 AS build
+FROM node:20.15.0 AS build
 
 WORKDIR /app
 
 COPY package*.json ./
+COPY yarn.lock ./
 
 RUN yarn install
 

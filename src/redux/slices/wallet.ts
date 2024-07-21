@@ -2,10 +2,10 @@ import { GetAccountCoinsDataResponse } from "@aptos-labs/ts-sdk"
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { createSlice } from "@reduxjs/toolkit"
 import { PURGE } from "redux-persist"
-import { ArrayElement } from "../../types"
+import { ArrayElement, PartialRecord } from "../../types"
 
 export type AccountCoinData = Omit<ArrayElement<GetAccountCoinsDataResponse>, "amount"> & { amount: string }
-export type WalletBalance = Record<string, AccountCoinData | undefined>
+export type WalletBalance = PartialRecord<string, AccountCoinData | undefined>
 
 export interface WalletState {
   balance: WalletBalance

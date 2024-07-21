@@ -17,6 +17,8 @@ import { ENV, MAINNET_WALLETS } from "./constants"
 import "./main.css"
 import "./main.scss"
 import { persistor, store } from "./redux/store"
+import TheNest from "./TheNest.tsx"
+import SwapContextProvider from "./contexts/SwapContextProvider.tsx"
 
 ReactGA.initialize("G-B2297K89VL")
 
@@ -32,6 +34,10 @@ const router = createBrowserRouter([
     element: <App />,
   },
   {
+    path: "/the-nest",
+    element: <TheNest />,
+  },
+  {
     path: "*",
     element: <NavigateWithParams to="/swap/APT-zUSDC" />,
   },
@@ -43,7 +49,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <NextUIProvider>
         <PersistGate persistor={persistor} loading={null}>
           <AptosWalletAdapterProvider plugins={MAINNET_WALLETS} autoConnect={true}>
-            <RouterProvider router={router} />
+            <SwapContextProvider>
+              <RouterProvider router={router} />
+            </SwapContextProvider>
           </AptosWalletAdapterProvider>
         </PersistGate>
       </NextUIProvider>

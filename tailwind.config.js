@@ -9,7 +9,13 @@ export default {
     "./src/**/*.{html,js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        clashDisplay: ["ClashDisplay-Regular", "serif"],
+        clashDisplayBold: ["ClashDisplay-Bold", "serif"],
+        clashDisplayMedium: ["ClashDisplay-Medium", "serif"],
+      },
+    },
     screens: {
       "2xl": { max: "1535px" },
       // => @media (max-width: 1535px) { ... }
@@ -48,6 +54,7 @@ export default {
             tooltipBg: "#80868B",
             black900: "#17181B",
             black600: "#3C4043",
+            line: "#3787FF",
           },
         },
       },

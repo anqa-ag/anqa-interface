@@ -17,8 +17,9 @@ export const BIP_BASE = 10_000
 export const ENV = import.meta.env.VITE_ENV
 export const AGGREGATOR_URL = import.meta.env.VITE_AGGREGATOR_URL
 export const TELEGRAM_REDIRECT_URL = import.meta.env.VITE_TELEGRAM_REDIRECT_URL
+export const POINT_SYSTEM_URL = import.meta.env.VITE_POINT_SYSTEM_URL
 export const PETRA_ENCRYPTION_PUBLIC_KEY = import.meta.env.VITE_PETRA_ENCRYPTION_PUBLIC_KEY
-export const VERSION = 3 // Pump version to purge state.
+export const VERSION = 4 // Pump version to purge state.
 
 export const aptosConnectWallet = new AptosConnectWallet({})
 export const petraWallet = new PetraWallet()
