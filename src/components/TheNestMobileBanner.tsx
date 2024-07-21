@@ -56,7 +56,7 @@ function SeasonBanner() {
   return (
     <div className="relative text-white">
       <Image width="100%" src={"/images/the_nest_mobile_banner_1.png"}
-             className="static" />
+             className="static" radius="none"/>
       <div className="absolute left-5 top-1/2 -translate-y-1/2 flex items-center">
         <TitleT1 className="font-clashDisplayBold mr-3">Season I</TitleT1>
       </div>

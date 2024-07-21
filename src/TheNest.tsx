@@ -18,12 +18,12 @@ export default function TheNest() {
   return (
     <AppLayout>
       <div className="flex h-fit w-full items-center justify-center gap-4 bg-[#004DFF1A] md:gap-2">
-        <Button variant="light" className="border-b-1 border-b-primaryHover sm:h-fit sm:px-1 sm:py-1.5" radius="none">
+        <Button variant="light" className="border-b-1 border-b-primaryHover sm:h-fit sm:px-2 sm:py-2" radius="none">
           <TitleT2 className="text-primaryHover sm:text-[10px] sm:leading-3 sm:h-fit">Your Nest</TitleT2>
           <YourNestIcon size={isSm ? 10 : 12} />
         </Button>
         <Button variant="light" isDisabled disableAnimation disableRipple radius="none"
-          className="sm:h-fit sm:px-1 sm:py-1.5">
+          className="sm:h-fit sm:px-2 sm:py-2">
           <TitleT2 className="text-disable sm:text-[10px] sm:h-fit leading-3">Leaderboard</TitleT2>
           <BodyB3 className="rounded border-1 border-primary px-1 align-bottom text-primary sm:text-[7px]">soon</BodyB3>
         </Button>
