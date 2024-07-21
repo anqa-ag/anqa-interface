@@ -1,7 +1,7 @@
 import { APTOS_COIN, Network } from "@aptos-labs/ts-sdk"
 import { Icon } from "@iconify/react"
 import { Button, Image, Link, Skeleton, Spacer } from "@nextui-org/react"
-import { useCallback, useEffect, useMemo, useState, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { NumericFormat } from "react-number-format"
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { ToastContainer } from "react-toastify"
@@ -17,12 +17,13 @@ import {
 import Menu from "./components/Menu"
 import { BodyB2, TitleT1, TitleT2, TitleT4 } from "./components/Texts"
 import Tooltips from "./components/Tooltips"
+import AssetsAndActivities from "./components/modals/AssetsAndActivities.tsx"
 import ModalConnectWallet from "./components/modals/ModalConnectWallet"
 import ModalSelectToken from "./components/modals/ModalSelectToken"
 import ModalTradeRoute from "./components/modals/ModalTradeRoute"
 import ModalUserSetting from "./components/modals/ModalUserSetting"
-import AssetsAndActivities from "./components/modals/AssetsAndActivities.tsx"
 
+import CountdownSpinner from "./components/CountdownSpinner.tsx"
 import { BIP_BASE, NOT_FOUND_TOKEN_LOGO_URL, ZUSDC, petraWallet } from "./constants"
 import { SOURCES } from "./constants/source"
 import useAnqaWallet from "./hooks/useAnqaWallet"
@@ -44,7 +45,7 @@ import {
   truncateValue,
 } from "./utils/number"
 import { getWalletImagePath } from "./utils/resources.ts"
-import CountdownSpinner from "./components/CountdownSpinner.tsx"
+import { ChargeFeeBy } from "@anqa-ag/ts-sdk"
 
 function ButtonConnectWallet({
   onOpenModalConnectWallet,
@@ -100,6 +101,19 @@ export default function App() {
   const location = useLocation()
   const navigate = useNavigate()
   const [params] = useSearchParams()
+
+  const isDebug = useMemo(() => params.get("debug") === "true", [params])
+  const [debugData, setDebugData] = useState<{
+    sources: string
+    feeRecipient: string
+    feeBps: number
+    chargeFeeBy: ChargeFeeBy
+  }>({
+    sources: "",
+    feeRecipient: "0x24570782d195e458b6e67c52e373ad1c54e18b4ac41e7b4cd2cddec255e42ffb",
+    feeBps: 5000,
+    chargeFeeBy: "token_in",
+  })
 
   const resetTimerFunction = useRef(() => {})
   const setResetTimerFunc = (f: () => void) => (resetTimerFunction.current = f)
@@ -245,15 +259,20 @@ export default function App() {
   )
   const [fractionalAmountIn] = useDebounceValue(_fractionalAmountIn, shouldUseDebounceAmountIn ? 250 : 0)
 
-  const [source, setSource] = useState("")
-
   const {
     amountOut,
     isValidating: isValidatingQuote,
     sourceInfo,
     paths,
     reFetch,
-  } = useQuote(tokenIn, tokenOut, fractionalAmountIn?.numerator?.toString(), source)
+  } = useQuote({
+    tokenIn,
+    tokenOut,
+    amountIn: fractionalAmountIn?.numerator?.toString(),
+    includeSources: debugData.sources,
+    feeBps: debugData.feeBps,
+    chargeFeeBy: debugData.chargeFeeBy,
+  })
   const fractionalAmountOut = useMemo(
     () =>
       amountOut && tokenOutDecimals != undefined ? new Fraction(amountOut, Math.pow(10, tokenOutDecimals)) : undefined,
@@ -397,7 +416,7 @@ export default function App() {
 
   const { txVersion: swapTxVersion, isSwapping, onSwap: _onSwap, success: isSwapSuccess } = useSwap()
   const onSwap = () => {
-    if (fractionalAmountIn && fractionalAmountOut && minimumReceived && paths) {
+    if (fractionalAmountIn && fractionalAmountOut && minimumReceived && paths && account) {
       void _onSwap({
         tokenIn,
         tokenOut,
@@ -407,11 +426,12 @@ export default function App() {
         amountOutUsd: fractionalAmountOutUsd?.toSignificant(18) || "0",
         minAmountOut: minimumReceived.numerator.toString(),
         paths,
+        feeRecipient: debugData.feeRecipient,
+        feeBps: debugData.feeBps,
+        chargeFeeBy: debugData.chargeFeeBy,
       })
     }
   }
-
-  const isDebug = useMemo(() => params.get("debug") === "true", [params])
 
   useEffect(() => {
     resetTimerFunction.current()
@@ -440,17 +460,47 @@ export default function App() {
                   <select
                     className="h-[50vh] border-1 border-red-500"
                     onChange={(e) =>
-                      setSource(
-                        [...e.currentTarget.options]
+                      setDebugData((prev) => ({
+                        ...prev,
+                        sources: [...e.currentTarget.options]
                           .filter((op) => op.selected)
                           .map((op) => op.value)
                           .join(","),
-                      )
+                      }))
                     }
                     multiple
                   >
                     {Object.keys(SOURCES).map((source) => (
                       <option key={source}>{source}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>fee in bps(0-10000)</div>
+                <NumericFormat
+                  min={0}
+                  max={10000}
+                  value={debugData.feeBps}
+                  onChange={(e) => setDebugData((prev) => ({ ...prev, feeBps: Number(e.currentTarget.value) }))}
+                />
+                <div>fee recipient</div>
+                <input
+                  value={debugData.feeRecipient}
+                  onChange={(e) => setDebugData((prev) => ({ ...prev, feeRecipient: e.currentTarget.value }))}
+                />
+                <div>charge fee by</div>
+                <div>
+                  <select
+                    className="border-1 border-red-500"
+                    value={debugData.chargeFeeBy}
+                    onChange={(e) =>
+                      setDebugData((prev) => ({
+                        ...prev,
+                        chargeFeeBy: e.currentTarget.value as ChargeFeeBy,
+                      }))
+                    }
+                  >
+                    {["token_in", "token_out"].map((option) => (
+                      <option key={option}>{option}</option>
                     ))}
                   </select>
                 </div>
