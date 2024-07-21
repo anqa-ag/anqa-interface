@@ -1,12 +1,18 @@
+import { SwapArgs, getSwapDataFromArgs } from "@anqa-ag/ts-sdk"
 import { isUserTransactionResponse } from "@aptos-labs/ts-sdk"
 import { useCallback, useMemo, useState } from "react"
 import { aptos } from "../utils/aptos"
 import useAnqaWallet from "./useAnqaWallet"
-import useSwapNotificationFn from "./useSwapNotificationFn"
-import { SwapArgs, SwapState, getSwapDataFromPaths } from "../utils/swap"
 import useRefreshBalanceFn from "./useRefreshBalanceFn"
+import useSwapNotificationFn from "./useSwapNotificationFn"
 import { PartialRecord } from "../types"
 import usePoint from "./usePoint.ts"
+
+export interface SwapState {
+  isSwapping: boolean
+  txVersion: string | undefined
+  success: boolean | undefined
+}
 
 export default function useSwap() {
   const [{ isSwapping, txVersion, success }, setSwapState] = useState<SwapState>({
@@ -24,80 +30,19 @@ export default function useSwap() {
     async (args: SwapArgs) => {
       if (!account || !connected || isSwapping) return
 
-      // const payload = {
-      //   version: Date.now().toString(),
-      //   isSuccess: true,
-      //   tokenInSymbol: "APT",
-      //   tokenOutSymbol: "zUSDC",
-      //   readableAmountIn: Math.random().toFixed(6),
-      //   readableAmountOut: Math.random().toFixed(6),
-      //   isHide: false,
-      // }
-      // dispatch(addTransactionHistory(payload))
-      // toast(
-      //   payload.isSuccess ? (
-      //     <div className="rounded bg-[rgba(24,207,106,0.2)] p-4">
-      //       <TitleT2>
-      //         Swap {payload.readableAmountIn} {payload.tokenInSymbol} to {payload.readableAmountOut} {payload.tokenOutSymbol}
-      //       </TitleT2>
-      //       <Link
-      //         href={`https://aptoscan.com/transaction/${payload.version}`}
-      //         isExternal
-      //         showAnchorIcon
-      //         className="text-buttonSecondary"
-      //       >
-      //         <TitleT4>View on explorer</TitleT4>
-      //       </Link>
-      //     </div>
-      //   ) : (
-      //     <div className="rounded bg-[rgba(244,70,70,0.2)] p-4">
-      //       <TitleT2>
-      //         Error swapping {payload.readableAmountIn} {payload.tokenInSymbol} to {payload.readableAmountOut}{" "}
-      //         {payload.tokenOutSymbol}
-      //       </TitleT2>
-      //       <Link
-      //         href={`https://aptoscan.com/transaction/${payload.version}`}
-      //         isExternal
-      //         showAnchorIcon
-      //         className="text-buttonSecondary"
-      //       >
-      //         <TitleT4>View on explorer</TitleT4>
-      //       </Link>
-      //     </div>
-      //   ),
-      //   {
-      //     className: "z-toast",
-      //     bodyClassName: "z-toast-body",
-      //     progressClassName: payload.isSuccess ? "z-toast-progress-success" : "z-toast-progress-failed",
-      //   },
-      // )
-      // return
-
       try {
         setSwapState({ isSwapping: true, txVersion: undefined, success: undefined })
-        // if (provider === "Petra") {
-        //   if (!petra) return
-        //   const swapData = getSwapDataFromPaths(args)
-        //   const response = await petra.signAndSubmitTransaction({
-        //     payload: {
-        //       function: swapData.function,
-        //       arguments: swapData.arguments,
-        //       type_arguments: swapData.typeArguments,
-        //     },
-        //   })
-        //   console.log(`response`, response)
-        //   setSwapState({ isSwapping: false, txVersion: response.version, success: response.success })
-        //   sendNotification(
-        //     args.tokenIn,
-        //     args.tokenOut,
-        //     response.version,
-        //     response.success,
-        //     args.amountIn,
-        //     args.amountOut,
-        //   )
-        // } else if (provider === "Martian") {
-        //   if (!martian) return
-        const swapData = getSwapDataFromPaths(args)
+
+        const swapData = getSwapDataFromArgs(args)
+        // const swapData = await getSwapData({
+        //   amountIn: args.amountIn,
+        //   chargeFeeBy: args.chargeFeeBy,
+        //   feeBps: args.feeBps,
+        //   feeRecipient: args.feeRecipient,
+        //   slippageBps: 5000,
+        //   tokenIn: args.tokenIn,
+        //   tokenOut: args.tokenOut,
+        // })
 
         if (isTelegram) {
           await signAndSubmitTransaction(

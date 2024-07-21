@@ -1,7 +1,7 @@
 import axios from "axios"
 import { useMemo } from "react"
 import useSWR from "swr"
-import { AGGREGATOR_URL } from "../constants"
+import { AGGREGATOR_URL, BIP_BASE } from "../constants"
 
 export interface GetRouteResponse {
   code: number
@@ -40,22 +40,22 @@ export interface GetRouteResponseDataPath {
 const fn = async ({
   tokenIn,
   tokenOut,
-  amountIn,
+  amountInAfterFee,
   includeSources,
 }: {
   key: string
   tokenIn?: string
   tokenOut?: string
-  amountIn?: string
+  amountInAfterFee?: string
   includeSources?: string
 }) => {
-  if (!tokenIn || !tokenOut || !amountIn || parseFloat(amountIn) == 0) return
+  if (!tokenIn || !tokenOut || !amountInAfterFee || parseFloat(amountInAfterFee) === 0) return
   const excludeSources = ["bapt_swap_v1", "bapt_swap_v2", "bapt_swap_v2.1"]
   const response = await axios<GetRouteResponse>(`${AGGREGATOR_URL}/v1/quote`, {
     params: {
       srcCoinType: tokenIn,
       dstCoinType: tokenOut,
-      amount: amountIn,
+      amount: amountInAfterFee,
       includeSources,
       excludeSources: excludeSources.join(","),
     },
@@ -66,24 +66,34 @@ const fn = async ({
   return undefined
 }
 
-// const swrOptions =
-//   import.meta.env.MODE === "development"
-//     ? {
-//         refreshInterval: 0,
-//         revalidateIfStale: false,
-//         revalidateOnFocus: false,
-//         revalidateOnMount: false,
-//         revalidateOnReconnect: false,
-//       }
-//     : { refreshInterval: 10_000 }
-
-export default function useQuote(tokenIn?: string, tokenOut?: string, amountIn?: string, includeSources?: string) {
+export default function useQuote({
+  tokenIn,
+  tokenOut,
+  amountIn,
+  includeSources,
+  feeBps,
+  chargeFeeBy,
+}: {
+  tokenIn?: string
+  tokenOut?: string
+  amountIn?: string
+  includeSources?: string
+  feeBps?: number
+  chargeFeeBy: "token_in" | "token_out"
+}) {
+  const amountInAfterFee = useMemo(
+    () =>
+      amountIn && feeBps && chargeFeeBy === "token_in"
+        ? ((BigInt(amountIn) * BigInt(feeBps)) / BigInt(BIP_BASE)).toString()
+        : amountIn,
+    [amountIn, chargeFeeBy, feeBps],
+  )
   const {
     data: response,
     error,
     isValidating,
     mutate,
-  } = useSWR({ key: "useQuote", tokenIn, tokenOut, amountIn, includeSources }, fn)
+  } = useSWR({ key: "useQuote", tokenIn, tokenOut, amountInAfterFee, includeSources }, fn)
 
   const sourceInfo = useMemo(() => {
     if (!response?.data.paths) return undefined
@@ -99,16 +109,26 @@ export default function useQuote(tokenIn?: string, tokenOut?: string, amountIn?:
     }
   }, [response?.data.paths])
 
+  const amountOutAfterFee = useMemo(() => {
+    const amountOut = response?.data.dstAmount
+    if (!amountOut || !feeBps) return
+    if (chargeFeeBy === "token_out") {
+      const amountOutAfterFee = ((BigInt(amountOut) * BigInt(feeBps)) / BigInt(BIP_BASE)).toString()
+      return amountOutAfterFee
+    }
+    return amountOut
+  }, [chargeFeeBy, feeBps, response?.data.dstAmount])
+
   const res = useMemo(
     () => ({
       isValidating,
       error,
-      amountOut: response?.data.dstAmount,
+      amountOut: amountOutAfterFee,
       paths: response?.data.paths,
       sourceInfo,
       reFetch: mutate,
     }),
-    [error, isValidating, mutate, response?.data.dstAmount, response?.data.paths, sourceInfo],
+    [amountOutAfterFee, error, isValidating, mutate, response?.data.paths, sourceInfo],
   )
 
   return res
