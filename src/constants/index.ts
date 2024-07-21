@@ -13,6 +13,7 @@ export const NOT_FOUND_TOKEN_LOGO_URL =
   "https://png.pngtree.com/png-clipart/20190516/original/pngtree-question-mark-vector-icon-png-image_4236972.jpg"
 
 export const BIP_BASE = 10_000
+export const BIP_BASE_BN = 10_000n
 
 export const ENV = import.meta.env.VITE_ENV
 export const AGGREGATOR_URL = import.meta.env.VITE_AGGREGATOR_URL
