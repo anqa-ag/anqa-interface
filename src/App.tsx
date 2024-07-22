@@ -49,8 +49,8 @@ export default function App() {
     chargeFeeBy: ChargeFeeBy
   }>({
     sources: "",
-    feeRecipient: "0x24570782d195e458b6e67c52e373ad1c54e18b4ac41e7b4cd2cddec255e42ffb",
-    feeBps: 5000,
+    feeRecipient: "0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3",
+    feeBps: 0,
     chargeFeeBy: "token_in",
   })
 

@@ -111,7 +111,7 @@ export default function useQuote({
 
   const amountOutAfterFee = useMemo(() => {
     const amountOut = response?.data.dstAmount
-    if (!amountOut || !feeBps) return
+    if (!amountOut || feeBps === undefined) return
     if (chargeFeeBy === "token_out") {
       const amountOutAfterFee = ((BigInt(amountOut) * (BIP_BASE_BN - BigInt(feeBps))) / BIP_BASE_BN).toString()
       return amountOutAfterFee
