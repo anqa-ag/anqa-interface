@@ -2,6 +2,7 @@ import { POINT_SYSTEM_URL } from "../constants"
 import axios from "axios"
 import useSWR from "swr"
 import { useMemo } from "react"
+import { mulpowToFraction } from "../utils/number.ts"
 
 interface GetPointResponse {
   code: number
@@ -29,9 +30,9 @@ export default function usePoint(walletAddress: string | undefined) {
     data: response,
     error,
     isValidating,
-    mutate,
+    mutate
   } = useSWR({ key: "usePoint", walletAddress }, fn, {
-    refreshInterval: 60000,
+    refreshInterval: 60000
   })
 
   const res = useMemo(() => {
@@ -39,7 +40,7 @@ export default function usePoint(walletAddress: string | undefined) {
       isValidating,
       error,
       mutatePoint: mutate,
-      totalPoint: response?.data?.totalPoint,
+      totalPoint: mulpowToFraction(response?.data?.totalPoint ?? "0")
     }
   }, [error, isValidating, response?.data.totalPoint, mutate])
 

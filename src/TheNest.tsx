@@ -30,8 +30,8 @@ export default function TheNest() {
       </div>
       {isSm ? (<div className="flex flex-col mt-5 gap-5 items-center">
         <TheNestMobileBanner />
-        <YourTotalExp totalExp={totalPoint ? totalPoint : "0"} />
-        <VolumeBadges />
+        <YourTotalExp totalExp={totalPoint} />
+        <VolumeBadges totalExp={totalPoint}/>
       </div>) : (
         <div className="flex items-stretch justify-center gap-9 px-[60px] pt-4 xl:gap-6 xl:px-[40px]">
           <div className="flex flex-col items-stretch  gap-5">
@@ -47,9 +47,9 @@ export default function TheNest() {
               </div>
               <HowToEarnExp />
             </div>
-            <VolumeBadges />
+            <VolumeBadges totalExp={totalPoint}/>
           </div>
-          <YourTotalExp totalExp={totalPoint ? totalPoint : "0"} />
+          <YourTotalExp totalExp={totalPoint} />
         </div>
       )}
     </AppLayout>

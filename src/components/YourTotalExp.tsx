@@ -2,8 +2,9 @@ import { TitleT1 } from "./Texts.tsx"
 import { Image } from "@nextui-org/react"
 import { numberWithCommas } from "../utils/number.ts"
 import { useIsSm } from "../hooks/useMedia.ts"
+import { Fraction } from "../utils/fraction.ts"
 
-export default function YourTotalExp({ totalExp }: { totalExp: string }) {
+export default function YourTotalExp({ totalExp }: { totalExp: Fraction }) {
   const isSm = useIsSm()
   return (
     <div
@@ -12,7 +13,7 @@ export default function YourTotalExp({ totalExp }: { totalExp: string }) {
       <div
         className="mb-7 sm:mb-1.5 flex h-fit min-w-[150px] items-center justify-center gap-2.5 rounded-3xl bg-[#2B313D] px-6 py-2.5 sm:py-1 sm:px-2">
         <Image width={isSm ? 22 : 41} src={"/images/coin.png"} />
-        <div className="font-clashDisplayBold text-4xl xl:text-2xl sm:text-xl">{numberWithCommas(totalExp, true, 0)}</div>
+        <div className="font-clashDisplayBold text-4xl xl:text-2xl sm:text-xl">{numberWithCommas(totalExp.toSignificant(6), true, 0)}</div>
       </div>
       <Image src={"/images/questionbox.png"} width={isSm ? 168 : 350} className="mb-8 sm:mb-1.5" />
       <div className="2xl:font-clashDisplayMedium 2xl:text-xl xl:font-clashDisplay xl:text-lg">
