@@ -1,15 +1,15 @@
-import { memo, useEffect } from "react"
-import { useInterval } from "usehooks-ts"
-import useRefreshBalanceFn from "../../hooks/useRefreshBalanceFn"
+import { memo, useEffect } from "react";
+import { useInterval } from "usehooks-ts";
+import useRefreshBalanceFn from "../../hooks/useRefreshBalanceFn";
 
 function WalletUpdater() {
-  const refreshBalance = useRefreshBalanceFn()
-  useEffect(() => {
-    void refreshBalance()
-  }, [refreshBalance])
-  useInterval(refreshBalance, 10000)
-  return null
+    const refreshBalance = useRefreshBalanceFn();
+    useEffect(() => {
+        void refreshBalance();
+    }, [refreshBalance]);
+    useInterval(refreshBalance, 10000);
+    return null;
 }
 
-const MemoWalletUpdater = memo(WalletUpdater)
-export default MemoWalletUpdater
+const MemoWalletUpdater = memo(WalletUpdater);
+export default MemoWalletUpdater;

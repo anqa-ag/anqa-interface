@@ -1,52 +1,59 @@
-import { parseUnits } from "@ethersproject/units"
-import { BigintIsh, Fraction } from "./fraction"
+import { parseUnits } from "@ethersproject/units";
+import { BigintIsh, Fraction } from "./fraction";
 
 // n = "10000000000000000000", decimals = 9 => Fraction("10000000000000000000", 1e9)
 export function divpowToFraction(n: BigintIsh, decimals: number): Fraction {
-  return new Fraction(n, Math.pow(10, decimals))
+    return new Fraction(n, Math.pow(10, decimals));
 }
 
 // Float in string form to Fraction.
 // s = "0.000000000000001", multiplier = 18 => Fraction("1000", 1e18)
 export function mulpowToFraction(s: string, multiplier = 18): Fraction {
-  const f = new Fraction(parseUnits(truncateValue(s, multiplier), multiplier).toString(), Math.pow(10, multiplier))
-  return f
+    const f = new Fraction(
+        parseUnits(truncateValue(s, multiplier), multiplier).toString(),
+        Math.pow(10, multiplier),
+    );
+    return f;
 }
 
 export function truncateValue(value: string, decimals: number): string {
-  const parts = value.split(/[.]/)
-  if (parts.length > 1 && parts[1].length > decimals) {
-    parts[0] = parts[0].replace(/^0+(?=\d)/, "") // Remove leading zeros.
+    const parts = value.split(/[.]/);
+    if (parts.length > 1 && parts[1].length > decimals) {
+        parts[0] = parts[0].replace(/^0+(?=\d)/, ""); // Remove leading zeros.
 
-    parts[1] = parts[1].slice(0, decimals)
-    parts[1] = parts[1].replace(/^(\d*?[1-9])0+$/, "$1") // Remove trailing zeros.
+        parts[1] = parts[1].slice(0, decimals);
+        parts[1] = parts[1].replace(/^(\d*?[1-9])0+$/, "$1"); // Remove trailing zeros.
 
-    const res = parts[0] + "." + parts[1]
-    if (res.endsWith(".")) return res.slice(0, res.length - 1)
-    return res
-  }
-  value = value.replace(/^0+(?=\d)/, "") // Remove leading zeros.
-  return value
+        const res = parts[0] + "." + parts[1];
+        if (res.endsWith(".")) return res.slice(0, res.length - 1);
+        return res;
+    }
+    value = value.replace(/^0+(?=\d)/, ""); // Remove leading zeros.
+    return value;
 }
 
-export const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`) // match escaped "." characters via in a non-capturing group
+export const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." characters via in a non-capturing group
 export function escapeRegExp(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") // $& means the whole matched string
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 }
 
-export function numberWithCommas(x: string, keepDot = true, truncateDecimals: number | undefined = undefined) {
-  const whole = x.split(".")[0]
-  const fraction = x.split(".")[1]
-  let res = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-  if (fraction) {
-    res += "." + fraction
-  } else if (keepDot && x.includes(".")) {
-    res += "."
-  }
-  if (truncateDecimals != undefined && truncateDecimals >= 0) {
-    res = truncateValue(res, truncateDecimals)
-  }
-  return res
+export function numberWithCommas(
+    x: string,
+    keepDot = true,
+    truncateDecimals: number | undefined = undefined,
+) {
+    const whole = x.split(".")[0];
+    const fraction = x.split(".")[1];
+    let res = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    if (fraction) {
+        res += "." + fraction;
+    } else if (keepDot && x.includes(".")) {
+        res += ".";
+    }
+    if (truncateDecimals != undefined && truncateDecimals >= 0) {
+        res = truncateValue(res, truncateDecimals);
+    }
+    return res;
 }
 
 // Test
