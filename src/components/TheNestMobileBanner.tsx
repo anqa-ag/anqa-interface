@@ -98,8 +98,9 @@ function HowToEarnExpBanner() {
                 width="100%"
                 src={"/images/the_nest_mobile_banner_2.png"}
                 className="static"
+                radius="none"
             />
-            <div className="absolute left-6 top-4 flex flex-col items-start">
+            <div className="absolute left-6 top-3 flex flex-col items-start">
                 <TitleT1 className="font-clashDisplayBold leading-6">
                     How to earn EXP?
                 </TitleT1>
@@ -112,7 +113,7 @@ function HowToEarnExpBanner() {
                     isExternal
                     showAnchorIcon={false}
                 >
-                    <div className="font-clashDisplayMedium text-base text-buttonSecondary">
+                    <div className="font-clashDisplayMedium text-sm leading-[14px] text-buttonSecondary">
                         Details
                     </div>
                 </Link>
