@@ -41,7 +41,7 @@ export default function TheNest() {
                 <div className="absolute left-8 top-16 xl:left-4 xl:top-10">
                   <div className="mb-1.5 font-clashDisplayBold text-5xl xl:text-3xl">Season I</div>
                   <div className="rounded-md bg-[#2667FE] px-2 py-1 font-clashDisplay text-xs font-medium">
-                    00:00 UTC Jan 01 -2024 - 00:00 UTC Mar 01- 2024
+                    00:00 UTC July 15 - 2024 - 00:00 UTC October 1- 2024
                   </div>
                 </div>
               </div>
