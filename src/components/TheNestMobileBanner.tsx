@@ -66,8 +66,8 @@ function SeasonBanner() {
       </div>
       <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center">
         <div className="rounded-md bg-[#2667FE] px-1.5 py-1 font-clashDisplay text-[10px] ">
-          00:00 UTC Jan 01 - 2024 <br />
-          -00:00 UTC Mar 01- 2024
+          00:00 UTC July 15 - 2024
+          <br />- 00:00 UTC October 1 - 2024
         </div>
       </div>
     </div>
