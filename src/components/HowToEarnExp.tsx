@@ -11,7 +11,7 @@ export default function HowToEarnExp() {
         </div>
         <Link
           disableAnimation
-          href="https://app.clickup.com/9018355911/v/t/9018355911"
+          href="https://anqaapt.substack.com/p/introducing-the-nest-a-sublime-gamified"
           color="primary"
           className="text-buttonSecondary"
           size="sm"
