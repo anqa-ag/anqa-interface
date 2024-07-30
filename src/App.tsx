@@ -1165,15 +1165,23 @@ export default function App() {
                                             </div>
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center gap-1">
-                                                    <BodyB2 className="text-buttonSecondary">
+                                                    <BodyB2 className="cursor-pointer text-buttonSecondary">
                                                         Minimum Received
                                                     </BodyB2>
-                                                    <Icon
-                                                        icon="material-symbols:info-outline"
-                                                        color="#9AA0A6"
-                                                        tabIndex={0}
-                                                        data-tooltip-id="tooltip-minimum-received"
-                                                    />
+                                                    <Button
+                                                        isIconOnly
+                                                        variant="light"
+                                                        className="h-fit min-h-fit w-fit min-w-fit"
+                                                        disabled
+                                                        disableAnimation
+                                                    >
+                                                        <Icon
+                                                            icon="material-symbols:info-outline"
+                                                            color="#9AA0A6"
+                                                            tabIndex={0}
+                                                            data-tooltip-id="tooltip-minimum-received"
+                                                        />
+                                                    </Button>
                                                 </div>
                                                 {isValidatingQuote ? (
                                                     <>

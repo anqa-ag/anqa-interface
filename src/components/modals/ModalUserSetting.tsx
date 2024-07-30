@@ -118,12 +118,20 @@ export default function ModalUserSetting({
                             <BodyB2 className="w-fit text-buttonSecondary">
                                 Max slippage
                             </BodyB2>
-                            <Icon
-                                icon="material-symbols:info-outline"
-                                color="#9AA0A6"
-                                tabIndex={0}
-                                data-tooltip-id="tooltip-max-slippage"
-                            />
+                            <Button
+                                isIconOnly
+                                variant="light"
+                                className="h-fit min-h-fit w-fit min-w-fit"
+                                disabled
+                                disableAnimation
+                            >
+                                <Icon
+                                    icon="material-symbols:info-outline"
+                                    color="#9AA0A6"
+                                    tabIndex={0}
+                                    data-tooltip-id="tooltip-max-slippage"
+                                />
+                            </Button>
                         </div>
 
                         <Spacer y={3} />
