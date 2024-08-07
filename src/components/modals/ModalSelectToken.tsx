@@ -50,7 +50,6 @@ const BANNERS = [
 const STABLE_COIN_IDS = [
     "0x5e156f1207d0ebfa19a9eeff00d62a282278fb8719f4fab3a586a0a2c0fffbea::coin::T",
     "0xa2eda21a58856fda86451436513b867c97eecb4ba099da5775520e0f7492e852::coin::T",
-    "0x407a220699982ebb514568d007938d2447d33667e4418372ffec1ddb24491b6c::coin::T",
     "0xf22bede237a07e121b56d91a491eb7bcdfd1f5907926a9e58338f964a01b17fa::asset::USDT",
     "0xf22bede237a07e121b56d91a491eb7bcdfd1f5907926a9e58338f964a01b17fa::asset::USDC",
 ];
@@ -393,12 +392,13 @@ function ModalSelectToken({
                         </div>
 
                         <Spacer y={4} />
-                        <div className="flex flex-wrap gap-2">
+                        <div className="grid grid-cols-4 gap-2">
                             {stableCoinTokens.map((token) => (
                                 <Chip
                                     key={`stable-coin-${token.symbol}`}
                                     classNames={{
-                                        base: "bg-transparent hover:cursor-pointer border-small border-white/50 rounded-lg",
+                                        base: "bg-transparent hover:cursor-pointer border-small border-white/50 rounded-lg max-w-full",
+                                        content: "pl-2"
                                     }}
                                     onClick={() => {
                                         setTokenAndClose(token.symbol);
