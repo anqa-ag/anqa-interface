@@ -7,7 +7,7 @@ export default defineConfig({
     plugins: [nodePolyfills(), react()],
     server: {
         open: true,
-        port: 9599,
+        port: 9528,
     },
     build: {
         minify: true,
