@@ -4,6 +4,7 @@ declare global {
         martian: any;
         pontem: any;
         okxwallet: any;
+        nightly: any;
     }
 }
 
