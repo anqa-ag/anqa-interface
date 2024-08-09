@@ -398,7 +398,7 @@ function ModalSelectToken({
                                     key={`stable-coin-${token.symbol}`}
                                     classNames={{
                                         base: "bg-transparent hover:cursor-pointer border-small border-white/50 rounded-lg max-w-full",
-                                        content: "pl-2"
+                                        content: "pl-2",
                                     }}
                                     onClick={() => {
                                         setTokenAndClose(token.symbol);

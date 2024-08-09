@@ -20,6 +20,7 @@
         "@ethersproject/units": "^5.7.0",
         "@martianwallet/aptos-wallet-adapter": "^0.0.5",
         "@nextui-org/react": "^2.3.6",
+        "@nightlylabs/aptos-wallet-adapter-plugin": "^0.2.12",
         "@okwallet/aptos-wallet-adapter": "^0.0.7",
         "@pontem/wallet-adapter-plugin": "^0.2.1",
         "@reduxjs/toolkit": "^2.2.4",

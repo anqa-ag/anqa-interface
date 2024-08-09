@@ -4,10 +4,11 @@ import { isDesktop } from "react-device-detect";
 import {
     aptosConnectWallet,
     martianWallet,
+    nightlyWallet,
     okxWallet,
     petraWallet,
     pontemWallet,
-} from "../../constants/index.ts";
+} from "../../constants";
 import useAnqaWallet from "../../hooks/useAnqaWallet.ts";
 import { CloseIcon } from "../Icons";
 import { BodyB2, TitleT1, TitleT2, TitleT5 } from "../Texts";
@@ -173,6 +174,28 @@ export default function ModalConnectWallet({
                                             <TitleT2>OKX Wallet</TitleT2>
                                         </div>
                                         {window.okxwallet && (
+                                            <div className="flex items-center gap-2">
+                                                <div className="h-[6.67px] w-[6.67px] rounded-full bg-buttonGreen"></div>
+                                                <TitleT5>Detected</TitleT5>
+                                            </div>
+                                        )}
+                                    </Button>
+                                </div>
+
+                                {/* Nightly */}
+                                <div className="flex w-full flex-col gap-1">
+                                    <Button
+                                        className="flex items-center justify-between rounded bg-background px-4 py-3"
+                                        onPress={onConnect(nightlyWallet.name)}
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <Image
+                                                width={20}
+                                                src="/images/nightly.png"
+                                            />
+                                            <TitleT2>Nightly</TitleT2>
+                                        </div>
+                                        {window.nightly && (
                                             <div className="flex items-center gap-2">
                                                 <div className="h-[6.67px] w-[6.67px] rounded-full bg-buttonGreen"></div>
                                                 <TitleT5>Detected</TitleT5>

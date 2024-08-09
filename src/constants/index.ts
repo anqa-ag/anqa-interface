@@ -4,6 +4,7 @@ import { MartianWallet } from "@martianwallet/aptos-wallet-adapter";
 import { PontemWallet } from "@pontem/wallet-adapter-plugin";
 import { OKXWallet } from "@okwallet/aptos-wallet-adapter";
 import { Wallet } from "@aptos-labs/wallet-adapter-react";
+import { NightlyWallet } from "@nightlylabs/aptos-wallet-adapter-plugin";
 
 export const ZUSDC =
     "0xf22bede237a07e121b56d91a491eb7bcdfd1f5907926a9e58338f964a01b17fa::asset::USDC";
@@ -29,10 +30,12 @@ export const petraWallet = new PetraWallet();
 export const martianWallet = new MartianWallet();
 export const pontemWallet = new PontemWallet();
 export const okxWallet = new OKXWallet();
+export const nightlyWallet = new NightlyWallet();
 export const MAINNET_WALLETS: readonly Wallet[] = [
     aptosConnectWallet as any, // NOTE: Library problem.
     petraWallet,
     martianWallet,
     pontemWallet,
     okxWallet,
+    nightlyWallet,
 ];
