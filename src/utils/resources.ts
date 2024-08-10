@@ -1,6 +1,7 @@
 import {
     aptosConnectWallet,
     martianWallet,
+    nightlyWallet,
     okxWallet,
     petraWallet,
     pontemWallet,
@@ -17,5 +18,7 @@ export function getWalletImagePath(walletName: string): string | undefined {
               ? "/images/pontem.svg"
               : walletName === okxWallet.name
                 ? "/images/okx.png"
-                : undefined;
+                : walletName === nightlyWallet.name
+                  ? "/images/nightly.png"
+                  : undefined;
 }
