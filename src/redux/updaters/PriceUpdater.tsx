@@ -42,7 +42,7 @@ function useTokenPrice(tokens: string[]) {
     error,
     isValidating,
   } = useSWR({ key: 'useTokenPrice', tokens }, fn, {
-    refreshInterval: 10000,
+    refreshInterval: 60_000,
   })
 
   const res = useMemo(
