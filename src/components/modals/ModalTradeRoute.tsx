@@ -1,13 +1,10 @@
 import { Button, Image, Modal, ModalContent, Spacer } from '@nextui-org/react'
-import { Fragment, useMemo } from 'react'
-import { NOT_FOUND_TOKEN_LOGO_URL } from '../../constants/index.ts'
 import { SOURCES } from '../../constants/source.ts'
-import { useIsMd } from '../../hooks/useMedia.ts'
-import { GetRouteResponseDataPath } from '../../hooks/useQuote.ts'
-import { useAppSelector } from '../../redux/hooks/index.ts'
+import { useAppSelector } from '../../redux/hooks'
 import { Fraction } from '../../utils/fraction.ts'
-import { AnqaWithTextIcon, ChevronRight, CloseIcon } from '../Icons.tsx'
-import { BodyB3, TitleT1 } from '../Texts.tsx'
+import { ChevronRight, CloseIcon } from '../Icons.tsx'
+import { BodyB2, BodyB3, TitleT1, TitleT5 } from '../Texts.tsx'
+import { GetRouteResponseDataPath } from '@anqa-ag/ts-sdk'
 
 export default function ModalTradeRoute({
   isOpen,
@@ -15,8 +12,8 @@ export default function ModalTradeRoute({
   onOpenChange,
   srcCoinType,
   dstCoinType,
-  // readableAmountIn,
-  // readableAmountOut,
+  readableAmountIn,
+  readableAmountOut,
   rawAmountIn,
   paths,
 }: {
@@ -30,18 +27,7 @@ export default function ModalTradeRoute({
   rawAmountIn: string | undefined
   paths: GetRouteResponseDataPath[][] | undefined
 }) {
-  paths = paths || []
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
-
-  const isLg = useIsMd()
-  const gap = useMemo(
-    () => (isLg ? { gap2: 'gap-[0px]', gap3: 'gap-[0px]' } : { gap2: 'gap-[98px]', gap3: 'gap-[32px]' }),
-    [isLg],
-  )
-  const longestPathLength = useMemo(() => paths.reduce<number>((max, path) => Math.max(max, path.length), 1), [paths])
-  const displayTokenSymbolInSeparateRow = isLg && longestPathLength >= 2
-
-  if (!rawAmountIn) return null
   return (
     <>
       <Modal
@@ -51,138 +37,89 @@ export default function ModalTradeRoute({
         backdrop="blur"
         hideCloseButton
         onClose={onClose}
-        size={isLg ? 'full' : undefined}
       >
-        <ModalContent
-          className={
-            'max-w-[800px] bg-black900 p-4 text-foreground dark' +
-            ' ' +
-            (isLg ? 'h-fit max-h-[70vh] min-h-[200px] self-end' : '')
-          }
-        >
+        <ModalContent className="bg-black900 max-w-[800px] p-4 text-foreground dark">
           <>
             <div className="flex items-center justify-between">
-              <TitleT1 className="w-[120px] text-buttonSecondary">Swap route</TitleT1>
-              {!isLg && <AnqaWithTextIcon size={28} />}
-              <div className="w-[120px] text-end">
-                <Button isIconOnly variant="light" className="h-[20px] w-[20px] min-w-fit p-0" onPress={onClose}>
-                  <CloseIcon size={20} />
-                </Button>
-              </div>
+              <TitleT1>Your Trade Route</TitleT1>
+              <Button isIconOnly variant="light" className="h-[20px] w-[20px] min-w-fit p-0" onPress={onClose}>
+                <CloseIcon size={20} />
+              </Button>
             </div>
 
             <Spacer y={4} />
 
-            <div className="overflow-auto">
-              <div className="max-h-[70vh] w-full">
-                {displayTokenSymbolInSeparateRow && (
-                  <div className="flex items-center justify-between">
-                    <Image
-                      src={followingTokenData[srcCoinType]?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL}
-                      width="44px"
-                      className="min-w-[44px] rounded-full bg-black900"
-                    />
-                    <Image
-                      src={followingTokenData[dstCoinType]?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL}
-                      width="44px"
-                      className="min-w-[44px] rounded-full bg-black900"
-                    />
-                  </div>
-                )}
-                {paths.map((path, pathIndex) => (
-                  <div key={pathIndex} className="relative flex h-[44px] items-center">
-                    {!displayTokenSymbolInSeparateRow ? (
-                      pathIndex === 0 ? (
-                        <Image
-                          src={followingTokenData[srcCoinType]?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL}
-                          width="44px"
-                          className="min-w-[44px] rounded-full bg-black900"
-                        />
-                      ) : (
-                        <div className="h-[44px] w-[64px]" />
-                      )
-                    ) : null}
-                    <div className="h-[22px] w-full self-end border-t-1 border-dashed border-primary" />
-                    {!displayTokenSymbolInSeparateRow ? (
-                      pathIndex === 0 ? (
-                        <Image
-                          src={followingTokenData[dstCoinType]?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL}
-                          width="44px"
-                          className="min-w-[44px] rounded-full bg-black900"
-                        />
-                      ) : (
-                        <div className="h-[44px] w-[64px]" />
-                      )
-                    ) : null}
-                    {paths.length !== 1 && path[0] && (
-                      <BodyB3 className="absolute left-[72px] top-1/2 z-10 -translate-y-1/2 bg-black900 px-1 text-primary md:left-[16px]">
-                        {new Fraction(path[0].srcAmount, rawAmountIn).multiply(100).toSignificant(4)}%
-                      </BodyB3>
-                    )}
-
-                    <div className="absolute right-[72px] flex h-[20px] w-[16px] items-center justify-center bg-black900 md:right-[16px]">
-                      <ChevronRight size={20} />
+            <div className="h-full w-full rounded bg-background p-4">
+              <div className="flex w-full items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <Image
+                    width={20}
+                    height={20}
+                    className="min-h-[20px] min-w-[20px]"
+                    src={followingTokenData?.[srcCoinType]?.logoUrl}
+                  />
+                  <TitleT5>
+                    {readableAmountIn} {followingTokenData?.[srcCoinType]?.symbol || '--'}
+                  </TitleT5>
+                </div>
+                <div className="flex items-center gap-1">
+                  <TitleT5>
+                    {readableAmountOut} {followingTokenData?.[dstCoinType]?.symbol || '--'}
+                  </TitleT5>
+                  <Image
+                    width={20}
+                    height={20}
+                    className="min-h-[20px] min-w-[20px]"
+                    src={followingTokenData?.[dstCoinType]?.logoUrl}
+                  />
+                </div>
+              </div>
+              <div className="relative flex max-h-[50vh] w-full px-[10px] py-1">
+                <div className="bg-buttonSecondary absolute left-[10px] z-20 h-full w-px before:absolute before:left-0 before:top-1 before:h-2 before:w-2 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:bg-primary"></div>
+                <div className="bg-buttonSecondary absolute right-[10px] z-20 h-full w-px before:absolute before:left-0 before:top-1 before:h-2 before:w-2 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:bg-primary"></div>
+                <div className="flex w-full flex-col gap-3 overflow-auto">
+                  {/* ROW */}
+                  {(paths || []).map((path, index) => (
+                    <div className="relative flex items-center py-4" key={index}>
+                      <div className="bg-buttonSecondary absolute left-[24px] top-1/2 h-px w-[calc(100%-48px)]"></div>
+                      <ChevronRight size={24} className="min-h-[24px] min-w-[24px]" />
+                      <BodyB2 className="border-buttonSecondary text-buttonSecondary z-10 w-[52px] min-w-[52px] rounded border-1 bg-background px-2 py-1 text-center">
+                        {rawAmountIn
+                          ? new Fraction(path[0].srcAmount, rawAmountIn).multiply(100).toSignificant(4) + '%'
+                          : '--'}
+                      </BodyB2>
+                      <div className="z-10 mx-4 flex flex-1 justify-center">
+                        <div className="flex gap-[36px]">
+                          {path.map((hop, index) => (
+                            <div className="border-buttonSecondary rounded border-1" key={index}>
+                              <div className="bg-black900 flex w-[160px] items-center gap-1 p-2">
+                                <Image
+                                  width={20}
+                                  height={20}
+                                  className="min-h-[20px] min-w-[20px]"
+                                  src={followingTokenData?.[hop.dstCoinType]?.logoUrl}
+                                />
+                                <TitleT5>{followingTokenData?.[hop.dstCoinType]?.symbol || '--'}</TitleT5>
+                              </div>
+                              <div className="flex w-[160px] items-center gap-1 bg-background p-2">
+                                <Image
+                                  width={20}
+                                  height={20}
+                                  className="min-h-[20px] min-w-[20px]"
+                                  src={SOURCES[hop.source as keyof typeof SOURCES]?.logoUrl}
+                                />
+                                <BodyB3 className="text-buttonSecondary">
+                                  {SOURCES[hop.source as keyof typeof SOURCES]?.name || '--'}: 100%
+                                </BodyB3>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <ChevronRight size={24} className="min-h-[24px] min-w-[24px]" />
                     </div>
-
-                    {pathIndex !== 0 && (
-                      <div
-                        className={
-                          'absolute left-[52px] top-[-22px] w-px border-l-1 border-dashed border-primary md:left-0' +
-                          ' ' +
-                          (pathIndex === paths.length - 1 ? 'h-[45px]' : 'h-[52px]')
-                        }
-                      />
-                    )}
-                    {pathIndex !== 0 && (
-                      <div
-                        className={
-                          'absolute right-[52px] top-[-22px] w-px border-l-1 border-dashed border-primary md:right-0' +
-                          ' ' +
-                          (pathIndex === paths.length - 1 ? 'h-[45px]' : 'h-[52px]')
-                        }
-                      />
-                    )}
-                    <div
-                      className={`absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 ${path.length === 3 ? gap.gap3 : gap.gap2}`}
-                    >
-                      {path.map((hop, hopIndex) => (
-                        <Fragment key={hopIndex}>
-                          <div className="flex w-[120px] items-center justify-center md:w-[80px]">
-                            <Button
-                              className="flex h-[32px] items-center justify-center gap-1 bg-black900 p-0.5 data-[hover]:bg-black600"
-                              onPress={() =>
-                                window.open(`https://aptoscan.com/account/${hop.poolId.split('::')[0]}`, '_blank')
-                              }
-                              disableAnimation
-                            >
-                              <Image
-                                width="16px"
-                                src={SOURCES[hop.source]?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL}
-                                className="min-w-[16px] rounded-full bg-black900"
-                              />
-                              <BodyB3 className="text-buttonSecondary">
-                                {(isLg ? SOURCES[hop.source]?.shortName : SOURCES[hop.source]?.name) || hop.source}
-                              </BodyB3>
-                            </Button>
-                          </div>
-                          {hopIndex !== path.length - 1 && (
-                            <Button
-                              className="h-[32px] w-[32px] min-w-[32px] data-[hover]:opacity-75"
-                              variant="light"
-                              onPress={() => window.open(`https://aptoscan.com/coin/${hop.dstCoinType}`, '_blank')}
-                            >
-                              <Image
-                                width="32px"
-                                className="min-w-[32px] rounded-full bg-black900"
-                                src={followingTokenData[hop.dstCoinType]?.logoUrl || NOT_FOUND_TOKEN_LOGO_URL}
-                              />
-                            </Button>
-                          )}
-                        </Fragment>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           </>

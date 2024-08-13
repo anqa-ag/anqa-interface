@@ -2,40 +2,7 @@ import axios from 'axios'
 import { useMemo } from 'react'
 import useSWR from 'swr'
 import { AGGREGATOR_URL, BIP_BASE_BN } from '../constants'
-
-export interface GetRouteResponse {
-  code: number
-  message: string
-  data: GetRouteResponseData
-  requestId: string
-}
-
-export interface GetRouteResponseData {
-  srcCoinType: string
-  dstCoinType: string
-  srcAmount: string
-  dstAmount: string
-  paths: GetRouteResponseDataPath[][]
-}
-
-export interface GetRouteResponseDataPath {
-  poolId: string
-  source: string
-  sourceType: string
-  srcCoinType: string
-  dstCoinType: string
-  srcAmount: string
-  dstAmount: string
-  metadata: {
-    isXToY?: boolean
-    isStable?: boolean
-    tokenInIndex?: number
-    tokenOutIndex?: number
-    marketId?: number
-    tokenInWeight?: number
-    tokenOutWeight?: number
-  }
-}
+import { GetRouteResponse } from '@anqa-ag/ts-sdk'
 
 const fn = async ({
   tokenIn,
