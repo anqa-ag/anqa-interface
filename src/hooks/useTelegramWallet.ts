@@ -41,7 +41,7 @@ export default function useTelegramWallet(): Omit<AnqaWalletState, 'isTelegram'>
   )
 
   const connect = useCallback(() => {
-    ReactGA.event({ category: 'Telegram Web App', action: 'TWA/connect' })
+    ReactGA.event({ category: 'Telegram Web Swap', action: 'TWA/connect' })
     if (isDesktop) {
       TelegramWebApp.showAlert(
         'Currently, the Anqa Telegram Bot is only supported on mobile devices with Petra wallet installed.',
@@ -59,7 +59,7 @@ export default function useTelegramWallet(): Omit<AnqaWalletState, 'isTelegram'>
 
   const disconnect = useCallback(() => {
     ReactGA.event({
-      category: 'Telegram Web App',
+      category: 'Telegram Web Swap',
       action: 'TWA/disconnect',
     })
     dispatch(clearTelegramState())
@@ -69,7 +69,7 @@ export default function useTelegramWallet(): Omit<AnqaWalletState, 'isTelegram'>
     // eslint-disable-next-line @typescript-eslint/require-await
     async (payload: any) => {
       ReactGA.event({
-        category: 'Telegram Web App',
+        category: 'Telegram Web Swap',
         action: 'TWA/signAndSubmitTransaction',
       })
 

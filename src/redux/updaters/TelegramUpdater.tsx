@@ -8,7 +8,7 @@ import { updateTelegramState } from '../slices/telegram'
 
 function initTelegramWebApp() {
   if (TelegramWebApp.initDataUnsafe.user) {
-    ReactGA.event({ category: 'Telegram Web App', action: 'TWA/init' })
+    ReactGA.event({ category: 'Telegram Web Swap', action: 'TWA/init' })
 
     TelegramWebApp.expand()
 

@@ -11,14 +11,15 @@ import { PersistGate } from 'redux-persist/integration/react'
 import 'react-toastify/dist/ReactToastify.css'
 import 'react-tooltip/dist/react-tooltip.css'
 
-import App from './App'
+import Swap from './pages/Swap.tsx'
 import NavigateWithParams from './components/NavigateWithParams'
 import { ENV, MAINNET_WALLETS } from './constants'
 import './main.css'
 import './main.scss'
 import { persistor, store } from './redux/store'
-import TheNest from './TheNest.tsx'
+import TheNest from './pages/TheNest.tsx'
 import SwapContextProvider from './contexts/SwapContextProvider.tsx'
+import Updaters from './redux/updaters/Updaters.tsx'
 
 ReactGA.initialize('G-B2297K89VL')
 
@@ -31,7 +32,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/swap/:pair',
-    element: <App />,
+    element: <Swap />,
   },
   {
     path: '/the-nest',
@@ -49,9 +50,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <NextUIProvider>
         <PersistGate persistor={persistor} loading={null}>
           <AptosWalletAdapterProvider plugins={MAINNET_WALLETS} autoConnect={true}>
-            <SwapContextProvider>
-              <RouterProvider router={router} />
-            </SwapContextProvider>
+            <Updaters>
+              <SwapContextProvider>
+                <RouterProvider router={router} />
+              </SwapContextProvider>
+            </Updaters>
           </AptosWalletAdapterProvider>
         </PersistGate>
       </NextUIProvider>
