@@ -170,7 +170,7 @@ export default function TheNest() {
                 ? leaderboard.map((item, index) => (
                     <div key={index} className="flex h-[44px] w-full items-center rounded-md bg-[#00123A] px-4">
                       <TitleT2 className="w-[10%] px-4 font-clashDisplayMedium text-buttonSecondary sm:px-0">
-                        {index + 1}
+                        {(page - 1) * 10 + index + 1}
                       </TitleT2>
                       <TitleT2 className="w-1/2 px-4 text-end font-clashDisplayMedium text-buttonSecondary sm:px-0">
                         {item.address}
