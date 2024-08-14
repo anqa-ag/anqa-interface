@@ -1,25 +1,32 @@
 import AppLayout from '../AppLayout.tsx'
-import { Button, Image, Spacer } from '@nextui-org/react'
+import { Button, Image, Pagination, Spacer } from '@nextui-org/react'
 import { TitleT1, TitleT2 } from '../components/Texts.tsx'
 import { TrophyIcon, YourNestIcon } from '../components/Icons.tsx'
 import VolumeBadges from '../components/VolumeBadges.tsx'
 import HowToEarnExp from '../components/HowToEarnExp.tsx'
 import YourTotalExp from '../components/YourTotalExp.tsx'
-import usePoint from '../hooks/usePoint.ts'
 import useAnqaWallet from '../hooks/useAnqaWallet.ts'
 import { useIsSm } from '../hooks/useMedia.ts'
 import TheNestMobileBanner from '../components/TheNestMobileBanner.tsx'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Icon } from '@iconify/react'
+import { mulpowToFraction, numberWithCommas } from '../utils/number.ts'
+import { Fraction } from '../utils/fraction.ts'
+import useLeaderboard from '../hooks/useLeaderboard.ts'
 
 export default function TheNest() {
   const { account } = useAnqaWallet()
-  const { totalPoint } = usePoint(account?.address)
   const isSm = useIsSm()
 
   const [activeTab, setActiveTab] = useState(1)
   const tabMyNest = activeTab === 0
   const tabLeaderboard = activeTab === 1
+
+  const [page, setPage] = useState(1)
+  const { data } = useLeaderboard(page, account?.address)
+  const { leaderboard, totalWallets, userPoint: _userPoint, userRank } = data?.data || {}
+  const totalPage = totalWallets ? Math.ceil(totalWallets / 10) : 1
+  const userPoint = useMemo(() => (_userPoint ? mulpowToFraction(_userPoint) : new Fraction(0)), [_userPoint])
 
   return (
     <AppLayout>
@@ -63,8 +70,8 @@ export default function TheNest() {
           {isSm ? (
             <div className="mt-5 flex flex-col items-center gap-5">
               <TheNestMobileBanner />
-              <YourTotalExp totalExp={totalPoint} />
-              <VolumeBadges totalExp={totalPoint} />
+              <YourTotalExp totalExp={userPoint} />
+              <VolumeBadges totalExp={userPoint} />
             </div>
           ) : (
             <div className="flex items-stretch justify-center gap-9 px-[60px] pt-4 xl:gap-6 xl:px-[40px]">
@@ -81,9 +88,9 @@ export default function TheNest() {
                   </div>
                   <HowToEarnExp />
                 </div>
-                <VolumeBadges totalExp={totalPoint} />
+                <VolumeBadges totalExp={userPoint} />
               </div>
-              <YourTotalExp totalExp={totalPoint} />
+              <YourTotalExp totalExp={userPoint} />
             </div>
           )}
         </>
@@ -94,34 +101,89 @@ export default function TheNest() {
       {activeTab === 1 && (
         <>
           <Spacer y={4} />
-          <img src="/images/thenest_leaderboard_bg.svg" width="100%" alt="" />
+          <div className="h-[100px] w-full bg-[url(/images/thenest_leaderboard_bg.svg)] bg-center bg-no-repeat" />
           <Spacer y={4} />
-          <div className="mx-auto flex w-full max-w-[870px] flex-col bg-[red]">
-            <div className="flex w-full bg-[red]">
-              <div className="shrink-0 grow-[2] basis-0 bg-[green] px-6 py-4">
-                <TitleT1 className="font-clashDisplayMedium">Your Total EXP</TitleT1>
-                <div className="flex h-fit min-h-fit w-fit min-w-[150px] items-center justify-center gap-2.5 rounded-3xl bg-[#2B313D] px-3 py-2.5">
-                  <Image width={isSm ? 22 : 30} src={'/images/coin.png'} />
-                  <div className="font-clashDisplayBold text-4xl xl:text-2xl sm:text-xl">
-                    {/*{numberWithCommas(totalPoint.toSignificant(6), true, 0)}*/}
-                    25,000
+          <div className="mx-auto flex w-full max-w-[870px] flex-col gap-4">
+            <div
+              className="w-full flex-col overflow-hidden rounded-xl border-1 border-line"
+              style={{
+                background:
+                  'var(--Gradient, radial-gradient(224.13% 231.56% at 80.49% 128.61%, #2667FE 0%, #0041DA 9.72%, #030181 21.71%, #001343 36.96%, #000 69.59%))',
+              }}
+            >
+              <div className="flex w-full">
+                <div className="shrink-0 grow-[2] basis-0 rounded border-r-1 border-[rgba(55,135,255,0.5)] px-6 py-4">
+                  <TitleT1 className="font-clashDisplayMedium">Your Total EXP</TitleT1>
+                  <div className="flex h-fit min-h-fit w-fit min-w-[150px] items-center justify-center gap-2.5 rounded-3xl bg-[#2B313D] px-3 py-2.5">
+                    <Image width={isSm ? 22 : 30} src={'/images/coin.png'} />
+                    <div className="font-clashDisplayBold text-4xl xl:text-2xl sm:text-xl">
+                      {account ? numberWithCommas(userPoint.toSignificant(6), true, 0) : '--'}
+                    </div>
+                  </div>
+                </div>
+                <div className="shrink-0 grow basis-0 p-4">
+                  <TitleT1 className="font-clashDisplayMedium">Your Rank</TitleT1>
+                  <div className="flex h-fit min-h-fit w-fit min-w-[150px] items-center justify-center gap-2.5 rounded-3xl bg-[#2B313D] px-3 py-2.5">
+                    <YourNestIcon size={isSm ? 16 : 22} color="#FFBE01" />
+                    <div className="font-clashDisplayBold text-4xl xl:text-2xl sm:text-xl">
+                      {account && userRank ? numberWithCommas(userRank.toString(), true, 0) : '--'}
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="shrink-0 grow basis-0 bg-[orange] p-4">
-                <TitleT1 className="font-clashDisplayMedium">Your Rank</TitleT1>
-                <div className="flex h-fit min-h-fit w-fit min-w-[150px] items-center justify-center gap-2.5 rounded-3xl bg-[#2B313D] px-3 py-2.5">
-                  <YourNestIcon size={isSm ? 16 : 22} color="#FFBE01" />
-                  <div className="font-clashDisplayBold text-4xl xl:text-2xl sm:text-xl">25,000</div>
+              <div className="flex w-full">
+                <div className="flex shrink-0 grow-[2] basis-0 items-center justify-between border-r-1 border-transparent bg-[#2667FE] px-6 py-2">
+                  <TitleT1 className="font-clashDisplayBold">Swap Now</TitleT1>
+                  <Icon icon="majesticons:arrow-right" width={24} />
                 </div>
+                <div className="shrink-0 grow basis-0 bg-[#3787FF4D] px-4" />
               </div>
             </div>
-            <div className="flex w-full bg-[red]">
-              <div className="flex shrink-0 grow-[2] basis-0 items-center justify-between bg-[#2667FE] px-6 py-2">
-                <TitleT1 className="font-clashDisplayBold">Swap Now</TitleT1>
-                <Icon icon="majesticons:arrow-right" width={24}/>
+
+            {/* Table leaderboard */}
+            <div
+              className="flex w-full flex-col gap-1.5 rounded-xl border-1 border-line px-4 py-8 min-h-[691px]"
+              style={{
+                background:
+                  'var(--Gradient, radial-gradient(224.13% 231.56% at 80.49% 128.61%, #2667FE 0%, #0041DA 9.72%, #030181 21.71%, #001343 36.96%, #000 69.59%))',
+              }}
+            >
+              <div className="flex h-[44px] w-full items-center rounded-md bg-[#00123A] px-4">
+                <TitleT2 className="w-[10%] px-4 font-clashDisplayMedium">Rank</TitleT2>
+                <TitleT2 className="w-[30%] px-4 text-end font-clashDisplayMedium">Address</TitleT2>
+                <TitleT2 className="w-[30%] px-4 text-end font-clashDisplayMedium">Volume</TitleT2>
+                <TitleT2 className="w-[30%] px-4 text-end font-clashDisplayMedium">Total EXP</TitleT2>
               </div>
-              <div className="shrink-0 grow basis-0 bg-[cyan] px-4" />
+              {leaderboard
+                ? leaderboard.map((item, index) => (
+                    <div key={index} className="flex h-[44px] w-full items-center rounded-md bg-[#00123A] px-4">
+                      <TitleT2 className="w-[10%] px-4 font-clashDisplayMedium text-buttonSecondary">
+                        {index + 1}
+                      </TitleT2>
+                      <TitleT2 className="w-[30%] px-4 text-end font-clashDisplayMedium text-buttonSecondary">
+                        {item.address}
+                      </TitleT2>
+                      <TitleT2 className="w-[30%] px-4 text-end font-clashDisplayMedium text-buttonSecondary">
+                        {numberWithCommas(mulpowToFraction(item.totalPoint).toSignificant(6), true, 2)}
+                      </TitleT2>
+                      <TitleT2 className="w-[30%] px-4 text-end font-clashDisplayMedium text-buttonSecondary">
+                        {numberWithCommas(mulpowToFraction(item.totalPoint).toSignificant(6), true, 2)}
+                      </TitleT2>
+                    </div>
+                  ))
+                : null}
+              {totalPage > 1 && (
+                <div className="flex h-[75px] w-full items-center justify-center rounded-md bg-[#00123A]">
+                  <Pagination
+                    color="primary"
+                    initialPage={1}
+                    page={page}
+                    onChange={(page) => setPage(page)}
+                    total={totalPage}
+                    classNames={{ item: 'bg-transparent rounded', cursor: 'rounded' }}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </>

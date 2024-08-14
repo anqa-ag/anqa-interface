@@ -1,4 +1,4 @@
-import { SwapArgs, getSwapDataFromArgs } from '@anqa-ag/ts-sdk'
+import { getSwapDataFromArgs, SwapArgs } from '@anqa-ag/ts-sdk'
 import { isUserTransactionResponse } from '@aptos-labs/ts-sdk'
 import { useCallback, useMemo, useState } from 'react'
 import { aptos } from '../utils/aptos'
@@ -6,7 +6,7 @@ import useAnqaWallet from './useAnqaWallet'
 import useRefreshBalanceFn from './useRefreshBalanceFn'
 import useSwapNotificationFn from './useSwapNotificationFn'
 import { PartialRecord } from '../types'
-import usePoint from './usePoint.ts'
+import useLeaderboard from './useLeaderboard.ts'
 
 export interface SwapState {
   isSwapping: boolean
@@ -24,7 +24,7 @@ export default function useSwap() {
 
   const sendNotification = useSwapNotificationFn()
   const refreshBalance = useRefreshBalanceFn()
-  const { mutatePoint } = usePoint(account?.address)
+  const { mutate: mutateLeaderboard } = useLeaderboard(1, account?.address)
 
   const onSwap = useCallback(
     async (args: SwapArgs) => {
@@ -103,7 +103,7 @@ export default function useSwap() {
           response.output?.vm_status,
         )
         setTimeout(() => {
-          void mutatePoint()
+          void mutateLeaderboard()
         }, 1500)
         void refreshBalance()
       } catch (err) {
@@ -131,7 +131,7 @@ export default function useSwap() {
       refreshBalance,
       sendNotification,
       signAndSubmitTransaction,
-      mutatePoint,
+      mutateLeaderboard,
     ],
   )
 
