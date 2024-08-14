@@ -13,8 +13,12 @@ import { Icon } from '@iconify/react'
 import { mulpowToFraction, numberWithCommas } from '../utils/number.ts'
 import { Fraction } from '../utils/fraction.ts'
 import useLeaderboard from '../hooks/useLeaderboard.ts'
+import { useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet'
 
 export default function TheNest() {
+  const navigate = useNavigate()
+
   const { account } = useAnqaWallet()
   const isSm = useIsSm()
 
@@ -30,6 +34,9 @@ export default function TheNest() {
 
   return (
     <AppLayout>
+      <Helmet>
+        <title>The Nest | Anqa</title>
+      </Helmet>
       <div className="flex h-fit w-full items-center justify-center gap-4 bg-[#004DFF1A] md:gap-2">
         <Button
           variant="light"
@@ -99,11 +106,11 @@ export default function TheNest() {
       {/********************* Leaderboard *********************/}
 
       {activeTab === 1 && (
-        <>
+        <div>
           <Spacer y={4} />
           <div className="h-[100px] w-full bg-[url(/images/thenest_leaderboard_bg.svg)] bg-center bg-no-repeat" />
           <Spacer y={4} />
-          <div className="mx-auto flex w-full max-w-[870px] flex-col gap-4">
+          <div className="mx-auto flex w-full max-w-[870px] flex-col gap-4 px-4">
             <div
               className="w-full flex-col overflow-hidden rounded-xl border-1 border-line"
               style={{
@@ -112,7 +119,7 @@ export default function TheNest() {
               }}
             >
               <div className="flex w-full">
-                <div className="shrink-0 grow-[2] basis-0 rounded border-r-1 border-[rgba(55,135,255,0.5)] px-6 py-4">
+                <div className="w-[65%] rounded border-r-1 border-[rgba(55,135,255,0.5)] px-6 py-4 sm:w-1/2">
                   <TitleT1 className="font-clashDisplayMedium">Your Total EXP</TitleT1>
                   <div className="flex h-fit min-h-fit w-fit min-w-[150px] items-center justify-center gap-2.5 rounded-3xl bg-[#2B313D] px-3 py-2.5">
                     <Image width={isSm ? 22 : 30} src={'/images/coin.png'} />
@@ -121,7 +128,7 @@ export default function TheNest() {
                     </div>
                   </div>
                 </div>
-                <div className="shrink-0 grow basis-0 p-4">
+                <div className="w-[35%] basis-0 p-4 sm:w-1/2">
                   <TitleT1 className="font-clashDisplayMedium">Your Rank</TitleT1>
                   <div className="flex h-fit min-h-fit w-fit min-w-[150px] items-center justify-center gap-2.5 rounded-3xl bg-[#2B313D] px-3 py-2.5">
                     <YourNestIcon size={isSm ? 16 : 22} color="#FFBE01" />
@@ -132,41 +139,43 @@ export default function TheNest() {
                 </div>
               </div>
               <div className="flex w-full">
-                <div className="flex shrink-0 grow-[2] basis-0 items-center justify-between border-r-1 border-transparent bg-[#2667FE] px-6 py-2">
+                <Button
+                  variant="light"
+                  className="flex w-[65%] items-center justify-between rounded-none border-r-1 border-transparent bg-[#2667FE] px-6 py-2 data-[hover]:bg-[#2667FE] data-[hover]:opacity-90 sm:w-1/2"
+                  disableAnimation
+                  disableRipple
+                  onPress={() => navigate(`/swap/APT-zUSDC`, { replace: false })}
+                >
                   <TitleT1 className="font-clashDisplayBold">Swap Now</TitleT1>
                   <Icon icon="majesticons:arrow-right" width={24} />
-                </div>
-                <div className="shrink-0 grow basis-0 bg-[#3787FF4D] px-4" />
+                </Button>
+                <div className="w-[35%] bg-[#3787FF4D] px-4 sm:w-1/2" />
               </div>
             </div>
 
             {/* Table leaderboard */}
             <div
-              className="flex w-full flex-col gap-1.5 rounded-xl border-1 border-line px-4 py-8 min-h-[691px]"
+              className="flex min-h-[691px] w-full flex-col gap-1.5 rounded-xl border-1 border-line px-4 py-8"
               style={{
                 background:
                   'var(--Gradient, radial-gradient(224.13% 231.56% at 80.49% 128.61%, #2667FE 0%, #0041DA 9.72%, #030181 21.71%, #001343 36.96%, #000 69.59%))',
               }}
             >
               <div className="flex h-[44px] w-full items-center rounded-md bg-[#00123A] px-4">
-                <TitleT2 className="w-[10%] px-4 font-clashDisplayMedium">Rank</TitleT2>
-                <TitleT2 className="w-[30%] px-4 text-end font-clashDisplayMedium">Address</TitleT2>
-                <TitleT2 className="w-[30%] px-4 text-end font-clashDisplayMedium">Volume</TitleT2>
-                <TitleT2 className="w-[30%] px-4 text-end font-clashDisplayMedium">Total EXP</TitleT2>
+                <TitleT2 className="w-[10%] px-4 font-clashDisplayMedium sm:px-0">Rank</TitleT2>
+                <TitleT2 className="w-1/2 px-4 text-end font-clashDisplayMedium sm:px-0">Address</TitleT2>
+                <TitleT2 className="w-2/5 px-4 text-end font-clashDisplayMedium sm:px-0">Total EXP</TitleT2>
               </div>
               {leaderboard
                 ? leaderboard.map((item, index) => (
                     <div key={index} className="flex h-[44px] w-full items-center rounded-md bg-[#00123A] px-4">
-                      <TitleT2 className="w-[10%] px-4 font-clashDisplayMedium text-buttonSecondary">
+                      <TitleT2 className="w-[10%] px-4 font-clashDisplayMedium text-buttonSecondary sm:px-0">
                         {index + 1}
                       </TitleT2>
-                      <TitleT2 className="w-[30%] px-4 text-end font-clashDisplayMedium text-buttonSecondary">
+                      <TitleT2 className="w-1/2 px-4 text-end font-clashDisplayMedium text-buttonSecondary sm:px-0">
                         {item.address}
                       </TitleT2>
-                      <TitleT2 className="w-[30%] px-4 text-end font-clashDisplayMedium text-buttonSecondary">
-                        {numberWithCommas(mulpowToFraction(item.totalPoint).toSignificant(6), true, 2)}
-                      </TitleT2>
-                      <TitleT2 className="w-[30%] px-4 text-end font-clashDisplayMedium text-buttonSecondary">
+                      <TitleT2 className="w-2/5 px-4 text-end font-clashDisplayMedium text-buttonSecondary sm:px-0">
                         {numberWithCommas(mulpowToFraction(item.totalPoint).toSignificant(6), true, 2)}
                       </TitleT2>
                     </div>
@@ -186,7 +195,7 @@ export default function TheNest() {
               )}
             </div>
           </div>
-        </>
+        </div>
       )}
     </AppLayout>
   )

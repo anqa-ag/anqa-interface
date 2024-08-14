@@ -33,6 +33,7 @@ import {
 import CountdownSpinner from '../components/CountdownSpinner.tsx'
 import AppLayout from '../AppLayout.tsx'
 import { ChargeFeeBy } from '@anqa-ag/ts-sdk'
+import { Helmet } from 'react-helmet'
 
 export default function Swap() {
   const dispatch = useAppDispatch()
@@ -384,6 +385,9 @@ export default function Swap() {
 
   return (
     <AppLayout>
+      <Helmet>
+        <title>Swap | Anqa</title>
+      </Helmet>
       {isDebug && (
         <div className="absolute left-0 top-1/2 w-[250px] -translate-y-1/2 border-1 border-red-500 p-4">
           <div>💡 Press cmd and click to multiple select source.</div>
