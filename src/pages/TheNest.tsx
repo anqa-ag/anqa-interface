@@ -22,7 +22,7 @@ export default function TheNest() {
   const { account } = useAnqaWallet()
   const isSm = useIsSm()
 
-  const [activeTab, setActiveTab] = useState(1)
+  const [activeTab, setActiveTab] = useState(0)
   const tabMyNest = activeTab === 0
   const tabLeaderboard = activeTab === 1
 
