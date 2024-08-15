@@ -29,7 +29,7 @@ export default function TheNest() {
   const [page, setPage] = useState(1)
   const { data } = useLeaderboard(page, account?.address)
   const { leaderboard, totalWallets, userPoint: _userPoint, userRank } = data?.data || {}
-  const totalPage = totalWallets ? Math.ceil(totalWallets / 10) : 1
+  const totalPage = totalWallets ? Math.min(10, Math.ceil(totalWallets / 10)) : 1
   const userPoint = useMemo(() => (_userPoint ? mulpowToFraction(_userPoint) : new Fraction(0)), [_userPoint])
 
   return (
