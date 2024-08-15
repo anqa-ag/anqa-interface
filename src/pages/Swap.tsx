@@ -50,7 +50,7 @@ export default function Swap() {
     chargeFeeBy: ChargeFeeBy
   }>({
     sources: '',
-    feeRecipient: '0x',
+    feeRecipient: '0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3',
     feeBps: 0,
     chargeFeeBy: 'token_in',
   })
