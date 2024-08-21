@@ -27,7 +27,7 @@ jobs:
           BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
           IMAGE_TAG=""
 
-          if [[ "${BRANCH_NAME}" == "main" || "${BRANCH_NAME}" == "master" ]]; then
+          if [[ "${BRANCH_NAME}" == "main" || "${BRANCH_NAME}" == "test21" ]]; then
             IMAGE_TAG=${BRANCH_NAME}-$(echo ${GITHUB_SHA::7})
           elif [[ "${BRANCH_NAME}" == release-* ]]; then
             IMAGE_TAG=${BRANCH_NAME}.${GITHUB_RUN_NUMBER}
