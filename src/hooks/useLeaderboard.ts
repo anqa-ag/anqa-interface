@@ -1,4 +1,4 @@
-import { POINT_SYSTEM_URL } from '../constants'
+import { ANQA_ANALYSIS_URL } from '../constants'
 import axios from 'axios'
 import useSWR from 'swr'
 import { useMemo } from 'react'
@@ -10,14 +10,26 @@ interface GetLeaderboardResponse {
 }
 
 interface GetLeaderboardResponseData {
-  leaderboard: { address: string; totalPoint: string }[]
-  totalWallets: number
-  userRank: number | null
-  userPoint: string | null
+  leaderboard: Leaderboard[]
+  total: string
+  user: User
 }
 
+export interface Leaderboard {
+  rank: number
+  address: string
+  volume: string
+}
+
+export interface User {
+  rank: number | null
+  totalVolume: string | null
+  totalTrades: number | null
+}
+
+
 const fn = async ({ page, walletAddress }: { page: number; walletAddress: string | undefined }) => {
-  const url = `${POINT_SYSTEM_URL}/v1/leaderboard?limit=10&offset=${(page - 1) * 10}&wallet=${walletAddress || ''}`
+  const url = `${ANQA_ANALYSIS_URL}/v1/leaderboard?limit=10&offset=${(page - 1) * 10}&wallet=${walletAddress || ''}`
   const response = await axios<GetLeaderboardResponse>(url)
   if (response.status === 200) {
     return response.data

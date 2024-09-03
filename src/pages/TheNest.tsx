@@ -28,9 +28,9 @@ export default function TheNest() {
 
   const [page, setPage] = useState(1)
   const { data } = useLeaderboard(page, account?.address)
-  const { leaderboard, totalWallets, userPoint: _userPoint, userRank } = data?.data || {}
-  const totalPage = totalWallets ? Math.min(10, Math.ceil(totalWallets / 10)) : 1
-  const userPoint = useMemo(() => (_userPoint ? mulpowToFraction(_userPoint) : new Fraction(0)), [_userPoint])
+  const { leaderboard, total: totalWallets, user } = data?.data || {}
+  const totalPage = totalWallets ? Math.min(10, Math.ceil(Number(totalWallets) / 10)) : 1
+  const userPoint = useMemo(() => (user ? mulpowToFraction(user.totalVolume || '0') : new Fraction(0)), [user])
 
   return (
     <AppLayout>
@@ -133,7 +133,7 @@ export default function TheNest() {
                   <div className="flex h-fit min-h-fit w-fit min-w-[150px] items-center justify-center gap-2.5 rounded-3xl bg-[#2B313D] px-3 py-2.5">
                     <YourNestIcon size={isSm ? 16 : 22} color="#FFBE01" />
                     <div className="font-clashDisplayBold text-4xl xl:text-2xl sm:text-xl">
-                      {account && userRank ? numberWithCommas(userRank.toString(), true, 0) : '--'}
+                      {account && user?.rank ? numberWithCommas(user.rank.toString(), true, 0) : '--'}
                     </div>
                   </div>
                 </div>
@@ -173,10 +173,10 @@ export default function TheNest() {
                         {(page - 1) * 10 + index + 1}
                       </TitleT2>
                       <TitleT2 className="w-1/2 px-4 text-end font-clashDisplayMedium text-buttonSecondary sm:px-0">
-                        {item.address}
+                        {item.address.slice(0, 6)}...{item.address.slice(item.address.length - 4, item.address.length)}
                       </TitleT2>
                       <TitleT2 className="w-2/5 px-4 text-end font-clashDisplayMedium text-buttonSecondary sm:px-0">
-                        {numberWithCommas(mulpowToFraction(item.totalPoint).toSignificant(6), true, 2)}
+                        {numberWithCommas(mulpowToFraction(item.volume).toSignificant(6), true, 2)}
                       </TitleT2>
                     </div>
                   ))
