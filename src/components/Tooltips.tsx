@@ -19,7 +19,7 @@ export default function Tooltips() {
         className="!max-w-[min(320px,80%)] !px-2 !py-1 !text-sm"
         opacity={1}
         delayShow={0}
-        content="Minimum received amount after slippage. Minimum received amount after slippage."
+        content="Minimum received amount after slippage."
       />
       <ReactTooltip
         id="tooltip-input-amount-out"
