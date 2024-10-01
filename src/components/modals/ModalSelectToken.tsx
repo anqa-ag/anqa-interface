@@ -31,6 +31,10 @@ const BANNERS = [
     symbol: 'UPTOS',
     logoUrl: '/banners/UPTOS.jpg',
   },
+  {
+    symbol: 'CAPTOS',
+    logoUrl: '/banners/CAPTOS.png',
+  },
 ]
 
 const STABLE_COIN_IDS = [
