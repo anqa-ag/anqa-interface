@@ -69,4 +69,9 @@ export const SOURCES: PartialRecord<string, { name: string; shortName: string; l
     shortName: 'Obric',
     logoUrl: '/images/obric.ico',
   },
+  movepump_swap: {
+    name: 'Movepump',
+    shortName: 'Movepump',
+    logoUrl: 'https://movepump.com/images/icons/movepump-logo.svg',
+  },
 }
