@@ -16,24 +16,16 @@ import { PartialRecord } from '../../types.ts'
 
 const BANNERS = [
   {
-    symbol: 'ZAAP',
-    logoUrl: '/banners/ZAAP.png',
-  },
-  {
-    symbol: 'DONK',
-    logoUrl: '/banners/DONK.jpg',
-  },
-  {
-    symbol: 'FOMO',
-    logoUrl: '/banners/FOMO.png',
-  },
-  {
     symbol: 'UPTOS',
     logoUrl: '/banners/UPTOS.jpg',
   },
   {
     symbol: 'CAPTOS',
     logoUrl: '/banners/CAPTOS.png',
+  },
+  {
+    symbol: 'EDOG',
+    logoUrl: '/banners/EDOG.png',
   },
 ]
 
