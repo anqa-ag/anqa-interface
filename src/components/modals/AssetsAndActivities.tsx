@@ -71,6 +71,17 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
     list.sort((a: TokenWithBalance, b: TokenWithBalance) => {
       const x = a.fractionalBalanceUsd ?? new Fraction(0)
       const y = b.fractionalBalanceUsd ?? new Fraction(0)
+      if (x.equalTo(0) && y.equalTo(0)) {
+        const xx = a.fractionalBalance ?? new Fraction(0)
+        const yy = b.fractionalBalance ?? new Fraction(0)
+        if (xx.lessThan(yy)) {
+          return 1
+        } else if (xx.greaterThan(yy)) {
+          return -1
+        }
+      }
+      if (x.equalTo(0)) return 1
+      if (y.equalTo(0)) return -1
       if (x.lessThan(y)) {
         return 1
       } else if (x.greaterThan(y)) {
