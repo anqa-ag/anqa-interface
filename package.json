@@ -14,7 +14,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@anqa-ag/ts-sdk": "github:anqa-ag/anqa-sdk#fa08b7cedf62602c1675a10a5a04d2dbe0a7c4b7",
+    "@anqa-ag/ts-sdk": "github:anqa-ag/anqa-sdk#f6c18b37706784b90d84c983af8df163d9bd97c9",
     "@aptos-connect/wallet-adapter-plugin": "^1.0.0",
     "@aptos-labs/ts-sdk": "^1.16.0",
     "@aptos-labs/wallet-adapter-react": "^3.2.0",

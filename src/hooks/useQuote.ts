@@ -1,8 +1,7 @@
-import axios from 'axios'
 import { useMemo } from 'react'
 import useSWR from 'swr'
 import { AGGREGATOR_URL, BIP_BASE_BN } from '../constants'
-import { GetRouteV2Response, RawHop } from '@anqa-ag/ts-sdk'
+import { getRouteV2, RawHop } from '@anqa-ag/ts-sdk'
 import { Asset } from '../redux/slices/asset.ts'
 import { InputEntryFunctionData } from '@aptos-labs/ts-sdk'
 import invariant from 'tiny-invariant'
@@ -24,52 +23,6 @@ export interface ParsedGetRouteResponseData {
   dstAmount: string
   paths: Hop[][]
   swapData: InputEntryFunctionData | undefined
-}
-
-const fn = async ({
-  sender,
-  receiver,
-  srcAsset,
-  dstAsset,
-  srcAmount,
-  slippageBps,
-  isFeeIn,
-  feeReceiver,
-  feeInBps,
-  includeSources
-}: {
-  sender?: string
-  receiver?: string
-  srcAsset?: string
-  dstAsset?: string
-  srcAmount?: string
-  slippageBps?: number
-  isFeeIn?: boolean
-  feeInBps?: string
-  feeBps?: number
-  includeSources?: string
-}) => {
-  if (!srcAsset || !dstAsset || !srcAmount || parseFloat(srcAmount) === 0) return
-  const excludeSources = ['bapt_swap_v1', 'bapt_swap_v2', 'bapt_swap_v2.1']
-  const response = await axios<GetRouteV2Response>(`${AGGREGATOR_URL}/v2/quote`, {
-    params: {
-      srcAsset: srcAsset,
-      dstAsset: dstAsset,
-      amount: srcAmount,
-      slippage: slippageBps,
-      sender,
-      receiver,
-      feeReceiver,
-      includeSources,
-      isFeeIn,
-      feeInBps,
-      excludeSources: excludeSources.join(',')
-    }
-  })
-  if (response.status === 200 && response.data.data.dstAmount != '0') {
-    return response.data.data
-  }
-  return undefined
 }
 
 export default function useQuote(
@@ -107,6 +60,7 @@ export default function useQuote(
   } = useSWR(
     {
       key: 'useQuote',
+      aggregatorBaseUrl: AGGREGATOR_URL,
       sender,
       receiver,
       srcAsset,
@@ -118,7 +72,7 @@ export default function useQuote(
       feeInBps: feeBps,
       includeSources
     },
-    fn,
+    getRouteV2,
     {
       isPaused: () => isSwapping
     }
