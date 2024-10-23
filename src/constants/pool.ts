@@ -1,6 +1,6 @@
 import { PartialRecord } from '../types'
 
-export const SOURCES: PartialRecord<string, { name: string; shortName: string; logoUrl: string }> = {
+export const SUPPORTED_POOLS: PartialRecord<string, { name: string; shortName: string; logoUrl: string }> = {
   pancake_swap: {
     name: 'PancakeSwap',
     shortName: 'Pancake',

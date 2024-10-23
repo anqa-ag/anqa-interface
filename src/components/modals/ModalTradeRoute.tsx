@@ -1,10 +1,9 @@
 import { Button, Image, Modal, ModalContent, Spacer } from '@nextui-org/react'
-import { SOURCES } from '../../constants/source.ts'
 import { useAppSelector } from '../../redux/hooks'
 import { Fraction } from '../../utils/fraction.ts'
 import { ChevronRight, CloseIcon } from '../Icons.tsx'
 import { BodyB2, BodyB3, TitleT1, TitleT5 } from '../Texts.tsx'
-import { GetRouteResponseDataPath } from '@anqa-ag/ts-sdk'
+import { Hop } from '../../hooks/useQuote.ts'
 
 export default function ModalTradeRoute({
   isOpen,
@@ -25,7 +24,7 @@ export default function ModalTradeRoute({
   readableAmountIn: string
   readableAmountOut: string
   rawAmountIn: string | undefined
-  paths: GetRouteResponseDataPath[][] | undefined
+  paths: Hop[][] | undefined
 }) {
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
   return (
@@ -97,19 +96,19 @@ export default function ModalTradeRoute({
                                   width={20}
                                   height={20}
                                   className="min-h-[20px] min-w-[20px]"
-                                  src={followingTokenData?.[hop.dstCoinType]?.logoUrl}
+                                  src={hop.dstAsset?.logoUrl}
                                 />
-                                <TitleT5>{followingTokenData?.[hop.dstCoinType]?.symbol || '--'}</TitleT5>
+                                <TitleT5>{hop.dstAsset?.symbol || '--'}</TitleT5>
                               </div>
                               <div className="flex w-[160px] items-center gap-1 bg-background p-2">
                                 <Image
                                   width={20}
                                   height={20}
                                   className="min-h-[20px] min-w-[20px]"
-                                  src={SOURCES[hop.source as keyof typeof SOURCES]?.logoUrl}
+                                  src={hop.pool?.logoUrl}
                                 />
                                 <BodyB3 className="text-buttonSecondary">
-                                  {SOURCES[hop.source as keyof typeof SOURCES]?.name || '--'}: 100%
+                                  {hop.pool?.name || '--'}: 100%
                                 </BodyB3>
                               </div>
                             </div>

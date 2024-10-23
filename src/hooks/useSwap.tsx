@@ -1,5 +1,4 @@
-import { getSwapDataFromArgs, SwapArgs } from '@anqa-ag/ts-sdk'
-import { isUserTransactionResponse } from '@aptos-labs/ts-sdk'
+import { InputEntryFunctionData, isUserTransactionResponse } from '@aptos-labs/ts-sdk'
 import { useCallback, useMemo, useState } from 'react'
 import { aptos } from '../utils/aptos'
 import useAnqaWallet from './useAnqaWallet'
@@ -18,7 +17,7 @@ export default function useSwap() {
   const [{ isSwapping, txVersion, success }, setSwapState] = useState<SwapState>({
     isSwapping: false,
     txVersion: undefined,
-    success: undefined,
+    success: undefined
   })
   const { signAndSubmitTransaction, account, connected, isTelegram } = useAnqaWallet()
 
@@ -27,17 +26,28 @@ export default function useSwap() {
   const { mutate: mutateLeaderboard } = useLeaderboard(1, account?.address)
 
   const onSwap = useCallback(
-    async (args: SwapArgs) => {
+    async ({
+             swapData,
+             tokenIn,
+             tokenOut,
+             amountIn,
+             amountOut
+           }: {
+      swapData: InputEntryFunctionData
+      tokenIn: string
+      tokenOut: string
+      amountIn: string
+      amountOut: string
+    }) => {
       if (!account || !connected || isSwapping) return
 
       try {
         setSwapState({
           isSwapping: true,
           txVersion: undefined,
-          success: undefined,
+          success: undefined
         })
 
-        const swapData = getSwapDataFromArgs(args)
         // const swapData = await getSwapData({
         //   amountIn: args.amountIn,
         //   chargeFeeBy: args.chargeFeeBy,
@@ -54,19 +64,23 @@ export default function useSwap() {
               JSON.stringify({
                 function: swapData.function,
                 arguments: swapData.functionArguments,
-                type_arguments: swapData.typeArguments,
-              }),
-            ) as any,
+                type_arguments: swapData.typeArguments
+              })
+            ) as any
           )
           return
         }
-
+        console.log('signAndSubmitTransaction', swapData)
         const response: {
           hash: string
           output: PartialRecord<string, any>
         } = await signAndSubmitTransaction({
           sender: account.address,
-          data: swapData,
+          data: {
+            function: swapData.function,
+            functionArguments: swapData.functionArguments,
+            typeArguments: swapData.typeArguments
+          }
         })
         console.log(`response`, response)
         if (
@@ -78,8 +92,8 @@ export default function useSwap() {
             options: {
               checkSuccess: false,
               timeoutSecs: 2,
-              waitForIndexer: true,
-            },
+              waitForIndexer: true
+            }
           })
           console.log(`aptosResponse`, aptosResponse)
           if (isUserTransactionResponse(aptosResponse)) {
@@ -91,16 +105,16 @@ export default function useSwap() {
         setSwapState({
           isSwapping: false,
           txVersion: response.output?.version,
-          success: response.output?.success,
+          success: response.output?.success
         })
         sendNotification(
-          args.tokenIn,
-          args.tokenOut,
-          args.amountIn,
-          args.amountOut,
+          tokenIn,
+          tokenOut,
+          amountIn,
+          amountOut,
           response.output?.version,
           Boolean(response.output?.success),
-          response.output?.vm_status,
+          response.output?.vm_status
         )
         setTimeout(() => {
           void mutateLeaderboard()
@@ -119,7 +133,7 @@ export default function useSwap() {
           } else {
             errorDetails = (err as any)?.message || undefined
           }
-          sendNotification(args.tokenIn, args.tokenOut, args.amountIn, args.amountOut, undefined, false, errorDetails)
+          sendNotification(tokenIn, tokenOut, amountIn, amountOut, undefined, false, errorDetails)
         }
       }
     },
@@ -131,8 +145,8 @@ export default function useSwap() {
       refreshBalance,
       sendNotification,
       signAndSubmitTransaction,
-      mutateLeaderboard,
-    ],
+      mutateLeaderboard
+    ]
   )
 
   const res = useMemo(
@@ -140,9 +154,9 @@ export default function useSwap() {
       isSwapping,
       txVersion,
       success,
-      onSwap,
+      onSwap
     }),
-    [isSwapping, onSwap, success, txVersion],
+    [isSwapping, onSwap, success, txVersion]
   )
   return res
 }

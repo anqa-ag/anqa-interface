@@ -12,7 +12,7 @@ import ModalSelectToken from '../components/modals/ModalSelectToken.tsx'
 import ModalTradeRoute from '../components/modals/ModalTradeRoute.tsx'
 import ModalUserSetting from '../components/modals/ModalUserSetting.tsx'
 import { BIP_BASE, NOT_FOUND_TOKEN_LOGO_URL, petraWallet, ZUSDC } from '../constants'
-import { SOURCES } from '../constants/source.ts'
+import { SUPPORTED_POOLS } from '../constants/pool.ts'
 import { SwapContext } from '../contexts/SwapContext.ts'
 import useAnqaWallet from '../hooks/useAnqaWallet.ts'
 import useFullTokens, { TokenInfo } from '../hooks/useFullTokens.ts'
@@ -20,7 +20,7 @@ import useModal, { MODAL_LIST } from '../hooks/useModal.ts'
 import useQuote from '../hooks/useQuote.ts'
 import useSwap from '../hooks/useSwap.tsx'
 import { useAppDispatch, useAppSelector } from '../redux/hooks'
-import { addTokensToFollow, Token } from '../redux/slices/token.ts'
+import { addTokensToFollow, Asset } from '../redux/slices/asset.ts'
 import { Fraction } from '../utils/fraction.ts'
 import {
   divpowToFraction,
@@ -28,7 +28,7 @@ import {
   inputRegex,
   mulpowToFraction,
   numberWithCommas,
-  truncateValue,
+  truncateValue
 } from '../utils/number.ts'
 import CountdownSpinner from '../components/CountdownSpinner.tsx'
 import AppLayout from '../AppLayout.tsx'
@@ -52,10 +52,11 @@ export default function Swap() {
     sources: '',
     feeRecipient: '0x2e8671ebdf16028d7de00229c26b551d8f145d541f96278eec54d9d775a49fe3',
     feeBps: 0,
-    chargeFeeBy: 'token_in',
+    chargeFeeBy: 'token_in'
   })
 
-  const resetTimerFunction = useRef(() => {})
+  const resetTimerFunction = useRef(() => {
+  })
   const { setSwapLocation } = useContext(SwapContext)
 
   const setResetTimerFunc = (f: () => void) => (resetTimerFunction.current = f)
@@ -82,7 +83,7 @@ export default function Swap() {
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
   const tokenIn = useMemo(
     () =>
-      (Object.values(followingTokenData) as Token[]).find((token) => {
+      (Object.values(followingTokenData) as Asset[]).find((token) => {
         try {
           const tokenSymbolOrAddress = location.pathname.replace('/swap/', '').split('-')[0]
           return token.symbol === tokenSymbolOrAddress || token.id === tokenSymbolOrAddress
@@ -90,11 +91,11 @@ export default function Swap() {
           return false
         }
       })?.id || APTOS_COIN,
-    [followingTokenData, location.pathname],
+    [followingTokenData, location.pathname]
   )
   const tokenOut = useMemo(
     () =>
-      (Object.values(followingTokenData) as Token[]).find((token) => {
+      (Object.values(followingTokenData) as Asset[]).find((token) => {
         try {
           const tokenSymbolOrAddress = location.pathname.replace('/swap/', '').split('-')[1]
           return token.symbol === tokenSymbolOrAddress || token.id === tokenSymbolOrAddress
@@ -102,10 +103,10 @@ export default function Swap() {
           return false
         }
       })?.id || ZUSDC,
-    [followingTokenData, location.pathname],
+    [followingTokenData, location.pathname]
   )
-  const tokenInInfo: Token | undefined = useMemo(() => followingTokenData[tokenIn], [followingTokenData, tokenIn])
-  const tokenOutInfo: Token | undefined = useMemo(() => followingTokenData[tokenOut], [followingTokenData, tokenOut])
+  const tokenInInfo: Asset | undefined = useMemo(() => followingTokenData[tokenIn], [followingTokenData, tokenIn])
+  const tokenOutInfo: Asset | undefined = useMemo(() => followingTokenData[tokenOut], [followingTokenData, tokenOut])
 
   const { data: fullTokenData } = useFullTokens()
   useEffect(() => {
@@ -115,7 +116,7 @@ export default function Swap() {
       const tokenOutSymbolOrAddress = pair.split('-')[1]
       if (!tokenInSymbolOrAddress || !tokenOutSymbolOrAddress) throw new Error(`invalid pair = ${pair}`)
 
-      const followingTokenDataList = Object.values(followingTokenData) as Token[]
+      const followingTokenDataList = Object.values(followingTokenData) as Asset[]
 
       if (!fullTokenData || Object.values(fullTokenData).length === 0) return
       const fullTokenDataList = Object.values(fullTokenData) as TokenInfo[]
@@ -146,11 +147,11 @@ export default function Swap() {
       } catch (err) {
         pair !== '/swap' && console.error(err)
         navigate(`/swap/APT-zUSDC?${params.toString()}`, {
-          replace: true,
+          replace: true
         })
       }
     },
-    [location.pathname, navigate, params],
+    [location.pathname, navigate, params]
   )
   const _setTokenOut = useCallback(
     (symbolOrAddress: string) => {
@@ -163,11 +164,11 @@ export default function Swap() {
       } catch (err) {
         pair !== '/swap' && console.error(err)
         navigate(`/swap/APT-zUSDC?${params.toString()}`, {
-          replace: true,
+          replace: true
         })
       }
     },
-    [location.pathname, navigate, params],
+    [location.pathname, navigate, params]
   )
 
   const tokenInDecimals = tokenInInfo ? tokenInInfo.decimals : undefined
@@ -176,11 +177,11 @@ export default function Swap() {
   const followingPriceData = useAppSelector((state) => state.price.followingPriceData)
   const fractionalPriceTokenIn = useMemo(
     () => (followingPriceData[tokenIn] ? mulpowToFraction(followingPriceData[tokenIn]) : undefined),
-    [followingPriceData, tokenIn],
+    [followingPriceData, tokenIn]
   )
   const fractionalPriceTokenOut = useMemo(
     () => (followingPriceData[tokenOut] ? mulpowToFraction(followingPriceData[tokenOut]) : undefined),
-    [followingPriceData, tokenOut],
+    [followingPriceData, tokenOut]
   )
 
   const balanceTokenIn = balance[tokenIn]
@@ -199,28 +200,36 @@ export default function Swap() {
       typedAmountIn && tokenInDecimals !== undefined
         ? mulpowToFraction(typedAmountIn.replaceAll(',', ''), tokenInDecimals)
         : undefined,
-    [tokenInDecimals, typedAmountIn],
+    [tokenInDecimals, typedAmountIn]
   )
   const [fractionalAmountIn] = useDebounceValue(_fractionalAmountIn, shouldUseDebounceAmountIn ? 250 : 0)
+  const { txVersion: swapTxVersion, isSwapping, onSwap: _onSwap, success: isSwapSuccess } = useSwap()
+  const slippageBps = useAppSelector((state) => state.user.slippageBps)
+  const isHighSlippage = slippageBps >= 500
 
   const {
-    amountOut,
+    dstAmount: amountOut,
     isValidating: isValidatingQuote,
-    sourceInfo,
     paths,
-    reFetch,
+    sourceInfo,
+    swapData,
+    reFetch
   } = useQuote({
-    tokenIn,
-    tokenOut,
-    amountIn: fractionalAmountIn?.numerator?.toString(),
+    isSwapping,
+    sender: account?.address,
+    receiver: account?.address,
+    srcAsset: tokenIn,
+    dstAsset: tokenOut,
+    srcAmount: fractionalAmountIn?.numerator?.toString(),
+    slippageBps,
     includeSources: debugData.sources,
     feeBps: debugData.feeBps,
-    chargeFeeBy: debugData.chargeFeeBy,
+    chargeFeeBy: debugData.chargeFeeBy
   })
   const fractionalAmountOut = useMemo(
     () =>
       amountOut && tokenOutDecimals != undefined ? new Fraction(amountOut, Math.pow(10, tokenOutDecimals)) : undefined,
-    [tokenOutDecimals, amountOut],
+    [tokenOutDecimals, amountOut]
   )
 
   const readableAmountOut =
@@ -231,19 +240,19 @@ export default function Swap() {
   const fractionalAmountInUsd = useMemo(
     () =>
       fractionalAmountIn && fractionalPriceTokenIn ? fractionalAmountIn.multiply(fractionalPriceTokenIn) : undefined,
-    [fractionalAmountIn, fractionalPriceTokenIn],
+    [fractionalAmountIn, fractionalPriceTokenIn]
   )
   const fractionalAmountOutUsd = useMemo(
     () =>
       fractionalAmountOut && fractionalPriceTokenOut
         ? fractionalAmountOut.multiply(fractionalPriceTokenOut)
         : undefined,
-    [fractionalAmountOut, fractionalPriceTokenOut],
+    [fractionalAmountOut, fractionalPriceTokenOut]
   )
 
   const rate = useMemo(
     () => (fractionalAmountIn && fractionalAmountOut ? fractionalAmountOut.divide(fractionalAmountIn) : undefined),
-    [fractionalAmountIn, fractionalAmountOut],
+    [fractionalAmountIn, fractionalAmountOut]
   )
   const priceImpact = useMemo(() => {
     let res =
@@ -258,8 +267,6 @@ export default function Swap() {
   const isPriceImpactVeryHigh = useMemo(() => Boolean(priceImpact?.greaterThan(10)), [priceImpact])
   const isPriceImpactHigh = useMemo(() => Boolean(priceImpact?.greaterThan(5)), [priceImpact])
 
-  const slippageBps = useAppSelector((state) => state.user.slippageBps)
-  const isHighSlippage = slippageBps >= 500
   const minimumReceived = useMemo(() => {
     if (!fractionalAmountOut) return undefined
     // If any tokens have more than 8 decimals, this assignment will break. I assume 8 is the max decimals in aptos chain? Never mind, I will use 18.
@@ -275,12 +282,12 @@ export default function Swap() {
 
   const fractionalFeeAmount = useMemo(
     () => (tokenIn === APTOS_COIN ? new Fraction(2, 1000) : new Fraction(0, 1)),
-    [tokenIn],
+    [tokenIn]
   )
   const isSufficientBalance =
     fractionalBalanceTokenIn && fractionalAmountIn
       ? fractionalBalanceTokenIn.subtract(fractionalFeeAmount).equalTo(fractionalAmountIn) ||
-        fractionalBalanceTokenIn.subtract(fractionalFeeAmount).greaterThan(fractionalAmountIn)
+      fractionalBalanceTokenIn.subtract(fractionalFeeAmount).greaterThan(fractionalAmountIn)
       : undefined
 
   const onSetPercentAmountIn = (percent: number) => {
@@ -341,7 +348,7 @@ export default function Swap() {
         _setTokenIn(symbolOrAddress)
       }
     },
-    [_setTokenIn, switchToken, tokenOut, tokenOutInfo],
+    [_setTokenIn, switchToken, tokenOut, tokenOutInfo]
   )
   const setTokenOut = useCallback(
     (symbolOrAddress: string) => {
@@ -351,26 +358,19 @@ export default function Swap() {
         _setTokenOut(symbolOrAddress)
       }
     },
-    [_setTokenOut, switchToken, tokenIn, tokenInInfo],
+    [_setTokenOut, switchToken, tokenIn, tokenInInfo]
   )
 
   const { globalModal, isModalOpen, onOpenModal, onCloseModal, onOpenChangeModal } = useModal()
 
-  const { txVersion: swapTxVersion, isSwapping, onSwap: _onSwap, success: isSwapSuccess } = useSwap()
   const onSwap = () => {
-    if (fractionalAmountIn && fractionalAmountOut && minimumReceived && paths) {
+    if (fractionalAmountIn && fractionalAmountOut && minimumReceived && paths && swapData) {
       void _onSwap({
         tokenIn,
         tokenOut,
         amountIn: fractionalAmountIn.numerator.toString(),
         amountOut: fractionalAmountOut.numerator.toString(),
-        amountInUsd: fractionalAmountInUsd?.toSignificant(18) || '0',
-        amountOutUsd: fractionalAmountOutUsd?.toSignificant(18) || '0',
-        minAmountOut: minimumReceived.numerator.toString(),
-        paths,
-        feeRecipient: debugData.feeRecipient,
-        feeBps: debugData.feeBps,
-        chargeFeeBy: debugData.chargeFeeBy,
+        swapData
       })
     }
   }
@@ -409,12 +409,12 @@ export default function Swap() {
                   sources: [...e.currentTarget.options]
                     .filter((op) => op.selected)
                     .map((op) => op.value)
-                    .join(','),
+                    .join(',')
                 }))
               }
               multiple
             >
-              {Object.keys(SOURCES).map((source) => (
+              {Object.keys(SUPPORTED_POOLS).map((source) => (
                 <option key={source}>{source}</option>
               ))}
             </select>
@@ -427,7 +427,7 @@ export default function Swap() {
             onChange={(e) =>
               setDebugData((prev) => ({
                 ...prev,
-                feeBps: Number(e.currentTarget.value),
+                feeBps: Number(e.currentTarget.value)
               }))
             }
           />
@@ -437,7 +437,7 @@ export default function Swap() {
             onChange={(e) =>
               setDebugData((prev) => ({
                 ...prev,
-                feeRecipient: e.currentTarget.value,
+                feeRecipient: e.currentTarget.value
               }))
             }
           />
@@ -449,7 +449,7 @@ export default function Swap() {
               onChange={(e) =>
                 setDebugData((prev) => ({
                   ...prev,
-                  chargeFeeBy: e.currentTarget.value as ChargeFeeBy,
+                  chargeFeeBy: e.currentTarget.value as ChargeFeeBy
                 }))
               }
             >
@@ -501,7 +501,8 @@ export default function Swap() {
           <div className="relative flex flex-col gap-1">
             {/* INPUT */}
             <>
-              <div className="flex flex-col gap-2 rounded border-1 border-black900 bg-black900 p-3 transition focus-within:border-black600">
+              <div
+                className="flex flex-col gap-2 rounded border-1 border-black900 bg-black900 p-3 transition focus-within:border-black600">
                 <div className="flex h-[24px] items-center justify-between">
                   <BodyB2 className="text-buttonSecondary">You&apos;re paying</BodyB2>
                   {account && (

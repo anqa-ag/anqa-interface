@@ -5,7 +5,7 @@ import { useCopyToClipboard, useDebounceValue, useWindowSize } from 'usehooks-ts
 import useAnqaWallet from '../../hooks/useAnqaWallet'
 import useFullTokens, { TokenInfo } from '../../hooks/useFullTokens'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-import { Token, addTokensToFollow } from '../../redux/slices/token'
+import { Asset, addTokensToFollow } from '../../redux/slices/asset.ts'
 import { Fraction } from '../../utils/fraction'
 import { divpowToFraction, mulpowToFraction } from '../../utils/number'
 import { CloseIcon, SearchIcon } from '../Icons'
@@ -36,7 +36,7 @@ const STABLE_COIN_IDS = [
   '0xf22bede237a07e121b56d91a491eb7bcdfd1f5907926a9e58338f964a01b17fa::asset::USDC',
 ]
 
-export interface TokenWithBalance extends Token {
+export interface TokenWithBalance extends Asset {
   isFollowing: boolean
   fractionalBalance?: Fraction
   fractionalBalanceUsd?: Fraction
@@ -261,10 +261,10 @@ function ModalSelectToken({
     () =>
       STABLE_COIN_IDS.map((stableCoinId) => {
         if (stableCoinId in followingTokenData) {
-          return followingTokenData[stableCoinId]! as Token
+          return followingTokenData[stableCoinId]! as Asset
         }
         return null
-      }).filter((item): item is Token => !!item),
+      }).filter((item): item is Asset => !!item),
     [followingTokenData],
   )
 
