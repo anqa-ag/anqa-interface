@@ -33,6 +33,9 @@ const fn = async ({
   dstAsset,
   srcAmount,
   slippageBps,
+  isFeeIn,
+  feeReceiver,
+  feeInBps,
   includeSources
 }: {
   sender?: string
@@ -41,6 +44,9 @@ const fn = async ({
   dstAsset?: string
   srcAmount?: string
   slippageBps?: number
+  isFeeIn?: boolean
+  feeInBps?: string
+  feeBps?: number
   includeSources?: string
 }) => {
   if (!srcAsset || !dstAsset || !srcAmount || parseFloat(srcAmount) === 0) return
@@ -53,7 +59,10 @@ const fn = async ({
       slippage: slippageBps,
       sender,
       receiver,
+      feeReceiver,
       includeSources,
+      isFeeIn,
+      feeInBps,
       excludeSources: excludeSources.join(',')
     }
   })
@@ -74,7 +83,8 @@ export default function useQuote(
     slippageBps,
     includeSources,
     feeBps,
-    chargeFeeBy
+    chargeFeeBy,
+    feeReceiver
   }: {
     isSwapping: boolean,
     sender?: string,
@@ -84,24 +94,30 @@ export default function useQuote(
     srcAmount?: string,
     slippageBps?: number,
     includeSources?: string,
+    feeReceiver?: string,
     feeBps?: number
     chargeFeeBy: 'token_in' | 'token_out'
   }) {
-  // const amountInAfterFee = useMemo(
-  //   () =>
-  //     srcAmount && feeBps && chargeFeeBy === "token_in"
-  //       ? ((BigInt(srcAmount) * (BIP_BASE_BN - BigInt(feeBps))) / BIP_BASE_BN).toString()
-  //       : srcAmount,
-  //   [srcAmount, chargeFeeBy, feeBps]
-  // )
-  // console.log("useQuote", sender, srcAsset, dstAsset, amountInAfterFee, slippageBps, includeSources)
+  const isFeeIn = chargeFeeBy === 'token_in'
   const {
     data,
     error,
     isValidating,
     mutate
   } = useSWR(
-    { key: 'useQuote', sender, receiver, srcAsset, dstAsset, srcAmount, slippageBps, includeSources },
+    {
+      key: 'useQuote',
+      sender,
+      receiver,
+      srcAsset,
+      dstAsset,
+      srcAmount,
+      slippageBps,
+      isFeeIn,
+      feeReceiver,
+      feeInBps: feeBps,
+      includeSources
+    },
     fn,
     {
       isPaused: () => isSwapping

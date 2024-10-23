@@ -224,7 +224,8 @@ export default function Swap() {
     slippageBps,
     includeSources: debugData.sources,
     feeBps: debugData.feeBps,
-    chargeFeeBy: debugData.chargeFeeBy
+    chargeFeeBy: debugData.chargeFeeBy,
+    feeReceiver: debugData.feeRecipient
   })
   const fractionalAmountOut = useMemo(
     () =>
