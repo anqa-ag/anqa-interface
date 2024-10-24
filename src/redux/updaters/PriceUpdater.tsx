@@ -1,7 +1,7 @@
 import { memo, useEffect, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from '../hooks'
 import { updatePriceData } from '../slices/price'
-import { AGGREGATOR_URL } from '../../constants'
+import { AGGREGATOR_API_KEY, AGGREGATOR_URL } from '../../constants'
 import axios from 'axios'
 import useSWR from 'swr'
 import { PartialRecord } from '../../types'
@@ -29,7 +29,11 @@ interface TokenPrice {
 const fn = async ({ tokens }: { key: string; tokens: string[] }) => {
   if (!tokens) return
   const url = `${AGGREGATOR_URL}/v1/prices?` + tokens.map((t) => `ids[]=${t}`).join('&')
-  const response = await axios<GetTokenPriceResponse>(url)
+  const response = await axios<GetTokenPriceResponse>(url, {
+    headers: {
+      'X-API-KEY': AGGREGATOR_API_KEY,
+    },
+  })
   if (response.status === 200) {
     return response.data
   }

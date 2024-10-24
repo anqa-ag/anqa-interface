@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import useSWR from 'swr'
-import { AGGREGATOR_URL } from '../../constants'
+import { AGGREGATOR_API_KEY, AGGREGATOR_URL } from '../../constants'
 import useFullTokens from '../../hooks/useFullTokens'
 import { useAppDispatch, useAppSelector } from '../hooks'
 import { Asset, addTokensToFollow, updateTokenData } from '../slices/asset.ts'
@@ -28,7 +28,11 @@ interface GetTokenInfoResponse {
 const useTokenInfoFn = async ({ tokens }: { key: string; tokens: string[] }) => {
   if (tokens.length === 0) return
   const url = `${AGGREGATOR_URL}/v1/tokens?` + tokens.map((t) => `ids[]=${t}`).join('&')
-  const response = await axios<GetTokenInfoResponse>(url)
+  const response = await axios<GetTokenInfoResponse>(url, {
+    headers: {
+      'X-API-KEY': AGGREGATOR_API_KEY,
+    },
+  })
   if (response.status === 200) {
     return response.data
   }

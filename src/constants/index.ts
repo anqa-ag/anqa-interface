@@ -16,6 +16,7 @@ export const BIP_BASE_BN = 10_000n
 
 export const ENV = import.meta.env.VITE_ENV
 export const AGGREGATOR_URL = import.meta.env.VITE_AGGREGATOR_URL
+export const AGGREGATOR_API_KEY = import.meta.env.VITE_AGGREGATOR_API_KEY
 export const TELEGRAM_REDIRECT_URL = import.meta.env.VITE_TELEGRAM_REDIRECT_URL
 export const ANQA_ANALYSIS_URL = import.meta.env.VITE_ANQA_ANALYSIS_URL
 export const PETRA_ENCRYPTION_PUBLIC_KEY = import.meta.env.VITE_PETRA_ENCRYPTION_PUBLIC_KEY
