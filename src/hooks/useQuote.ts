@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import useSWR from 'swr'
-import { AGGREGATOR_URL } from '../constants'
+import { AGGREGATOR_API_KEY, AGGREGATOR_URL } from '../constants'
 import { Asset } from '../redux/slices/asset.ts'
 import { InputEntryFunctionData } from '@aptos-labs/ts-sdk'
 import invariant from 'tiny-invariant'
@@ -105,6 +105,9 @@ export async function getRouteV2({
       isFeeIn,
       feeInBps,
       excludeSources: excludeSources.join(','),
+    },
+    headers: {
+      'X-API-KEY': AGGREGATOR_API_KEY,
     },
   })
   if (response.status === 200 && response.data.data.dstAmount != '0') {

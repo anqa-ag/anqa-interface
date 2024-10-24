@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { useMemo } from 'react'
 import useSWR from 'swr'
-import { AGGREGATOR_URL } from '../constants'
+import { AGGREGATOR_API_KEY, AGGREGATOR_URL } from '../constants'
 import { PartialRecord } from '../types'
 
 export interface TokenInfo {
@@ -30,7 +30,11 @@ const fn = async () => {
   let data: PartialRecord<string, TokenInfo> = {}
   while (true) {
     const url = `${AGGREGATOR_URL}/v1/tokens?count=${CHUNK_SIZE}&cursor=${cursor}`
-    const response = await axios<GetTokenInfoResponse>(url)
+    const response = await axios<GetTokenInfoResponse>(url, {
+      headers: {
+        'X-API-KEY': AGGREGATOR_API_KEY,
+      },
+    })
     if (response.status === 200) {
       data = { ...data, ...response.data.data.tokenById }
       if (response.data.data.nextCursor) {
