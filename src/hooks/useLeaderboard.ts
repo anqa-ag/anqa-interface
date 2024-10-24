@@ -27,7 +27,6 @@ export interface User {
   totalTrades: number | null
 }
 
-
 const fn = async ({ page, walletAddress }: { page: number; walletAddress: string | undefined }) => {
   const url = `${ANQA_ANALYSIS_URL}/v1/leaderboard?limit=10&offset=${(page - 1) * 10}&wallet=${walletAddress || ''}`
   const response = await axios<GetLeaderboardResponse>(url)

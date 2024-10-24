@@ -13,7 +13,7 @@ import {
 import storage from 'redux-persist/lib/storage' // defaults to localStorage for web
 
 import priceReducer, { PriceState } from './slices/price'
-import tokenReducer, { TokenState } from './slices/token'
+import tokenReducer, { TokenState } from './slices/asset'
 import userReducer, { UserState } from './slices/user'
 import walletReducer, { WalletState } from './slices/wallet'
 import telegramReducer, { TelegramState } from './slices/telegram'

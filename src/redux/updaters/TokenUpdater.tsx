@@ -4,7 +4,7 @@ import useSWR from 'swr'
 import { AGGREGATOR_URL } from '../../constants'
 import useFullTokens from '../../hooks/useFullTokens'
 import { useAppDispatch, useAppSelector } from '../hooks'
-import { Token, addTokensToFollow, updateTokenData } from '../slices/token'
+import { Asset, addTokensToFollow, updateTokenData } from '../slices/asset.ts'
 import { PartialRecord } from '../../types'
 
 interface TokenInfo {
@@ -95,7 +95,7 @@ function FollowingTokenUpdater() {
   useEffect(() => {
     if (whitelistedTokenMap) {
       dispatch(addTokensToFollow(Object.keys(whitelistedTokenMap)))
-      const newTokenData: PartialRecord<string, Token> = {}
+      const newTokenData: PartialRecord<string, Asset> = {}
       for (const key of Object.keys(whitelistedTokenMap)) {
         newTokenData[key] = {
           id: key,
@@ -126,7 +126,7 @@ function FollowingTokenUpdater() {
   const { tokenInfoMap } = useTokenInfo(missingTokenInfoAddresses)
   useEffect(() => {
     if (tokenInfoMap) {
-      const newTokenData: PartialRecord<string, Token> = {}
+      const newTokenData: PartialRecord<string, Asset> = {}
       for (const address of Object.keys(tokenInfoMap)) {
         newTokenData[address] = {
           id: tokenInfoMap[address]!.id,

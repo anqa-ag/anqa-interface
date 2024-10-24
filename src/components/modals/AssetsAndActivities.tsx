@@ -7,7 +7,7 @@ import { NOT_FOUND_TOKEN_LOGO_URL } from '../../constants'
 import useAnqaWallet from '../../hooks/useAnqaWallet'
 import useFullTokens from '../../hooks/useFullTokens.ts'
 import { useAppSelector } from '../../redux/hooks'
-import { Token } from '../../redux/slices/token.ts'
+import { Asset } from '../../redux/slices/asset.ts'
 import { ITransactionHistory } from '../../redux/slices/user.ts'
 import { PartialRecord } from '../../types.ts'
 import { Fraction } from '../../utils/fraction.ts'
@@ -109,7 +109,7 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
   const txHistoryMap = useAppSelector((state) => state.user.txHistoryMap)
   const renderTransactionHistories = useMemo(() => {
     const transactionHistories = Object.values(txHistoryMap) as ITransactionHistory[]
-    const followingTokenDataList = Object.values(followingTokenData) as Token[]
+    const followingTokenDataList = Object.values(followingTokenData) as Asset[]
     return transactionHistories.map((transactionHistory) => {
       const tokenLogoIn =
         followingTokenDataList.find((token) => token.id === transactionHistory.tokenInAddress)?.logoUrl ?? ''

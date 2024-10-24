@@ -3,7 +3,7 @@ import { useAppDispatch } from '../redux/hooks'
 import useAnqaWallet from './useAnqaWallet'
 import { aptos } from '../utils/aptos'
 import { updateBalance, WalletBalance } from '../redux/slices/wallet'
-import { addTokensToFollow } from '../redux/slices/token'
+import { addTokensToFollow } from '../redux/slices/asset.ts'
 
 const LIMIT = 100
 

@@ -2,7 +2,7 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { PURGE } from 'redux-persist'
 import { PartialRecord } from '../../types'
 
-export interface Token {
+export interface Asset {
   id: string
   name: string
   symbol: string
@@ -13,7 +13,7 @@ export interface Token {
 
 export interface TokenState {
   followingTokenAddresses: string[]
-  followingTokenData: PartialRecord<string, Token>
+  followingTokenData: PartialRecord<string, Asset>
 }
 
 const initialState: TokenState = {
@@ -30,7 +30,7 @@ export const tokenSlice = createSlice({
       for (const address of action.payload) set.add(address)
       state.followingTokenAddresses = Array.from(set)
     },
-    updateTokenData: (state, action: PayloadAction<PartialRecord<string, Token>>) => {
+    updateTokenData: (state, action: PayloadAction<PartialRecord<string, Asset>>) => {
       for (const key of Object.keys(action.payload)) {
         state.followingTokenData[key] = action.payload[key]
       }

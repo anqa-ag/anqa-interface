@@ -12,7 +12,7 @@ import ModalSelectToken from '../components/modals/ModalSelectToken.tsx'
 import ModalTradeRoute from '../components/modals/ModalTradeRoute.tsx'
 import ModalUserSetting from '../components/modals/ModalUserSetting.tsx'
 import { BIP_BASE, NOT_FOUND_TOKEN_LOGO_URL, petraWallet, ZUSDC } from '../constants'
-import { SOURCES } from '../constants/source.ts'
+import { SUPPORTED_POOLS } from '../constants/pool.ts'
 import { SwapContext } from '../contexts/SwapContext.ts'
 import useAnqaWallet from '../hooks/useAnqaWallet.ts'
 import useFullTokens, { TokenInfo } from '../hooks/useFullTokens.ts'
@@ -20,7 +20,7 @@ import useModal, { MODAL_LIST } from '../hooks/useModal.ts'
 import useQuote from '../hooks/useQuote.ts'
 import useSwap from '../hooks/useSwap.tsx'
 import { useAppDispatch, useAppSelector } from '../redux/hooks'
-import { addTokensToFollow, Token } from '../redux/slices/token.ts'
+import { addTokensToFollow, Asset } from '../redux/slices/asset.ts'
 import { Fraction } from '../utils/fraction.ts'
 import {
   divpowToFraction,
@@ -82,7 +82,7 @@ export default function Swap() {
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
   const tokenIn = useMemo(
     () =>
-      (Object.values(followingTokenData) as Token[]).find((token) => {
+      (Object.values(followingTokenData) as Asset[]).find((token) => {
         try {
           const tokenSymbolOrAddress = location.pathname.replace('/swap/', '').split('-')[0]
           return token.symbol === tokenSymbolOrAddress || token.id === tokenSymbolOrAddress
@@ -94,7 +94,7 @@ export default function Swap() {
   )
   const tokenOut = useMemo(
     () =>
-      (Object.values(followingTokenData) as Token[]).find((token) => {
+      (Object.values(followingTokenData) as Asset[]).find((token) => {
         try {
           const tokenSymbolOrAddress = location.pathname.replace('/swap/', '').split('-')[1]
           return token.symbol === tokenSymbolOrAddress || token.id === tokenSymbolOrAddress
@@ -104,8 +104,8 @@ export default function Swap() {
       })?.id || ZUSDC,
     [followingTokenData, location.pathname],
   )
-  const tokenInInfo: Token | undefined = useMemo(() => followingTokenData[tokenIn], [followingTokenData, tokenIn])
-  const tokenOutInfo: Token | undefined = useMemo(() => followingTokenData[tokenOut], [followingTokenData, tokenOut])
+  const tokenInInfo: Asset | undefined = useMemo(() => followingTokenData[tokenIn], [followingTokenData, tokenIn])
+  const tokenOutInfo: Asset | undefined = useMemo(() => followingTokenData[tokenOut], [followingTokenData, tokenOut])
 
   const { data: fullTokenData } = useFullTokens()
   useEffect(() => {
@@ -115,7 +115,7 @@ export default function Swap() {
       const tokenOutSymbolOrAddress = pair.split('-')[1]
       if (!tokenInSymbolOrAddress || !tokenOutSymbolOrAddress) throw new Error(`invalid pair = ${pair}`)
 
-      const followingTokenDataList = Object.values(followingTokenData) as Token[]
+      const followingTokenDataList = Object.values(followingTokenData) as Asset[]
 
       if (!fullTokenData || Object.values(fullTokenData).length === 0) return
       const fullTokenDataList = Object.values(fullTokenData) as TokenInfo[]
@@ -202,20 +202,29 @@ export default function Swap() {
     [tokenInDecimals, typedAmountIn],
   )
   const [fractionalAmountIn] = useDebounceValue(_fractionalAmountIn, shouldUseDebounceAmountIn ? 250 : 0)
+  const { txVersion: swapTxVersion, isSwapping, onSwap: _onSwap, success: isSwapSuccess } = useSwap()
+  const slippageBps = useAppSelector((state) => state.user.slippageBps)
+  const isHighSlippage = slippageBps >= 500
 
   const {
-    amountOut,
+    dstAmount: amountOut,
     isValidating: isValidatingQuote,
-    sourceInfo,
     paths,
+    sourceInfo,
+    swapData,
     reFetch,
   } = useQuote({
-    tokenIn,
-    tokenOut,
-    amountIn: fractionalAmountIn?.numerator?.toString(),
+    isSwapping,
+    sender: account?.address,
+    receiver: account?.address,
+    srcAsset: tokenIn,
+    dstAsset: tokenOut,
+    srcAmount: fractionalAmountIn?.numerator?.toString(),
+    slippageBps,
     includeSources: debugData.sources,
     feeBps: debugData.feeBps,
     chargeFeeBy: debugData.chargeFeeBy,
+    feeReceiver: debugData.feeRecipient,
   })
   const fractionalAmountOut = useMemo(
     () =>
@@ -258,8 +267,6 @@ export default function Swap() {
   const isPriceImpactVeryHigh = useMemo(() => Boolean(priceImpact?.greaterThan(10)), [priceImpact])
   const isPriceImpactHigh = useMemo(() => Boolean(priceImpact?.greaterThan(5)), [priceImpact])
 
-  const slippageBps = useAppSelector((state) => state.user.slippageBps)
-  const isHighSlippage = slippageBps >= 500
   const minimumReceived = useMemo(() => {
     if (!fractionalAmountOut) return undefined
     // If any tokens have more than 8 decimals, this assignment will break. I assume 8 is the max decimals in aptos chain? Never mind, I will use 18.
@@ -356,21 +363,14 @@ export default function Swap() {
 
   const { globalModal, isModalOpen, onOpenModal, onCloseModal, onOpenChangeModal } = useModal()
 
-  const { txVersion: swapTxVersion, isSwapping, onSwap: _onSwap, success: isSwapSuccess } = useSwap()
   const onSwap = () => {
-    if (fractionalAmountIn && fractionalAmountOut && minimumReceived && paths) {
+    if (fractionalAmountIn && fractionalAmountOut && minimumReceived && paths && swapData) {
       void _onSwap({
         tokenIn,
         tokenOut,
         amountIn: fractionalAmountIn.numerator.toString(),
         amountOut: fractionalAmountOut.numerator.toString(),
-        amountInUsd: fractionalAmountInUsd?.toSignificant(18) || '0',
-        amountOutUsd: fractionalAmountOutUsd?.toSignificant(18) || '0',
-        minAmountOut: minimumReceived.numerator.toString(),
-        paths,
-        feeRecipient: debugData.feeRecipient,
-        feeBps: debugData.feeBps,
-        chargeFeeBy: debugData.chargeFeeBy,
+        swapData,
       })
     }
   }
@@ -414,7 +414,7 @@ export default function Swap() {
               }
               multiple
             >
-              {Object.keys(SOURCES).map((source) => (
+              {Object.keys(SUPPORTED_POOLS).map((source) => (
                 <option key={source}>{source}</option>
               ))}
             </select>
