@@ -47,48 +47,49 @@ interface GetRouteV2ResponseData {
   srcAmount: string
   dstAmount: string
   paths: RawHop[][]
-  tx: {
-    function: string
-    typeArguments: string[]
-    functionArguments: {
-      receiver: string
-      amounts: string[]
-      routeData: string[]
-      faAddresses: any[]
-      configAddresses: any[]
-      feeReceiver: string
-      feeBps: string
-      isFeeIn: boolean
-      minAmountOut: string
-      extraData: string
-    }
-  } | undefined
+  tx:
+    | {
+        function: string
+        typeArguments: string[]
+        functionArguments: {
+          receiver: string
+          amounts: string[]
+          routeData: string[]
+          faAddresses: any[]
+          configAddresses: any[]
+          feeReceiver: string
+          feeBps: string
+          isFeeIn: boolean
+          minAmountOut: string
+          extraData: string
+        }
+      }
+    | undefined
 }
 
-export async function getRouteV2(
-  {
-    sender,
-    receiver,
-    srcAsset,
-    dstAsset,
-    srcAmount,
-    slippageBps,
-    isFeeIn,
-    feeInBps,
-    feeReceiver,
-    includeSources,
-  }: {
-    sender?: string
-    receiver?: string
-    srcAsset?: string
-    dstAsset?: string
-    srcAmount?: string
-    slippageBps?: number
-    isFeeIn?: boolean
-    feeInBps?: string
-    feeReceiver: string,
-    includeSources?: string
-  }): Promise<GetRouteV2ResponseData | undefined> {
+export async function getRouteV2({
+  sender,
+  receiver,
+  srcAsset,
+  dstAsset,
+  srcAmount,
+  slippageBps,
+  isFeeIn,
+  feeInBps,
+  feeReceiver,
+  includeSources,
+}: {
+  sender?: string
+  receiver?: string
+  srcAsset?: string
+  dstAsset?: string
+  srcAmount?: string
+  slippageBps?: number
+  isFeeIn?: boolean
+  feeInBps?: string
+  feeReceiver: string
+  includeSources?: string
+}): Promise<GetRouteV2ResponseData | undefined> {
   if (!srcAsset || !dstAsset || !srcAmount || parseFloat(srcAmount) === 0) return
   const excludeSources = ['bapt_swap_v1', 'bapt_swap_v2', 'bapt_swap_v2.1']
   const response = await axios<GetRouteV2Response>(`${AGGREGATOR_URL}/v2/quote`, {
@@ -112,40 +113,33 @@ export async function getRouteV2(
   return undefined
 }
 
-
-export default function useQuote(
-  {
-    isSwapping,
-    sender,
-    receiver,
-    srcAsset,
-    dstAsset,
-    srcAmount,
-    slippageBps,
-    includeSources,
-    feeBps,
-    chargeFeeBy,
-    feeReceiver
-  }: {
-    isSwapping: boolean,
-    sender?: string,
-    receiver?: string,
-    srcAsset?: string,
-    dstAsset?: string,
-    srcAmount?: string,
-    slippageBps?: number,
-    includeSources?: string,
-    feeReceiver?: string,
-    feeBps?: number
-    chargeFeeBy: 'token_in' | 'token_out'
-  }) {
+export default function useQuote({
+  isSwapping,
+  sender,
+  receiver,
+  srcAsset,
+  dstAsset,
+  srcAmount,
+  slippageBps,
+  includeSources,
+  feeBps,
+  chargeFeeBy,
+  feeReceiver,
+}: {
+  isSwapping: boolean
+  sender?: string
+  receiver?: string
+  srcAsset?: string
+  dstAsset?: string
+  srcAmount?: string
+  slippageBps?: number
+  includeSources?: string
+  feeReceiver?: string
+  feeBps?: number
+  chargeFeeBy: 'token_in' | 'token_out'
+}) {
   const isFeeIn = chargeFeeBy === 'token_in'
-  const {
-    data,
-    error,
-    isValidating,
-    mutate
-  } = useSWR(
+  const { data, error, isValidating, mutate } = useSWR(
     {
       key: 'useQuote',
       sender,
@@ -157,12 +151,12 @@ export default function useQuote(
       isFeeIn,
       feeReceiver,
       feeInBps: feeBps,
-      includeSources
+      includeSources,
     },
     getRouteV2,
     {
-      isPaused: () => isSwapping
-    }
+      isPaused: () => isSwapping,
+    },
   )
   const sourceInfo = useMemo(() => {
     if (!data?.paths) return undefined
@@ -174,7 +168,7 @@ export default function useQuote(
     }
     return {
       numberOfPaths: data.paths.length,
-      numberOfPools: numberOfPools
+      numberOfPools: numberOfPools,
     }
   }, [data?.paths])
 
@@ -198,7 +192,7 @@ export default function useQuote(
             dstAsset,
             srcAmount: h.srcAmount,
             dstAmount: h.dstAmount,
-            pool: pool
+            pool: pool,
           })
         }
       }
@@ -210,7 +204,7 @@ export default function useQuote(
       if (data.tx) {
         swapData = {
           ...data.tx,
-          functionArguments: Object.values(data.tx.functionArguments)
+          functionArguments: Object.values(data.tx.functionArguments),
         } as InputEntryFunctionData
       }
       const res: ParsedGetRouteResponseData = {
@@ -219,7 +213,7 @@ export default function useQuote(
         srcAmount: data.srcAmount,
         dstAmount: data.dstAmount,
         paths,
-        swapData
+        swapData,
       }
       return res
     } catch (err) {
@@ -236,8 +230,8 @@ export default function useQuote(
       paths: parsedData?.paths,
       swapData: parsedData?.swapData,
       sourceInfo,
-      reFetch: mutate
+      reFetch: mutate,
     }),
-    [error, isValidating, mutate, parsedData?.dstAmount, parsedData?.paths, parsedData?.swapData, sourceInfo]
+    [error, isValidating, mutate, parsedData?.dstAmount, parsedData?.paths, parsedData?.swapData, sourceInfo],
   )
 }
