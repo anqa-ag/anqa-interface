@@ -1,12 +1,13 @@
 import { useMemo } from 'react'
 import useSWR from 'swr'
-import { AGGREGATOR_URL, BIP_BASE_BN } from '../constants'
-import { getRouteV2, RawHop } from '@anqa-ag/ts-sdk'
+import { AGGREGATOR_URL } from '../constants'
 import { Asset } from '../redux/slices/asset.ts'
 import { InputEntryFunctionData } from '@aptos-labs/ts-sdk'
 import invariant from 'tiny-invariant'
 import { useAppSelector } from '../redux/hooks'
 import { SUPPORTED_POOLS } from '../constants/pool.ts'
+import { ValueOf } from '../types.ts'
+import axios from 'axios'
 
 export interface Hop {
   srcAsset: Asset
@@ -16,7 +17,7 @@ export interface Hop {
   pool: ValueOf<typeof SUPPORTED_POOLS>
 }
 
-export interface ParsedGetRouteResponseData {
+interface ParsedGetRouteResponseData {
   srcAsset: Asset
   dstAsset: Asset
   srcAmount: string
@@ -24,6 +25,93 @@ export interface ParsedGetRouteResponseData {
   paths: Hop[][]
   swapData: InputEntryFunctionData | undefined
 }
+
+interface GetRouteV2Response {
+  code: number
+  message: string
+  data: GetRouteV2ResponseData
+  requestId: string
+}
+
+interface RawHop {
+  srcAsset: string
+  dstAsset: string
+  srcAmount: string
+  dstAmount: string
+  source: string
+}
+
+interface GetRouteV2ResponseData {
+  srcAsset: string
+  dstAsset: string
+  srcAmount: string
+  dstAmount: string
+  paths: RawHop[][]
+  tx: {
+    function: string
+    typeArguments: string[]
+    functionArguments: {
+      receiver: string
+      amounts: string[]
+      routeData: string[]
+      faAddresses: any[]
+      configAddresses: any[]
+      feeReceiver: string
+      feeBps: string
+      isFeeIn: boolean
+      minAmountOut: string
+      extraData: string
+    }
+  } | undefined
+}
+
+export async function getRouteV2(
+  {
+    sender,
+    receiver,
+    srcAsset,
+    dstAsset,
+    srcAmount,
+    slippageBps,
+    isFeeIn,
+    feeInBps,
+    feeReceiver,
+    includeSources,
+  }: {
+    sender?: string
+    receiver?: string
+    srcAsset?: string
+    dstAsset?: string
+    srcAmount?: string
+    slippageBps?: number
+    isFeeIn?: boolean
+    feeInBps?: string
+    feeReceiver: string,
+    includeSources?: string
+  }): Promise<GetRouteV2ResponseData | undefined> {
+  if (!srcAsset || !dstAsset || !srcAmount || parseFloat(srcAmount) === 0) return
+  const excludeSources = ['bapt_swap_v1', 'bapt_swap_v2', 'bapt_swap_v2.1']
+  const response = await axios<GetRouteV2Response>(`${AGGREGATOR_URL}/v2/quote`, {
+    params: {
+      srcAsset: srcAsset,
+      dstAsset: dstAsset,
+      amount: srcAmount,
+      slippage: slippageBps,
+      sender,
+      receiver,
+      feeReceiver,
+      includeSources,
+      isFeeIn,
+      feeInBps,
+      excludeSources: excludeSources.join(','),
+    },
+  })
+  if (response.status === 200 && response.data.data.dstAmount != '0') {
+    return response.data.data
+  }
+  return undefined
+}
+
 
 export default function useQuote(
   {
@@ -60,7 +148,6 @@ export default function useQuote(
   } = useSWR(
     {
       key: 'useQuote',
-      aggregatorBaseUrl: AGGREGATOR_URL,
       sender,
       receiver,
       srcAsset,
@@ -141,25 +228,16 @@ export default function useQuote(
     }
   }, [data, followingTokenData])
 
-  const amountOutAfterFee = useMemo(() => {
-    if (!data) return undefined
-    const amountOut = data.dstAmount
-    if (!amountOut || feeBps === undefined) return
-    if (chargeFeeBy === 'token_out') {
-      return ((BigInt(amountOut) * (BIP_BASE_BN - BigInt(feeBps))) / BIP_BASE_BN).toString()
-    }
-    return amountOut
-  }, [chargeFeeBy, feeBps, data])
   return useMemo(
     () => ({
       isValidating,
       error,
-      dstAmount: amountOutAfterFee,
+      dstAmount: parsedData?.dstAmount,
       paths: parsedData?.paths,
       swapData: parsedData?.swapData,
       sourceInfo,
       reFetch: mutate
     }),
-    [error, isValidating, mutate, amountOutAfterFee, parsedData?.paths, parsedData?.swapData, sourceInfo]
+    [error, isValidating, mutate, parsedData?.dstAmount, parsedData?.paths, parsedData?.swapData, sourceInfo]
   )
 }
