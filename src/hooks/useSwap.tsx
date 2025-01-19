@@ -83,17 +83,10 @@ export default function useSwap() {
           },
         })
         console.log(`response`, response)
-        if (
-          response.hash &&
-          (response.output === undefined || Object.keys(response.output).length === 0 || !response.output.version)
-        ) {
+        if (response.hash) {
           const aptosResponse = await aptos.waitForTransaction({
             transactionHash: response.hash,
-            options: {
-              checkSuccess: false,
-              timeoutSecs: 2,
-              waitForIndexer: true,
-            },
+            options: { checkSuccess: false, waitForIndexer: false, timeoutSecs: 5 },
           })
           console.log(`aptosResponse`, aptosResponse)
           if (isUserTransactionResponse(aptosResponse)) {
