@@ -63,7 +63,8 @@ function useTokenInfo(tokens: string[]) {
 }
 
 interface RawCoinInfo {
-  id: string
+  coinType?: string
+  faAddress: string
   decimals: number
   name: string
   symbol: string
@@ -72,7 +73,7 @@ interface RawCoinInfo {
 
 function useWhitelistedTokens() {
   const fn = useCallback(async () => {
-    const url = 'https://raw.githubusercontent.com/anqa-ag/aptos-coin-list/main/anqaTokenList.json'
+    const url = 'https://raw.githubusercontent.com/cosi10a1/token-list/refs/heads/main/tokenList.json'
     const response = await axios<RawCoinInfo[]>(url)
     if (response.status === 200) {
       return response.data
@@ -83,9 +84,10 @@ function useWhitelistedTokens() {
   const { data } = useSWR('useWhitelistedTokens', fn)
   const res = useMemo(() => {
     if (!data) return undefined
-    const m: PartialRecord<string, RawCoinInfo> = {}
+    const m: PartialRecord<string, Asset> = {}
     for (const token of data) {
-      m[token.id] = token
+      const asset = { ...token, whitelisted: true, id: token.faAddress } as Asset
+      m[token.faAddress] = asset
     }
     return m
   }, [data])
@@ -99,17 +101,10 @@ function FollowingTokenUpdater() {
   useEffect(() => {
     if (whitelistedTokenMap) {
       dispatch(addTokensToFollow(Object.keys(whitelistedTokenMap)))
-      const newTokenData: PartialRecord<string, Asset> = {}
-      for (const key of Object.keys(whitelistedTokenMap)) {
-        newTokenData[key] = {
-          id: key,
-          name: whitelistedTokenMap[key]!.name,
-          symbol: whitelistedTokenMap[key]!.symbol,
-          decimals: whitelistedTokenMap[key]!.decimals,
-          whitelisted: true,
-          logoUrl: whitelistedTokenMap[key]!.logoUrl,
-        }
-      }
+      const newTokenData: PartialRecord<string, Asset> = {...whitelistedTokenMap}
+      Object.values(whitelistedTokenMap ?? {}).forEach((token) => {
+        if (token?.coinType) newTokenData[token.coinType] = { ...token, type: 'legacy' }
+      })
       dispatch(updateTokenData(newTokenData))
     }
   }, [dispatch, whitelistedTokenMap])
@@ -132,15 +127,19 @@ function FollowingTokenUpdater() {
     if (tokenInfoMap) {
       const newTokenData: PartialRecord<string, Asset> = {}
       for (const address of Object.keys(tokenInfoMap)) {
-        newTokenData[address] = {
-          id: tokenInfoMap[address]!.id,
-          name: tokenInfoMap[address]!.name,
-          symbol: tokenInfoMap[address]!.symbol,
-          decimals: tokenInfoMap[address]!.decimals,
-          whitelisted: false,
-          logoUrl: undefined,
+        const token = tokenInfoMap[address]
+        if (token) {
+          newTokenData[address] = {
+            ...token,
+            whitelisted: false,
+            logoUrl: undefined,
+          }
+        }
+        if (token?.coinType) {
+          newTokenData[token.coinType] = { ...token, whitelisted: false, logoUrl: undefined, type: 'legacy' }
         }
       }
+
       dispatch(updateTokenData(newTokenData))
     }
   }, [dispatch, tokenInfoMap])

@@ -11,3 +11,6 @@ export function getDisplayPeriod(periodInMilliseconds: number): string {
   if (numberOfMinutes <= 0) return 'Just recently'
   return `${Math.floor(numberOfMinutes)}m ago`
 }
+
+
+export const sleep = async (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))

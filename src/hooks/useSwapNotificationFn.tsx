@@ -6,6 +6,7 @@ import { BodyB2, TitleT2, TitleT4 } from '../components/Texts'
 import { useAppDispatch, useAppSelector } from '../redux/hooks'
 import { ITransactionHistory, addTransactionHistory } from '../redux/slices/user'
 import { divpowToFraction } from '../utils/number'
+import useRefreshBalanceFn from './useRefreshBalanceFn.ts'
 
 export default function useSwapNotificationFn() {
   const dispatch = useAppDispatch()
@@ -87,4 +88,86 @@ export default function useSwapNotificationFn() {
     [dispatch, followingTokenData],
   )
   return sendNotification
+}
+
+
+const mapError: Record<string, string> = {
+  'submitResponse.status REJECTED': 'User rejected transaction',
+}
+const formatError = (err: any) => {
+  const jsonErr = JSON.stringify(err || {})
+  if (jsonErr !== `{"code":"WALLET.SIGN_TX_ERROR"}`) {
+    let errorDetails: string | undefined
+    if (typeof err === 'string') {
+      errorDetails = err
+    } else {
+      errorDetails = (err as any)?.message || undefined
+    }
+
+    return mapError[errorDetails ?? ''] || errorDetails
+  }
+  return ''
+}
+
+export const useShowToastWithExplorerLink = () => {
+  const refreshBalance = useRefreshBalanceFn()
+  return useCallback(
+    ({
+       isSuccess,
+       txNumber,
+       msg,
+       error,
+     }: {
+      isSuccess: boolean
+      msg: string
+      txNumber?: string | undefined
+      error?: any
+    }) => {
+      const details = formatError(error)
+      toast(
+        isSuccess ? (
+          <div className="flex flex-col gap-2 rounded bg-[rgba(24,207,106,0.2)] p-4">
+            <BodyB2>{msg}</BodyB2>
+            {txNumber && (
+              <Link
+                href={`https://aptoscan.com/transaction/${txNumber}`}
+                isExternal
+                showAnchorIcon
+                className="text-baseGrey"
+              >
+                <BodyB2>View on explorer</BodyB2>
+              </Link>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2 rounded bg-[rgba(244,70,70,0.2)] p-4">
+            <BodyB2>{msg}</BodyB2>
+            {txNumber && (
+              <Link
+                href={`https://aptoscan.com/transaction/${txNumber}`}
+                isExternal
+                showAnchorIcon
+                className="text-baseGrey"
+              >
+                <BodyB2>View on explorer</BodyB2>
+              </Link>
+            )}
+            {details && <BodyB2 className="text-baseGrey">{details}</BodyB2>}
+          </div>
+        ),
+        {
+          className: 'z-toast',
+          bodyClassName: 'z-toast-body',
+          progressClassName: isSuccess ? 'z-toast-progress-success' : 'z-toast-progress-failed',
+          autoClose: 4000,
+          pauseOnHover: isDesktop,
+          position: 'top-right',
+        },
+      )
+      setTimeout(() => {
+        void refreshBalance()
+      }, 4000)
+    },
+    [refreshBalance],
+  )
 }

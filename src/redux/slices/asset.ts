@@ -4,8 +4,15 @@ import { PartialRecord } from '../../types'
 
 export interface Asset {
   id: string
+  coinType?: string
+  faAddress: string
   name: string
   symbol: string
+  type:
+    | 'coin'
+    | 'fungibleAsset'
+    /**  custom by FE, to show separately token and fa */
+    | 'legacy'
   decimals: number
   whitelisted: boolean
   logoUrl?: string

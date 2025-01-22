@@ -58,6 +58,10 @@ export class Fraction {
     return new Fraction(JSBI.remainder(this.numerator, this.denominator), this.denominator)
   }
 
+  public isZero(): boolean {
+    return JSBI.equal(this.numerator, JSBI.BigInt(0))
+  }
+
   public invert(): Fraction {
     return new Fraction(this.denominator, this.numerator)
   }

@@ -9,6 +9,13 @@ export interface TokenInfo {
   decimals: number
   name: string
   symbol: string
+  coinType?: string
+  faAddress: string
+  type:
+    | 'coin'
+    | 'fungibleAsset'
+    /**  custom by FE, to show separately token and fa */
+    | 'legacy'
 }
 
 interface GetTokenInfoResponseData {

@@ -1,26 +1,33 @@
-import { GetAccountCoinsDataResponse } from '@aptos-labs/ts-sdk'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import { PURGE } from 'redux-persist'
-import { ArrayElement, PartialRecord } from '../../types'
+import { PartialRecord } from '../../types'
 
-export type AccountCoinData = Omit<ArrayElement<GetAccountCoinsDataResponse>, 'amount'> & { amount: string }
-export type WalletBalance = PartialRecord<string, AccountCoinData | undefined>
+export type WalletBalance = PartialRecord<string, string | undefined>
 
 export interface WalletState {
-  balance: WalletBalance
+  balance: WalletBalance // faBalance
+  coinBalance: WalletBalance
 }
 
 const initialState: WalletState = {
   balance: {},
+  coinBalance: {}
 }
 
 export const walletSlice = createSlice({
   name: 'wallet',
   initialState,
   reducers: {
-    updateBalance: (state, action: PayloadAction<WalletBalance>) => {
-      state.balance = action.payload
+    updateBalance: (
+      state,
+      action: PayloadAction<{
+        balance: WalletBalance // faBalance
+        coinBalance: WalletBalance
+      }>,
+    ) => {
+      state.balance = action.payload.balance
+      state.coinBalance = action.payload.coinBalance
     },
   },
   extraReducers: (builder) => {
