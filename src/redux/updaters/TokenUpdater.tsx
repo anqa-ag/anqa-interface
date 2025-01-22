@@ -4,13 +4,15 @@ import useSWR from 'swr'
 import { AGGREGATOR_API_KEY, AGGREGATOR_URL } from '../../constants'
 import useFullTokens from '../../hooks/useFullTokens'
 import { useAppDispatch, useAppSelector } from '../hooks'
-import { Asset, addTokensToFollow, updateTokenData } from '../slices/asset.ts'
+import { addTokensToFollow, Asset, updateTokenData } from '../slices/asset.ts'
 import { PartialRecord } from '../../types'
 
 interface TokenInfo {
   id: string
   decimals: number
   name: string
+  coinType?: string
+  faAddress: string
   symbol: string
 }
 
@@ -101,7 +103,7 @@ function FollowingTokenUpdater() {
   useEffect(() => {
     if (whitelistedTokenMap) {
       dispatch(addTokensToFollow(Object.keys(whitelistedTokenMap)))
-      const newTokenData: PartialRecord<string, Asset> = {...whitelistedTokenMap}
+      const newTokenData: PartialRecord<string, Asset> = { ...whitelistedTokenMap }
       Object.values(whitelistedTokenMap ?? {}).forEach((token) => {
         if (token?.coinType) newTokenData[token.coinType] = { ...token, type: 'legacy' }
       })

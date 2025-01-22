@@ -3,23 +3,10 @@ import { useMemo } from 'react'
 import useSWR from 'swr'
 import { AGGREGATOR_API_KEY, AGGREGATOR_URL } from '../constants'
 import { PartialRecord } from '../types'
-
-export interface TokenInfo {
-  id: string
-  decimals: number
-  name: string
-  symbol: string
-  coinType?: string
-  faAddress: string
-  type:
-    | 'coin'
-    | 'fungibleAsset'
-    /**  custom by FE, to show separately token and fa */
-    | 'legacy'
-}
+import { Asset } from '../redux/slices/asset.ts'
 
 interface GetTokenInfoResponseData {
-  tokenById: PartialRecord<string, TokenInfo>
+  tokenById: PartialRecord<string, Asset>
   nextCursor: number
 }
 
@@ -34,7 +21,7 @@ const CHUNK_SIZE = 1e4
 
 const fn = async () => {
   let cursor = 0
-  let data: PartialRecord<string, TokenInfo> = {}
+  let data: PartialRecord<string, Asset> = {}
   while (true) {
     const url = `${AGGREGATOR_URL}/v1/tokens?count=${CHUNK_SIZE}&cursor=${cursor}`
     const response = await axios<GetTokenInfoResponse>(url, {

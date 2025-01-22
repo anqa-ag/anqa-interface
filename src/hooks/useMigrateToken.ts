@@ -28,7 +28,6 @@ export default function useMigrateToken() {
           },
         })
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
         const hash = response.hash
 
         const receipt = await aptos.waitForTransaction({

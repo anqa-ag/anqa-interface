@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
-import { Asset } from '../redux/slices/asset.ts'
+import { APTOS, Asset } from '../redux/slices/asset.ts'
 import { useAppSelector } from '../redux/hooks'
 
 
-export function useTokenInfo(tokenSymbolOrAddress: string, defaultToken: Asset = AptosCoin) {
+export function useTokenInfo(tokenSymbolOrAddress: string, defaultToken: Asset = APTOS) {
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
 
   const tokenAddress = useMemo(

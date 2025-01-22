@@ -2,8 +2,7 @@ import { Avatar, Button, Chip, Image, Input, Modal, ModalContent, Skeleton, Spac
 import { CSSProperties, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FixedSizeList } from 'react-window'
 import { useDebounceValue, useWindowSize } from 'usehooks-ts'
-import useAnqaWallet from '../../hooks/useAnqaWallet'
-import useFullTokens, { TokenInfo } from '../../hooks/useFullTokens'
+import useFullTokens from '../../hooks/useFullTokens'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { addTokensToFollow, Asset } from '../../redux/slices/asset.ts'
 import { Fraction } from '../../utils/fraction'
@@ -17,15 +16,33 @@ import { motion } from 'framer-motion'
 
 const BANNERS = [
   {
+    id: '0x5915ae0eae3701833fa02e28bf530bc01ca96a5f010ac8deecb14c7a92661368',
+    faAddress: '0x5915ae0eae3701833fa02e28bf530bc01ca96a5f010ac8deecb14c7a92661368',
+    coinType: '0x4fbed3f8a3fd8a11081c8b6392152a8b0cb14d70d0414586f0c9b858fcd2d6a7::UPTOS::UPTOS',
     symbol: 'UPTOS',
+    name: 'UPTOS',
+    decimals: 8,
+    whitelisted: false,
     logoUrl: '/banners/UPTOS.jpg',
   },
   {
+    id: '0x7fa78d58cccc849363df4ed1acd373b1f09397d1c322450101e3b0a4a7a14d80',
+    faAddress: '0x7fa78d58cccc849363df4ed1acd373b1f09397d1c322450101e3b0a4a7a14d80',
+    coinType: '0x4ef6d6d174ae393cec4c8af0b75638082fe45c92e552b4df8bc679e3a0ddcb13::CAPTOS::CAPTOS',
     symbol: 'CAPTOS',
+    name: 'captos',
+    decimals: 6,
+    whitelisted: false,
     logoUrl: '/banners/CAPTOS.png',
   },
   {
+    id: '0x1ff8bf54987b665fd0aa8b317a22a60f5927675d35021473a85d720e254ed77e',
+    faAddress: '0x1ff8bf54987b665fd0aa8b317a22a60f5927675d35021473a85d720e254ed77e',
+    coinType: '0x5e975e7f36f2658d4cf146142899c659464a3e0d90f0f4d5f8b2447173c06ef6::EDOG::EDOG',
     symbol: 'EDOG',
+    name: 'captos',
+    decimals: 6,
+    whitelisted: false,
     logoUrl: '/banners/EDOG.png',
   },
 ]
@@ -107,9 +124,6 @@ function ModalSelectToken({
   const dispatch = useAppDispatch()
   const { data: fullTokenData } = useFullTokens()
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
-  const followingPriceData = useAppSelector((state) => state.price.followingPriceData)
-  const { balance } = useAppSelector((state) => state.wallet)
-  const { connected } = useAnqaWallet()
   const tokensHasBalance = useTokensHasBalance()
   const followingTokenDataWithBalance = useMemo(() => {
     const res: PartialRecord<string, TokenWithBalance> = { ...tokensHasBalance }
@@ -124,7 +138,7 @@ function ModalSelectToken({
       res[assetAddress] = newItem
     }
     return res
-  }, [balance, connected, followingPriceData, followingTokenData])
+  }, [followingTokenData, tokensHasBalance])
   const followingTokenDataWithBalanceList = useMemo(() => {
     const list = Object.values(followingTokenDataWithBalance) as TokenWithBalance[]
     return list.sort(sortBalanceFn)
@@ -168,7 +182,7 @@ function ModalSelectToken({
     const str = searchValue.trim()
     if (!str) return []
 
-    const fullTokenDataList = Object.values(fullTokenData) as TokenInfo[]
+    const fullTokenDataList = Object.values(fullTokenData) as Asset[]
     const fullTokenList: TokenWithBalance[] = fullTokenDataList
       .filter((token) => {
         if (token.id === str) return true
@@ -277,7 +291,7 @@ function ModalSelectToken({
               {BANNERS.map((item) => (
                 <Button
                   key={item.symbol}
-                  onPress={() => setTokenAndClose(item.symbol)}
+                  onPress={() => setTokenAndClose(item)}
                   className="relative rounded p-0"
                 >
                   <Skeleton
@@ -301,7 +315,7 @@ function ModalSelectToken({
                     content: 'pl-2',
                   }}
                   onClick={() => {
-                    setTokenAndClose(token.symbol)
+                    setTokenAndClose(token)
                   }}
                   avatar={<Avatar src={token.logoUrl} />}
                 >

@@ -1,5 +1,5 @@
-import { Button, Image, Link, Modal, ModalContent, Tab, Tabs, useModal } from '@nextui-org/react'
-import React, { ReactNode, useMemo, useState } from 'react'
+import { Button, Image, Link, Modal, ModalContent, Tab, Tabs } from '@nextui-org/react'
+import React, { useMemo, useState } from 'react'
 
 import { Icon } from '@iconify/react'
 import useAnqaWallet from '../../hooks/useAnqaWallet'
@@ -15,7 +15,7 @@ import { sortBalanceFn, useTokensHasBalance } from '../../hooks/useTokenBalance.
 import { router } from '../../main.tsx'
 import { isDesktop, isTablet } from 'react-device-detect'
 import { TokenWithBalance } from './ModalSelectToken.tsx'
-import { BodyB2, BodyB4, Headline2, Subtitle3, BodyB3 } from '../Texts.tsx'
+import { BodyB2, BodyB3, BodyB4, Headline2, Subtitle3 } from '../Texts.tsx'
 import Copy from '../Copy.tsx'
 import { getShortAddress } from '../../utils/token.ts'
 
@@ -31,7 +31,7 @@ export interface TransactionHistoryWithLogoUrl extends ITransactionHistory {
 
 const ModalAssetsAndActivities: React.FC<Props> = ({ ...props }) => {
   const [isShowBalance, setShowBalance] = useState(false)
-  const { account, name, disconnect } = useAnqaWallet()
+  const { account, wallet, disconnect } = useAnqaWallet()
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
 
   const assets = useTokensHasBalance()
@@ -117,15 +117,11 @@ const ModalAssetsAndActivities: React.FC<Props> = ({ ...props }) => {
       <ModalContent className="flex min-h-fit flex-col !rounded-xl bg-baseGrey1 pt-6 dark">
         <div className="mb-6 flex flex-row justify-between px-6">
           <div className="flex flex-row items-center gap-2">
-            {name && <Image src={getWalletImagePath(name)} width={18} />}
+            {wallet?.name && <Image src={getWalletImagePath(wallet.name)} width={18} />}
             <Subtitle3 className="leading-5 text-white">{getShortAddress(account.address)}</Subtitle3>
             <div className="flex gap-2">
               <Copy size={20} value={account.address} />
-              <Link
-                href={`https://aptoscan.com/account/${account?.address}`}
-                isExternal
-                className="text-baseGrey"
-              >
+              <Link href={`https://aptoscan.com/account/${account?.address}`} isExternal className="text-baseGrey">
                 <Icon icon="iconamoon:link-external" fontSize={20} color="text-baseGrey" />
               </Link>
               <Button
@@ -151,7 +147,7 @@ const ModalAssetsAndActivities: React.FC<Props> = ({ ...props }) => {
             <Icon icon="mdi:close" fontSize={20} className="text-baseGrey" />
           </Button>
         </div>
-        <div className="mx-6 mb-[24px] flex flex-col gap-1 rounded-[10px] bg-basicBg p-3">
+        <div className="mx-6 mb-[24px] flex flex-col gap-1 rounded-[10px] p-3">
           <div className="flex items-center gap-2">
             <BodyB4 className="text-baseGrey">Total Balance</BodyB4>
             {isShowBalance ? (
@@ -240,7 +236,7 @@ function ActivityRow({ transactionHistory }: { transactionHistory: TransactionHi
   const [tokenInLogoSrc, setTokenInLogoSrc] = useState(transactionHistory.tokenLogoIn || '/images/404.svg')
   const [tokenOutLogoSrc, setTokenOutLogoSrc] = useState(transactionHistory.tokenLogoOut || '/images/404.svg')
   return (
-    <div className="hover:bg-baseBlack flex flex-row items-center justify-between px-6 py-2">
+    <div className="flex flex-row items-center justify-between px-6 py-2 hover:bg-baseBlack">
       <div className="flex flex-col gap-1">
         <div className="flex flex-row items-center gap-1">
           <BodyB3 className="text-white">Swapped</BodyB3>

@@ -1,7 +1,3 @@
-import { Asset } from '../redux/slices/asset.ts'
-
-export const getTokenAddress = (token: Asset | undefined) =>
-  !token ? '' : token.type === 'legacy' ? (token.coinType ?? '') : token.faAddress
 export const getShortAddress = (address: string, options?: { start?: number; end?: number }) => {
   const { start = 7, end = 5 } = options || {}
 

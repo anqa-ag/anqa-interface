@@ -33,7 +33,7 @@ export default function BasicTokenInfo({
       if (loading) return
       setLoading(true)
       await migrateToken({ token })
-    } catch (error) {}
+    } catch (error) { /* empty */ }
     setLoading(false)
   }
 

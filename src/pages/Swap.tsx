@@ -15,7 +15,7 @@ import { BIP_BASE, NOT_FOUND_TOKEN_LOGO_URL, petraWallet, ZUSDC } from '../const
 import { SUPPORTED_POOLS } from '../constants/pool.ts'
 import { SwapContext } from '../contexts/SwapContext.ts'
 import useAnqaWallet from '../hooks/useAnqaWallet.ts'
-import useFullTokens, { TokenInfo } from '../hooks/useFullTokens.ts'
+import useFullTokens from '../hooks/useFullTokens.ts'
 import useModal, { MODAL_LIST } from '../hooks/useModal.ts'
 import useQuote from '../hooks/useQuote.ts'
 import useSwap from '../hooks/useSwap.tsx'
@@ -125,7 +125,7 @@ export default function Swap() {
       const followingTokenDataList = Object.values(followingTokenData) as Asset[]
 
       if (!fullTokenData || Object.values(fullTokenData).length === 0) return
-      const fullTokenDataList = Object.values(fullTokenData) as TokenInfo[]
+      const fullTokenDataList = Object.values(fullTokenData) as Asset[]
 
       const newTokenIn =
         fullTokenDataList.find((token) => token.id === tokenInSymbolOrAddress) ||
@@ -375,7 +375,7 @@ export default function Swap() {
       }
       onCloseModal()
     },
-    [_setTokenIn, switchToken, tokenOut, tokenOutInfo],
+    [_setTokenIn, onCloseModal, switchToken, tokenOut, tokenOutInfo],
   )
   const setTokenOut = useCallback(
     (token: Asset) => {
@@ -388,7 +388,7 @@ export default function Swap() {
       }
       onCloseModal()
     },
-    [_setTokenOut, switchToken, tokenIn, tokenInInfo],
+    [onCloseModal, _setTokenOut, switchToken, tokenIn, tokenInInfo],
   )
 
   const onSwap = () => {
