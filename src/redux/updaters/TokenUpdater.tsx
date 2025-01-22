@@ -75,7 +75,7 @@ interface RawCoinInfo {
 
 function useWhitelistedTokens() {
   const fn = useCallback(async () => {
-    const url = 'https://raw.githubusercontent.com/cosi10a1/token-list/refs/heads/main/tokenList.json'
+    const url = 'https://raw.githubusercontent.com/anqa-ag/aptos-coin-list/main/anqaTokenList.json'
     const response = await axios<RawCoinInfo[]>(url)
     if (response.status === 200) {
       return response.data
