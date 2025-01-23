@@ -1,30 +1,48 @@
 import { Avatar, Button, Chip, Image, Input, Modal, ModalContent, Skeleton, Spacer } from '@nextui-org/react'
-import { CSSProperties, memo, useCallback, useMemo, useState } from 'react'
+import { CSSProperties, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FixedSizeList } from 'react-window'
-import { useCopyToClipboard, useDebounceValue, useWindowSize } from 'usehooks-ts'
-import useAnqaWallet from '../../hooks/useAnqaWallet'
-import useFullTokens, { TokenInfo } from '../../hooks/useFullTokens'
+import { useDebounceValue, useWindowSize } from 'usehooks-ts'
+import useFullTokens from '../../hooks/useFullTokens'
 import { useAppDispatch, useAppSelector } from '../../redux/hooks'
-import { Asset, addTokensToFollow } from '../../redux/slices/asset.ts'
+import { addTokensToFollow, Asset } from '../../redux/slices/asset.ts'
 import { Fraction } from '../../utils/fraction'
-import { divpowToFraction, mulpowToFraction } from '../../utils/number'
 import { CloseIcon, SearchIcon } from '../Icons'
 import { TitleT1, TitleT2 } from '../Texts'
 import BasicTokenInfo from '../BasicTokenInfo.tsx'
 import { useIsSm } from '../../hooks/useMedia.ts'
 import { PartialRecord } from '../../types.ts'
+import { calcTotalTokenBalance, sortBalanceFn, useTokensHasBalance } from '../../hooks/useTokenBalance.ts'
+import { motion } from 'framer-motion'
 
 const BANNERS = [
   {
+    id: '0x5915ae0eae3701833fa02e28bf530bc01ca96a5f010ac8deecb14c7a92661368',
+    faAddress: '0x5915ae0eae3701833fa02e28bf530bc01ca96a5f010ac8deecb14c7a92661368',
+    coinType: '0x4fbed3f8a3fd8a11081c8b6392152a8b0cb14d70d0414586f0c9b858fcd2d6a7::UPTOS::UPTOS',
     symbol: 'UPTOS',
+    name: 'UPTOS',
+    decimals: 8,
+    whitelisted: false,
     logoUrl: '/banners/UPTOS.jpg',
   },
   {
+    id: '0x7fa78d58cccc849363df4ed1acd373b1f09397d1c322450101e3b0a4a7a14d80',
+    faAddress: '0x7fa78d58cccc849363df4ed1acd373b1f09397d1c322450101e3b0a4a7a14d80',
+    coinType: '0x4ef6d6d174ae393cec4c8af0b75638082fe45c92e552b4df8bc679e3a0ddcb13::CAPTOS::CAPTOS',
     symbol: 'CAPTOS',
+    name: 'captos',
+    decimals: 6,
+    whitelisted: false,
     logoUrl: '/banners/CAPTOS.png',
   },
   {
+    id: '0x1ff8bf54987b665fd0aa8b317a22a60f5927675d35021473a85d720e254ed77e',
+    faAddress: '0x1ff8bf54987b665fd0aa8b317a22a60f5927675d35021473a85d720e254ed77e',
+    coinType: '0x5e975e7f36f2658d4cf146142899c659464a3e0d90f0f4d5f8b2447173c06ef6::EDOG::EDOG',
     symbol: 'EDOG',
+    name: 'captos',
+    decimals: 6,
+    whitelisted: false,
     logoUrl: '/banners/EDOG.png',
   },
 ]
@@ -38,22 +56,25 @@ const STABLE_COIN_IDS = [
 
 export interface TokenWithBalance extends Asset {
   isFollowing: boolean
-  fractionalBalance?: Fraction
-  fractionalBalanceUsd?: Fraction
+  faBalance?: Fraction
+  faBalanceUsd?: Fraction
+  coinBalanceUsd?: Fraction
+  coinBalance?: Fraction
 }
+
+const itemSize = 80
+const itemSizeSmall = 58
 
 function TokenItem({
   index,
-  data: { items, setToken, onCopy, copiedId, isCopying },
+  data: { items, onSelectToken, onChangeHeight },
   style,
 }: {
   index: number
   data: {
     items: TokenWithBalance[]
-    setToken: (id: string) => void
-    onCopy: (id: string) => void
-    copiedId: string | null
-    isCopying: boolean
+    onSelectToken: (id: Asset) => void
+    onChangeHeight: (height: number, index: number) => void
   }
   style: CSSProperties
 }) {
@@ -61,21 +82,31 @@ function TokenItem({
     return items[index]!
   }, [items, index])
 
-  const isCopyingThisToken = useMemo(() => isCopying && copiedId === token.id, [copiedId, isCopying, token.id])
+  const [height, setHeight] = useState(
+    token.coinType && !calcTotalTokenBalance(token).totalBalanceUsd.isZero() ? itemSize : itemSizeSmall,
+  )
+  useEffect(() => {
+    onChangeHeight(height, index)
+  }, [height, index, onChangeHeight])
 
   return (
-    <div
+    <motion.div
+      animate={{ height }}
       className={
-        'flex h-fit w-full cursor-pointer items-center gap-2 rounded-none bg-buttonDisabled px-4 py-3 font-normal hover:bg-background' +
+        'hover:bg-baseBlack m-0 flex h-fit w-full min-w-fit cursor-pointer items-center gap-2 rounded-none p-0 px-4 font-normal' +
         ' ' +
-        (token.isFollowing ? 'opacity-100' : 'opacity-20')
+        (token.isFollowing ? 'opacity-100' : 'opacity-50')
       }
-      tabIndex={0}
       style={style}
-      onClick={() => setToken(token.whitelisted ? token.symbol : token.id)}
     >
-      <BasicTokenInfo token={token} onCopy={onCopy} isCopying={isCopyingThisToken} />
-    </div>
+      <BasicTokenInfo
+        onClick={() => onSelectToken(token)}
+        token={token}
+        onChangeHeight={(expand) => {
+          setHeight(expand ? itemSize : itemSizeSmall)
+        }}
+      />
+    </motion.div>
   )
 }
 
@@ -83,73 +114,33 @@ function ModalSelectToken({
   isOpen,
   onClose: _onClose,
   onOpenChange: _onOpenChange,
-  setToken,
+  onSelectToken,
 }: {
   isOpen: boolean
   onClose: () => void
   onOpenChange: () => void
-  setToken: (id: string) => void
+  onSelectToken: (id: Asset) => void
 }) {
   const dispatch = useAppDispatch()
   const { data: fullTokenData } = useFullTokens()
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
-  const followingPriceData = useAppSelector((state) => state.price.followingPriceData)
-  const { balance } = useAppSelector((state) => state.wallet)
-  const { connected } = useAnqaWallet()
+  const tokensHasBalance = useTokensHasBalance()
   const followingTokenDataWithBalance = useMemo(() => {
-    const res: PartialRecord<string, TokenWithBalance> = {}
-    for (const address of Object.keys(followingTokenData)) {
-      const tokenData = followingTokenData[address]!
-      let fractionalBalance: Fraction | undefined
-      const tokenBalance = balance[address]
-      if (connected && tokenBalance && tokenBalance.amount) {
-        fractionalBalance = divpowToFraction(tokenBalance.amount, tokenData.decimals)
-      }
-      let fractionalBalanceUsd: Fraction | undefined
-      if (fractionalBalance && followingPriceData[address]) {
-        const fractionalPrice = mulpowToFraction(followingPriceData[address])
-        fractionalBalanceUsd = fractionalBalance.multiply(fractionalPrice)
-      }
-
+    const res: PartialRecord<string, TokenWithBalance> = { ...tokensHasBalance }
+    for (const assetAddress of Object.keys(followingTokenData)) {
+      if (res[assetAddress]) continue
+      const tokenData = followingTokenData[assetAddress]!
       const newItem: TokenWithBalance = {
-        id: tokenData.id,
-        name: tokenData.name,
-        symbol: tokenData.symbol,
-        decimals: tokenData.decimals,
-        whitelisted: tokenData.whitelisted,
-        logoUrl: tokenData.logoUrl,
-        fractionalBalance,
-        fractionalBalanceUsd,
+        ...tokenData,
         isFollowing: true,
       }
-      res[address] = newItem
+      res[assetAddress] = newItem
     }
     return res
-  }, [balance, connected, followingPriceData, followingTokenData])
+  }, [followingTokenData, tokensHasBalance])
   const followingTokenDataWithBalanceList = useMemo(() => {
     const list = Object.values(followingTokenDataWithBalance) as TokenWithBalance[]
-    list.sort((a: TokenWithBalance, b: TokenWithBalance) => {
-      const x = a.fractionalBalanceUsd ?? new Fraction(0)
-      const y = b.fractionalBalanceUsd ?? new Fraction(0)
-      if (x.equalTo(0) && y.equalTo(0)) {
-        const xx = a.fractionalBalance ?? new Fraction(0)
-        const yy = b.fractionalBalance ?? new Fraction(0)
-        if (xx.lessThan(yy)) {
-          return 1
-        } else if (xx.greaterThan(yy)) {
-          return -1
-        }
-      }
-      if (x.equalTo(0)) return 1
-      if (y.equalTo(0)) return -1
-      if (x.lessThan(y)) {
-        return 1
-      } else if (x.greaterThan(y)) {
-        return -1
-      }
-      return a.symbol.localeCompare(b.symbol)
-    })
-    return list
+    return list.sort(sortBalanceFn)
   }, [followingTokenDataWithBalance])
 
   const onClose = useCallback(() => {
@@ -163,27 +154,12 @@ function ModalSelectToken({
   }, [_onOpenChange])
 
   const setTokenAndClose = useCallback(
-    (id: string) => {
-      dispatch(addTokensToFollow([id]))
-      setToken(id)
+    (token: Asset) => {
+      dispatch(addTokensToFollow([token.id]))
+      onSelectToken(token)
       onClose()
     },
-    [dispatch, onClose, setToken],
-  )
-
-  const [copiedId, copy] = useCopyToClipboard()
-  const [isCopying, setIsCopying] = useState(false)
-  const onCopy = useCallback(
-    async (id: string) => {
-      try {
-        setIsCopying(true)
-        await copy(id)
-        await new Promise((resolve) => setTimeout(resolve, 500))
-      } finally {
-        setIsCopying(false)
-      }
-    },
-    [copy],
+    [dispatch, onClose, onSelectToken],
   )
 
   const [_searchValue, setSearchValue] = useState('')
@@ -205,7 +181,7 @@ function ModalSelectToken({
     const str = searchValue.trim()
     if (!str) return []
 
-    const fullTokenDataList = Object.values(fullTokenData) as TokenInfo[]
+    const fullTokenDataList = Object.values(fullTokenData) as Asset[]
     const fullTokenList: TokenWithBalance[] = fullTokenDataList
       .filter((token) => {
         if (token.id === str) return true
@@ -214,26 +190,11 @@ function ModalSelectToken({
       })
       .filter((token) => !renderFollowingTokenList.map((token) => token.id).includes(token.id))
       .map((token) => ({
-        id: token.id,
-        name: token.name,
-        symbol: token.symbol,
-        decimals: token.decimals,
+        ...token,
         whitelisted: false,
-        logoUrl: undefined,
-        fractionalBalance: undefined,
-        fractionalBalanceUsd: undefined,
         isFollowing: false,
       }))
-      .sort((a: TokenWithBalance, b: TokenWithBalance) => {
-        const x = a.fractionalBalanceUsd ?? new Fraction(0)
-        const y = b.fractionalBalanceUsd ?? new Fraction(0)
-        if (x.lessThan(y)) {
-          return 1
-        } else if (x.greaterThan(y)) {
-          return -1
-        }
-        return a.symbol.localeCompare(b.symbol)
-      })
+      .sort(sortBalanceFn)
     return fullTokenList
   }, [fullTokenData, renderFollowingTokenList, searchValue])
   const renderTokenList = useMemo(
@@ -241,16 +202,18 @@ function ModalSelectToken({
     [renderFollowingTokenList, renderUnfollowingTokenList],
   )
   const isEmpty = renderTokenList.length === 0
-
+  const itemRefs = useRef<Record<number, number>>({})
+  const listRef = useRef<any>()
+  const onChangeHeight = useCallback((height: number, index: number) => {
+    itemRefs.current = {
+      ...itemRefs.current,
+      [index]: height || itemSizeSmall,
+    }
+    listRef.current?.resetAfterIndex(index)
+  }, [])
   const itemData = useMemo(
-    () => ({
-      items: renderTokenList,
-      setToken: setTokenAndClose,
-      onCopy,
-      copiedId,
-      isCopying,
-    }),
-    [copiedId, isCopying, onCopy, renderTokenList, setTokenAndClose],
+    () => ({ items: renderTokenList, onSelectToken, onChangeHeight }),
+    [renderTokenList, onSelectToken, onChangeHeight],
   )
 
   const { height: windowHeight } = useWindowSize()
@@ -327,7 +290,7 @@ function ModalSelectToken({
               {BANNERS.map((item) => (
                 <Button
                   key={item.symbol}
-                  onPress={() => setTokenAndClose(item.symbol)}
+                  onPress={() => setTokenAndClose(item)}
                   className="relative rounded p-0"
                 >
                   <Skeleton
@@ -351,7 +314,7 @@ function ModalSelectToken({
                     content: 'pl-2',
                   }}
                   onClick={() => {
-                    setTokenAndClose(token.symbol)
+                    setTokenAndClose(token)
                   }}
                   avatar={<Avatar src={token.logoUrl} />}
                 >

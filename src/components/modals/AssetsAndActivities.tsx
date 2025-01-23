@@ -1,23 +1,23 @@
 import { Button, Image, Link, Modal, ModalContent, Tab, Tabs } from '@nextui-org/react'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 
 import { Icon } from '@iconify/react'
-import { useCopyToClipboard } from 'usehooks-ts'
-import { NOT_FOUND_TOKEN_LOGO_URL } from '../../constants'
 import useAnqaWallet from '../../hooks/useAnqaWallet'
-import useFullTokens from '../../hooks/useFullTokens.ts'
 import { useAppSelector } from '../../redux/hooks'
 import { Asset } from '../../redux/slices/asset.ts'
 import { ITransactionHistory } from '../../redux/slices/user.ts'
-import { PartialRecord } from '../../types.ts'
 import { Fraction } from '../../utils/fraction.ts'
-import { divpowToFraction, mulpowToFraction, numberWithCommas } from '../../utils/number.ts'
+import { numberWithCommas } from '../../utils/number.ts'
 import { getWalletImagePath } from '../../utils/resources.ts'
 import { getDisplayPeriod } from '../../utils/time.ts'
 import BasicTokenInfo from '../BasicTokenInfo.tsx'
-import { ArrowRightIcon, PowerIcon } from '../Icons'
-import { TitleT2, TitleT4, TitleT5 } from '../Texts'
+import { sortBalanceFn, useTokensHasBalance } from '../../hooks/useTokenBalance.ts'
+import { router } from '../../main.tsx'
+import { isDesktop, isTablet } from 'react-device-detect'
 import { TokenWithBalance } from './ModalSelectToken.tsx'
+import { BodyB2, BodyB3, BodyB4, Headline2, Subtitle3 } from '../Texts.tsx'
+import Copy from '../Copy.tsx'
+import { getShortAddress } from '../../utils/token.ts'
 
 interface Props extends React.HTMLProps<HTMLDivElement> {
   isOpen: boolean
@@ -29,83 +29,18 @@ export interface TransactionHistoryWithLogoUrl extends ITransactionHistory {
   tokenLogoOut: string
 }
 
-const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
-  const { account, disconnect, wallet, connected, isLoading: isLoadingWallet } = useAnqaWallet()
-  const { balance } = useAppSelector((state) => state.wallet)
+const ModalAssetsAndActivities: React.FC<Props> = ({ ...props }) => {
+  const [isShowBalance, setShowBalance] = useState(false)
+  const { account, wallet, disconnect } = useAnqaWallet()
   const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
-  const { data: fullTokenData } = useFullTokens()
-  const followingPriceData = useAppSelector((state) => state.price.followingPriceData)
-  const assets = useMemo(() => {
-    const res: PartialRecord<string, TokenWithBalance> = {}
-    for (const key of Object.keys(balance)) {
-      let fractionalBalance: Fraction | undefined
-      const tokenBalance = balance[key]
-      const tokenInfo = fullTokenData?.[key]
-      if (fullTokenData && tokenBalance && tokenInfo) {
-        if (connected && tokenBalance && tokenBalance.amount) {
-          fractionalBalance = divpowToFraction(tokenBalance.amount, tokenInfo.decimals)
-        }
-        let fractionalBalanceUsd: Fraction | undefined
-        if (fractionalBalance && followingPriceData?.[key]) {
-          const fractionalPrice = mulpowToFraction(followingPriceData?.[key], tokenInfo.decimals)
-          fractionalBalanceUsd = fractionalBalance.multiply(fractionalPrice)
-        }
-        res[key] = {
-          id: key,
-          name: tokenInfo.name,
-          symbol: tokenInfo.symbol,
-          decimals: tokenInfo.decimals,
-          whitelisted: followingTokenData?.[key] ? followingTokenData[key].whitelisted : false,
-          logoUrl: followingTokenData?.[key] ? followingTokenData[key].logoUrl : undefined,
-          fractionalBalance,
-          fractionalBalanceUsd,
-          isFollowing: true,
-        }
-      }
-    }
-    return res
-  }, [balance, fullTokenData, connected, followingPriceData, followingTokenData])
+
+  const assets = useTokensHasBalance()
 
   const assetTokenList = useMemo(() => {
     const list = Object.values(assets) as TokenWithBalance[]
-    list.sort((a: TokenWithBalance, b: TokenWithBalance) => {
-      const x = a.fractionalBalanceUsd ?? new Fraction(0)
-      const y = b.fractionalBalanceUsd ?? new Fraction(0)
-      if (x.equalTo(0) && y.equalTo(0)) {
-        const xx = a.fractionalBalance ?? new Fraction(0)
-        const yy = b.fractionalBalance ?? new Fraction(0)
-        if (xx.lessThan(yy)) {
-          return 1
-        } else if (xx.greaterThan(yy)) {
-          return -1
-        }
-      }
-      if (x.equalTo(0)) return 1
-      if (y.equalTo(0)) return -1
-      if (x.lessThan(y)) {
-        return 1
-      } else if (x.greaterThan(y)) {
-        return -1
-      }
-      return a.symbol.localeCompare(b.symbol)
-    })
-    return list
+    return list.sort(sortBalanceFn)
   }, [assets])
 
-  const [copiedId, copy] = useCopyToClipboard()
-  const [isCopying, setIsCopying] = useState(false)
-  const onCopy = useCallback(
-    async (id: string) => {
-      try {
-        setIsCopying(true)
-        await copy(id)
-        await new Promise((resolve) => setTimeout(resolve, 500))
-      } finally {
-        setIsCopying(false)
-      }
-    },
-    [copy],
-  )
   const txHistoryMap = useAppSelector((state) => state.user.txHistoryMap)
   const renderTransactionHistories = useMemo(() => {
     const transactionHistories = Object.values(txHistoryMap) as ITransactionHistory[]
@@ -135,11 +70,16 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
 
   const totalBalanceInUSD = useMemo(() => {
     if (!assets) return 0
-    return (Object.values(assets) as TokenWithBalance[]).reduce(
-      (prev, curr) => curr.fractionalBalanceUsd?.add(prev) ?? prev,
-      new Fraction(0),
-    )
+    return (Object.values(assets) as TokenWithBalance[]).reduce((prev, curr) => {
+      let rs = prev
+      if (curr?.faBalanceUsd) rs = rs.add(curr.faBalanceUsd)
+      if (curr?.coinBalanceUsd) rs = rs.add(curr.coinBalanceUsd)
+      return rs
+    }, new Fraction(0))
   }, [assets])
+
+  if (!account) return null
+
   return (
     <Modal
       scrollBehavior="inside"
@@ -171,52 +111,30 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
           },
         },
       }}
-      className="h-screen max-h-screen w-full max-w-sm"
+      className={`h-screen max-h-screen w-full ${isTablet || isDesktop ? 'max-w-[400px]' : 'max-w-full'}`}
       hideCloseButton
     >
-      <ModalContent className="flex flex-col rounded-lg px-6 pt-6 text-foreground dark">
-        <div className="mb-6 flex flex-row justify-between">
-          <Button
-            className="h-[20px] w-[20px] justify-start bg-transparent p-0"
-            isIconOnly
-            onClick={() => props.onOpenChange(false)}
-          >
-            <ArrowRightIcon size={20} className="flex-none" />
-          </Button>
-          <div className="flex flex-row">
-            {wallet && connected && (
-              <Image width={20} className="mr-2 min-w-[20px]" src={getWalletImagePath(wallet.name)} />
-            )}
-            {connected && account?.address ? (
-              <TitleT2 className="mr-2 leading-5">
-                {account.address.slice(0, 4) + '...' + account.address.slice(-4)}
-              </TitleT2>
-            ) : isLoadingWallet ? (
-              <TitleT2 className="mr-2 leading-5 text-buttonRed">Loading Wallet</TitleT2>
-            ) : (
-              <TitleT2 className="mr-2 leading-5 text-buttonRed">Connect Wallet</TitleT2>
-            )}
-            <Button
-              className="mr-2 h-[20px] w-[20px] min-w-0 bg-transparent p-0"
-              isIconOnly
-              onClick={async () => {
-                if (account?.address) {
-                  await onCopy(account.address)
-                }
-              }}
-            >
-              {isCopying && copiedId === account?.address ? (
-                <Icon icon="material-symbols:check" fontSize={20} className="text-tooltipBg" />
-              ) : (
-                <Icon icon="ph:copy" fontSize={20} className="text-tooltipBg" />
-              )}
-            </Button>
-            <Link
-              href={`https://aptoscan.com/account/${account?.address}`}
-              isExternal
-              showAnchorIcon
-              className="text-buttonSecondary"
-            />
+      <ModalContent className="flex min-h-fit flex-col !rounded-xl bg-baseGrey1 pt-6 dark">
+        <div className="mb-6 flex flex-row justify-between px-6">
+          <div className="flex flex-row items-center gap-2">
+            {wallet?.name && <Image src={getWalletImagePath(wallet.name)} width={18} />}
+            <Subtitle3 className="leading-5 text-white">{getShortAddress(account.address)}</Subtitle3>
+            <div className="flex gap-2">
+              <Copy size={20} value={account.address} />
+              <Link href={`https://aptoscan.com/account/${account?.address}`} isExternal className="text-baseGrey">
+                <Icon icon="iconamoon:link-external" fontSize={20} color="text-baseGrey" />
+              </Link>
+              <Button
+                className="h-[20px] w-[20px] min-w-0 flex-none justify-end bg-transparent p-0"
+                isIconOnly
+                onPress={() => {
+                  props.onOpenChange(false)
+                  void disconnect()
+                }}
+              >
+                <Icon icon="ph:power-bold" fontSize={20} className="text-baseGrey" />
+              </Button>
+            </div>
           </div>
           <Button
             className="h-[20px] w-[20px] min-w-0 flex-none justify-end bg-transparent p-0"
@@ -226,44 +144,63 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
               disconnect()
             }}
           >
-            <PowerIcon size={20} />
+            <Icon icon="mdi:close" fontSize={20} className="text-baseGrey" />
           </Button>
         </div>
-        <div className="mb-6 text-[36px] font-semibold">
-          ${totalBalanceInUSD ? `${numberWithCommas(totalBalanceInUSD?.toSignificant(6), false)}` : undefined}
+        <div className="mx-6 mb-[24px] flex flex-col gap-1 rounded-[10px] p-3">
+          <div className="flex items-center gap-2">
+            <BodyB4 className="text-baseGrey">Total Balance</BodyB4>
+            {isShowBalance ? (
+              <Icon
+                icon="mdi:eye-off-outline"
+                fontSize={20}
+                className="text-baseGrey"
+                onClick={() => setShowBalance(!isShowBalance)}
+              />
+            ) : (
+              <Icon
+                icon="lucide:eye"
+                fontSize={20}
+                className="text-baseGrey"
+                onClick={() => setShowBalance(!isShowBalance)}
+              />
+            )}
+          </div>
+          <Headline2 className="text-white">
+            {isShowBalance
+              ? totalBalanceInUSD
+                ? `$${numberWithCommas(totalBalanceInUSD?.toSignificant(6), false)}`
+                : undefined
+              : '*** ***'}
+          </Headline2>
         </div>
-        <div className="flex w-full flex-col">
+        <div className="flex w-full flex-1 flex-col overflow-auto dark">
           <Tabs
-            radius="sm"
+            radius="lg"
             variant="light"
             size="md"
             color="primary"
+            className="tab-container pl-6"
             classNames={{
-              tabList: 'rounded p-0',
-              cursor: 'rounded',
+              tabList: 'rounded-lg p-0',
+              cursor: 'rounded-lg px-0',
             }}
           >
-            <Tab key="assets" title="Assets">
-              <div className="h-[calc(100vh-12rem)] overflow-auto">
+            <Tab key="assets" title="Assets" className="h-[32px]">
+              <div className="h-fit bg-baseGrey1">
                 {assetTokenList.length === 0 ? (
-                  <TitleT4 className="pt-4 text-center">No asset found</TitleT4>
+                  <BodyB2 className="pt-4 text-center">No asset found</BodyB2>
                 ) : (
                   assetTokenList.map((assetToken) => (
-                    <AssetRow
-                      key={assetToken.id}
-                      token={assetToken}
-                      onCopy={onCopy}
-                      isCopying={isCopying}
-                      copiedId={copiedId ?? ''}
-                    />
+                    <AssetRow key={assetToken.id} token={assetToken} />
                   ))
                 )}
               </div>
             </Tab>
-            <Tab key="activities" title="Activities" className="pt-0">
-              <div className="h-[calc(100vh-12rem)] overflow-auto">
+            <Tab key="activity" title="Activity" className="h-[32px]">
+              <div>
                 {renderTransactionHistories.length === 0 ? (
-                  <TitleT4 className="pt-4 text-center">No activity found</TitleT4>
+                  <BodyB2 className="mt-16 h-full text-center text-white">No activity found</BodyB2>
                 ) : (
                   renderTransactionHistories
                     .sort((a, b) => b.timestamp - a.timestamp)
@@ -280,71 +217,55 @@ const AssetsAndActivities: React.FC<Props> = ({ ...props }) => {
   )
 }
 
-function AssetRow({
-  token,
-  onCopy,
-  copiedId,
-  isCopying,
-}: {
-  token: TokenWithBalance
-  onCopy: (id: string) => void
-  copiedId: string
-  isCopying: boolean
-}) {
-  const isCopyingThisToken = useMemo(() => isCopying && copiedId === token.id, [copiedId, isCopying, token.id])
+function AssetRow({ token }: { token: TokenWithBalance }) {
+  const pathname = window.location.pathname
   return (
-    <div className="py-2">
-      <BasicTokenInfo token={token} onCopy={onCopy} isCopying={isCopyingThisToken} />
+    <div className="w-full px-6 py-3 hover:bg-baseBlack">
+      <BasicTokenInfo
+        token={token}
+        onClick={() => {
+          if (pathname.startsWith('/swap'))
+            router.navigate(`/swap/${token.id + '-' + pathname.split('-')[1]}`).catch(() => {})
+        }}
+      />
     </div>
   )
 }
 
 function ActivityRow({ transactionHistory }: { transactionHistory: TransactionHistoryWithLogoUrl }) {
-  const [tokenInLogoSrc, setTokenInLogoSrc] = useState(transactionHistory.tokenLogoIn || NOT_FOUND_TOKEN_LOGO_URL)
-  const [tokenOutLogoSrc, setTokenOutLogoSrc] = useState(transactionHistory.tokenLogoOut || NOT_FOUND_TOKEN_LOGO_URL)
+  const [tokenInLogoSrc, setTokenInLogoSrc] = useState(transactionHistory.tokenLogoIn || '/images/404.svg')
+  const [tokenOutLogoSrc, setTokenOutLogoSrc] = useState(transactionHistory.tokenLogoOut || '/images/404.svg')
   return (
-    <div className="flex flex-row items-center justify-between py-2">
+    <div className="flex flex-row items-center justify-between px-6 py-2 hover:bg-baseBlack">
       <div className="flex flex-col gap-1">
         <div className="flex flex-row items-center gap-1">
-          <TitleT2>Swapped</TitleT2>
+          <BodyB3 className="text-white">Swapped</BodyB3>
           <Link
             href={`https://aptoscan.com/transaction/${transactionHistory.version}`}
             isExternal
-            className="text-buttonSecondary"
+            className="text-baseGrey"
             showAnchorIcon
           />
         </div>
         <div className="flex flex-wrap items-center gap-1">
-          <Image
-            width={16}
-            height={16}
-            src={tokenInLogoSrc}
-            onError={() => setTokenInLogoSrc(NOT_FOUND_TOKEN_LOGO_URL)}
-          />
-          <TitleT5 className="text-buttonSecondary">
+          <Image width={16} height={16} src={tokenInLogoSrc} onError={() => setTokenInLogoSrc('/images/404.svg')} />
+          <BodyB4 className="text-baseGrey">
             {transactionHistory.readableAmountIn} {transactionHistory.tokenInSymbol} to{' '}
-          </TitleT5>
-          <Image
-            width={16}
-            height={16}
-            src={tokenOutLogoSrc}
-            onError={() => setTokenOutLogoSrc(NOT_FOUND_TOKEN_LOGO_URL)}
-          />
-          <TitleT5 className="text-buttonSecondary">
+          </BodyB4>
+          <Image width={16} height={16} src={tokenOutLogoSrc} onError={() => setTokenOutLogoSrc('/images/404.svg')} />
+          <BodyB4 className="text-baseGrey">
             {transactionHistory.readableAmountOut} {transactionHistory.tokenOutSymbol}
-          </TitleT5>
+          </BodyB4>
         </div>
       </div>
       <div className="flex flex-col">
         <div className="flex flex-col items-end gap-1">
-          <TitleT2 className="leading-5 text-white">{transactionHistory.isSuccess ? 'Success' : 'Failed'}</TitleT2>
-          <TitleT5 className="text-buttonSecondary">
-            {getDisplayPeriod(Date.now() - transactionHistory.timestamp)}
-          </TitleT5>
+          <BodyB3 className="leading-5 text-white">{transactionHistory.isSuccess ? 'Success' : 'Failed'}</BodyB3>
+          <BodyB4 className="text-baseGrey">{getDisplayPeriod(Date.now() - transactionHistory.timestamp)}</BodyB4>
         </div>
       </div>
     </div>
   )
 }
 
-export default AssetsAndActivities
+export default ModalAssetsAndActivities

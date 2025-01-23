@@ -4,11 +4,25 @@ import { PartialRecord } from '../../types'
 
 export interface Asset {
   id: string
+  coinType?: string
+  faAddress: string
   name: string
   symbol: string
   decimals: number
   whitelisted: boolean
   logoUrl?: string
+}
+
+export const APTOS: Asset = {
+  id: '0xa',
+  faAddress: '0xa',
+  coinType: '0x1::aptos_coin::AptosCoin',
+
+  symbol: 'MOVE',
+  name: 'Movement Coin',
+  decimals: 8,
+  whitelisted: true,
+  logoUrl: 'https://raw.githubusercontent.com/razorlabsorg/chainlist/main/chain/aptos/asset/MOVE.png',
 }
 
 export interface TokenState {

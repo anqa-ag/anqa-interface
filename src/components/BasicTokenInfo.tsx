@@ -1,78 +1,158 @@
 import { useEffect, useState } from 'react'
-import { NOT_FOUND_TOKEN_LOGO_URL } from '../constants'
-import { Button, Image } from '@nextui-org/react'
-import { BodyB3, TitleT2, TitleT5 } from './Texts.tsx'
-import { Icon } from '@iconify/react'
+import { Image } from '@nextui-org/react'
+import { numberWithCommas } from '../utils/number.ts'
+import { getShortAddress } from '../utils/token.ts'
+import { Icon } from '@iconify/react/dist/iconify.js'
+import { motion } from 'framer-motion'
 import { TokenWithBalance } from './modals/ModalSelectToken.tsx'
+import { useTotalBalanceToken } from '../hooks/useTokenBalance.ts'
+import useMigrateToken from '../hooks/useMigrateToken.ts'
+import { BodyB4, Subtitle3 } from './Texts.tsx'
+import Copy from './Copy.tsx'
+import { ButtonBase } from './Button.tsx'
 
 export default function BasicTokenInfo({
-  token,
-  onCopy,
-  isCopying,
-}: {
+                                         token,
+                                         onClick,
+                                         onChangeHeight,
+                                       }: {
   token: TokenWithBalance
-  onCopy: (id: string) => void
-  isCopying: boolean
+  onClick?: () => void
+  onChangeHeight?: (height: boolean) => void
 }) {
-  const [src, setSrc] = useState(token.logoUrl || NOT_FOUND_TOKEN_LOGO_URL)
+  const migrateToken = useMigrateToken()
+  const [src, setSrc] = useState(token.logoUrl || '/images/404.svg')
 
   useEffect(() => {
-    setSrc(token.logoUrl || NOT_FOUND_TOKEN_LOGO_URL)
-  }, [token, onCopy])
+    setSrc(token.logoUrl || '/images/404.svg')
+  }, [token])
+
+  const [loading, setLoading] = useState(false)
+  const onMigrate = async () => {
+    try {
+      if (loading) return
+      setLoading(true)
+      await migrateToken({ token })
+    } catch (error) { /* empty */ }
+    setLoading(false)
+  }
+
+  const { totalBalance, totalBalanceUsd } = useTotalBalanceToken(token)
+  const emptyBalance = totalBalance.isZero()
+
+  const [expand, setExpand] = useState(!totalBalance.isZero())
+  const getHeight = (expand: boolean) => (expand && token.coinType ? 56.5 : 35)
+
+  const onClickExpand = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setExpand(!expand)
+  }
+
+  useEffect(() => {
+    onChangeHeight?.(expand && !!token.coinType)
+    // eslint-disable-next-line
+  }, [expand, token.coinType])
+
+  const expandIcon = (
+    <Icon
+      onClick={onClickExpand}
+      icon={expand ? 'raphael:arrowup' : 'raphael:arrowdown'}
+      color="#8B8D91"
+      fontSize={14}
+      className={expand ? 'pb-[2px]' : ''}
+    />
+  )
 
   return (
-    <div className="flex w-full items-center gap-2" tabIndex={0}>
+    <motion.div
+      animate={{ height: getHeight(expand) }}
+      className={' flex w-full cursor-pointer items-center gap-2'}
+      onClick={onClick}
+    >
       <Image
-        width={20}
-        height={20}
+        width={32}
+        height={32}
         src={src}
-        onError={() => setSrc(NOT_FOUND_TOKEN_LOGO_URL)}
-        className="flex h-[20px] min-h-[20px] w-[20px] min-w-[20px] rounded-full bg-white"
+        onError={() => setSrc('/images/404.svg')}
+        className="flex h-[32px] min-h-[32px] w-[32px] min-w-[32px] rounded-full bg-white"
         disableSkeleton
       />
-      <div className="flex grow flex-col gap-1 overflow-hidden">
-        <div className="flex items-baseline gap-1">
-          <TitleT2 className="">{token.symbol}</TitleT2>
-          <Button
-            variant="light"
-            className="h-fit w-fit min-w-fit gap-1 self-center rounded-none p-0 font-normal data-[hover]:bg-transparent"
-            onPress={() => onCopy(token.id)}
-            disableAnimation
-            disableRipple
-          >
-            {isCopying ? (
-              <>
-                <TitleT5
-                  className="overflow-hidden text-ellipsis whitespace-nowrap pt-1 text-tooltipBg"
-                  onClick={() => onCopy(token.id)}
-                >
-                  {token.id.slice(0, 10) + '...'}
-                </TitleT5>
-                <Icon icon="material-symbols:check" fontSize={16} className="text-tooltipBg" />
-              </>
-            ) : (
-              <>
-                <TitleT5
-                  className="overflow-hidden text-ellipsis whitespace-nowrap pt-1 text-tooltipBg"
-                  onClick={() => onCopy(token.id)}
-                >
-                  {token.id.slice(0, 10) + '...'}
-                </TitleT5>
-                <Icon icon="ph:copy" fontSize={16} className="text-tooltipBg" />
-              </>
-            )}
-          </Button>
+
+      <div className="flex flex-1 flex-col gap-1">
+        <div className="flex justify-between">
+          <div className={`flex gap-1  ${!expand ? 'flex-col items-start' : 'items-end'}`}>
+            <div className="flex items-center gap-1">
+              <Subtitle3 className="select-none text-white" onClick={onClickExpand}>
+                {token.symbol}
+              </Subtitle3>
+              {!expand && expandIcon}
+            </div>
+
+            <BodyB4
+              onClick={onClickExpand}
+              className={`min-h-[16px] select-none overflow-hidden text-ellipsis whitespace-nowrap text-baseGrey sm:min-h-[14px] ${expand && 'pt-px'}`}
+            >
+              {token.name}
+            </BodyB4>
+            {expand && expandIcon}
+          </div>
+
+          <div className={`flex items-end gap-1 ${!expand && 'flex-col-reverse'}`}>
+            <BodyB4
+              className={`min-h-[16px] text-baseGrey sm:min-h-[14px] ${emptyBalance && 'opacity-0'} ${expand && 'pt-px'}`}
+            >
+              {totalBalanceUsd ? `~$${numberWithCommas(totalBalanceUsd?.toSignificant(6))}` : undefined}
+            </BodyB4>
+            <Subtitle3 className={` text-white ${emptyBalance && 'opacity-0'}`}>
+              {totalBalance ? numberWithCommas(totalBalance?.toSignificant(6)) : undefined}
+            </Subtitle3>
+          </div>
         </div>
-        <TitleT5 className="w-full flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-start text-tooltipBg">
-          {token.name}
-        </TitleT5>
+
+        {expand && (
+          <>
+            {token?.coinType && (
+              <div className="flex justify-between">
+                <BodyB4 className="flex w-full flex-1 gap-1 overflow-hidden text-ellipsis whitespace-nowrap text-start text-baseGrey">
+                  <BodyB4 className="overflow-hidden text-ellipsis whitespace-nowrap  text-baseGrey">
+                    <span className="inline-block w-[50px] text-left sm:w-[30px]">Coin:</span>{' '}
+                    <Copy value={token?.coinType}>
+                      <BodyB4 className="text-baseGrey">{getShortAddress(token?.coinType)}</BodyB4>
+                    </Copy>
+                  </BodyB4>
+                  {token.coinBalance?.greaterThan(0) && (
+                    <ButtonBase
+                      v="primary"
+                      onPress={onMigrate}
+                      size="sm"
+                      color="secondary"
+                      className="h-fit w-fit min-w-[unset] px-[6px] py-px text-[10px] text-white"
+                    >
+                      {loading ? 'Migrating...' : 'Migrate'}
+                    </ButtonBase>
+                  )}
+                </BodyB4>
+                <BodyB4 className={`text-baseGrey ${emptyBalance && 'opacity-0'}`}>
+                  {token.coinBalance ? numberWithCommas(token.coinBalance?.toSignificant(6)) : 0}
+                </BodyB4>
+              </div>
+            )}
+
+            <div className="flex justify-between">
+              <BodyB4 className="flex w-full flex-1 gap-1 overflow-hidden text-ellipsis whitespace-nowrap text-start text-baseGrey">
+                <span className="inline-block w-[50px] text-left sm:w-[30px]">Fa:</span>{' '}
+                <Copy value={token?.faAddress}>
+                  <BodyB4 className="text-baseGrey">{getShortAddress(token?.faAddress)}</BodyB4>
+                </Copy>
+              </BodyB4>
+
+              <BodyB4 className={`text-baseGrey ${emptyBalance && 'opacity-0'}`}>
+                {token.faBalance ? numberWithCommas(token.faBalance?.toSignificant(6)) : 0}
+              </BodyB4>
+            </div>
+          </>
+        )}
       </div>
-      <div className="flex flex-col items-end justify-between gap-1">
-        <TitleT2>{token.fractionalBalance ? token.fractionalBalance?.toSignificant(6) : undefined}</TitleT2>
-        <BodyB3 className="text-buttonSecondary">
-          {token.fractionalBalanceUsd ? `~$${token.fractionalBalanceUsd?.toSignificant(6)}` : undefined}
-        </BodyB3>
-      </div>
-    </div>
+    </motion.div>
   )
 }

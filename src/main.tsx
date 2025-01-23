@@ -24,7 +24,7 @@ ReactGA.initialize('G-B2297K89VL')
 
 // ENV !== 'production' && eruda.init()
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
   {
     path: '/',
     element: <NavigateWithParams to="/swap/APT-zUSDC" />,

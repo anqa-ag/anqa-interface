@@ -222,3 +222,12 @@ input[type="text"][disabled]::placeholder {
     display: none; /* Safari and Chrome */
   }
 }
+
+
+.tab-container button[aria-selected='true'] * {
+  color: white !important;
+}
+
+.tab-container button[aria-selected='false'] * {
+  color: #8b8d91 !important;
+}

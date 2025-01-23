@@ -15,7 +15,7 @@ import { BIP_BASE, NOT_FOUND_TOKEN_LOGO_URL, petraWallet, ZUSDC } from '../const
 import { SUPPORTED_POOLS } from '../constants/pool.ts'
 import { SwapContext } from '../contexts/SwapContext.ts'
 import useAnqaWallet from '../hooks/useAnqaWallet.ts'
-import useFullTokens, { TokenInfo } from '../hooks/useFullTokens.ts'
+import useFullTokens from '../hooks/useFullTokens.ts'
 import useModal, { MODAL_LIST } from '../hooks/useModal.ts'
 import useQuote from '../hooks/useQuote.ts'
 import useSwap from '../hooks/useSwap.tsx'
@@ -34,6 +34,7 @@ import CountdownSpinner from '../components/CountdownSpinner.tsx'
 import AppLayout from '../AppLayout.tsx'
 import { ChargeFeeBy } from '@anqa-ag/ts-sdk'
 import { Helmet } from 'react-helmet'
+import { useTokenBalance } from '../hooks/useRefreshBalanceFn.ts'
 
 export default function Swap() {
   const dispatch = useAppDispatch()
@@ -60,7 +61,8 @@ export default function Swap() {
 
   const setResetTimerFunc = (f: () => void) => (resetTimerFunction.current = f)
 
-  const { balance } = useAppSelector((state) => state.wallet)
+  const [_tokenInInfo, setTokenInInfo] = useState<Asset>()
+  const [_tokenOutInfo, setTokenOutInfo] = useState<Asset>()
   const { account, isLoading: isLoadingWallet, isTelegram, connect } = useAnqaWallet()
 
   const [typedAmountIn, _setTypedAmountIn] = useState('1')
@@ -104,8 +106,13 @@ export default function Swap() {
       })?.id || ZUSDC,
     [followingTokenData, location.pathname],
   )
-  const tokenInInfo: Asset | undefined = useMemo(() => followingTokenData[tokenIn], [followingTokenData, tokenIn])
-  const tokenOutInfo: Asset | undefined = useMemo(() => followingTokenData[tokenOut], [followingTokenData, tokenOut])
+  const tokenInInfo: Asset | undefined = useMemo(() => {
+    return _tokenInInfo || followingTokenData[tokenIn]
+  }, [followingTokenData, tokenIn, _tokenInInfo])
+  const tokenOutInfo: Asset | undefined = useMemo(
+    () => _tokenOutInfo || followingTokenData[tokenOut],
+    [followingTokenData, tokenOut, _tokenOutInfo],
+  )
 
   const { data: fullTokenData } = useFullTokens()
   useEffect(() => {
@@ -118,7 +125,7 @@ export default function Swap() {
       const followingTokenDataList = Object.values(followingTokenData) as Asset[]
 
       if (!fullTokenData || Object.values(fullTokenData).length === 0) return
-      const fullTokenDataList = Object.values(fullTokenData) as TokenInfo[]
+      const fullTokenDataList = Object.values(fullTokenData) as Asset[]
 
       const newTokenIn =
         fullTokenDataList.find((token) => token.id === tokenInSymbolOrAddress) ||
@@ -183,16 +190,21 @@ export default function Swap() {
     [followingPriceData, tokenOut],
   )
 
-  const balanceTokenIn = balance[tokenIn]
-  const fractionalBalanceTokenIn =
-    balanceTokenIn && tokenInDecimals !== undefined
-      ? divpowToFraction(balanceTokenIn.amount, tokenInDecimals)
-      : undefined
-  const balanceTokenOut = balance[tokenOut]
-  const fractionalBalanceTokenOut =
-    balanceTokenOut && tokenOutDecimals !== undefined
-      ? divpowToFraction(balanceTokenOut.amount, tokenOutDecimals)
-      : undefined
+  const balanceTokenIn = useTokenBalance(tokenInInfo)
+  const fractionalBalanceTokenIn = useMemo(
+    () =>
+      balanceTokenIn && tokenInDecimals !== undefined ? divpowToFraction(balanceTokenIn, tokenInDecimals) : undefined,
+    [balanceTokenIn, tokenInDecimals],
+  )
+  const balanceTokenOut = useTokenBalance(tokenOutInfo)
+
+  const fractionalBalanceTokenOut = useMemo(
+    () =>
+      balanceTokenOut && tokenOutDecimals !== undefined
+        ? divpowToFraction(balanceTokenOut, tokenOutDecimals)
+        : undefined,
+    [balanceTokenOut, tokenOutDecimals],
+  )
 
   const _fractionalAmountIn = useMemo(
     () =>
@@ -338,30 +350,46 @@ export default function Swap() {
       pair !== '/swap' && console.error(err)
       navigate(`/swap/APT-zUSDC?${params.toString()}`, { replace: true })
     }
-  }, [fractionalAmountOut, location.pathname, navigate, params, setTypedAmountIn, tokenOutDecimals])
+    setTokenInInfo(_tokenOutInfo)
+    setTokenOutInfo(_tokenInInfo)
+  }, [
+    fractionalAmountOut,
+    location.pathname,
+    _tokenInInfo,
+    _tokenOutInfo,
+    navigate,
+    params,
+    setTypedAmountIn,
+    tokenOutDecimals,
+  ])
+  const { globalModal, isModalOpen, onOpenModal, onCloseModal, onOpenChangeModal } = useModal()
 
   const setTokenIn = useCallback(
-    (symbolOrAddress: string) => {
+    (token: Asset) => {
+      setTokenInInfo(token)
+      const symbolOrAddress = token.whitelisted ? token.symbol : token.id
       if (tokenOut === symbolOrAddress || (tokenOutInfo && tokenOutInfo.symbol === symbolOrAddress)) {
         switchToken()
       } else {
         _setTokenIn(symbolOrAddress)
       }
+      onCloseModal()
     },
-    [_setTokenIn, switchToken, tokenOut, tokenOutInfo],
+    [_setTokenIn, onCloseModal, switchToken, tokenOut, tokenOutInfo],
   )
   const setTokenOut = useCallback(
-    (symbolOrAddress: string) => {
+    (token: Asset) => {
+      setTokenOutInfo(token)
+      const symbolOrAddress = token.whitelisted ? token.symbol : token.id
       if (tokenIn === symbolOrAddress || (tokenInInfo && tokenInInfo.symbol === symbolOrAddress)) {
         switchToken()
       } else {
         _setTokenOut(symbolOrAddress)
       }
+      onCloseModal()
     },
-    [_setTokenOut, switchToken, tokenIn, tokenInInfo],
+    [onCloseModal, _setTokenOut, switchToken, tokenIn, tokenInInfo],
   )
-
-  const { globalModal, isModalOpen, onOpenModal, onCloseModal, onOpenChangeModal } = useModal()
 
   const onSwap = () => {
     if (fractionalAmountIn && fractionalAmountOut && minimumReceived && paths && swapData) {
@@ -916,13 +944,14 @@ export default function Swap() {
         isOpen={globalModal === MODAL_LIST.SELECT_TOKEN_IN && isModalOpen}
         onOpenChange={onOpenChangeModal}
         onClose={onCloseModal}
-        setToken={setTokenIn}
+        onSelectToken={setTokenIn}
       />
+
       <ModalSelectToken
         isOpen={globalModal === MODAL_LIST.SELECT_TOKEN_OUT && isModalOpen}
         onOpenChange={onOpenChangeModal}
         onClose={onCloseModal}
-        setToken={setTokenOut}
+        onSelectToken={setTokenOut}
       />
       <ModalUserSetting
         isOpen={globalModal === MODAL_LIST.USER_SETTING && isModalOpen}
