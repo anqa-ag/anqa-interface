@@ -130,7 +130,6 @@ function ModalSelectToken({
     for (const assetAddress of Object.keys(followingTokenData)) {
       if (res[assetAddress]) continue
       const tokenData = followingTokenData[assetAddress]!
-      if (tokenData.type === 'legacy') continue
       const newItem: TokenWithBalance = {
         ...tokenData,
         isFollowing: true,

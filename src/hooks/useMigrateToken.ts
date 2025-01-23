@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { isUserTransactionResponse } from '@aptos-labs/ts-sdk'
-import invariant from 'invariant'
+import invariant from 'tiny-invariant'
 import { useShowToastWithExplorerLink } from './useSwapNotificationFn.tsx'
 import { Asset } from '../redux/slices/asset.ts'
 import useAnqaWallet from './useAnqaWallet.ts'

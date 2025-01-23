@@ -8,7 +8,6 @@ export interface Asset {
   faAddress: string
   name: string
   symbol: string
-  type?: 'legacy' // custom from fe
   decimals: number
   whitelisted: boolean
   logoUrl?: string
