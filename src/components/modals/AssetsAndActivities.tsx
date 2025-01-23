@@ -192,8 +192,7 @@ const ModalAssetsAndActivities: React.FC<Props> = ({ ...props }) => {
                   <BodyB2 className="pt-4 text-center">No asset found</BodyB2>
                 ) : (
                   assetTokenList.map((assetToken) => (
-                    <AssetRow key={assetToken.id} token={assetToken} />
-                  ))
+                    <AssetRow key={assetToken.id + assetToken.type} token={assetToken} />                  ))
                 )}
               </div>
             </Tab>

@@ -20,7 +20,7 @@ export const AGGREGATOR_API_KEY = import.meta.env.VITE_AGGREGATOR_API_KEY
 export const TELEGRAM_REDIRECT_URL = import.meta.env.VITE_TELEGRAM_REDIRECT_URL
 export const ANQA_ANALYSIS_URL = import.meta.env.VITE_ANQA_ANALYSIS_URL
 export const PETRA_ENCRYPTION_PUBLIC_KEY = import.meta.env.VITE_PETRA_ENCRYPTION_PUBLIC_KEY
-export const VERSION = 6 // Pump version to purge state.
+export const VERSION = 7 // Pump version to purge state.
 
 export const aptosConnectWallet = new AptosConnectWallet({})
 export const petraWallet = new PetraWallet()
