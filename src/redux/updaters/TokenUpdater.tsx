@@ -105,7 +105,7 @@ function FollowingTokenUpdater() {
       dispatch(addTokensToFollow(Object.keys(whitelistedTokenMap)))
       const newTokenData: PartialRecord<string, Asset> = { ...whitelistedTokenMap }
       Object.values(whitelistedTokenMap ?? {}).forEach((token) => {
-        if (token?.coinType) newTokenData[token.coinType] = { ...token }
+        if (token?.coinType) newTokenData[token.coinType] = { ...token, type: 'legacy' }
       })
       dispatch(updateTokenData(newTokenData))
     }
@@ -138,7 +138,7 @@ function FollowingTokenUpdater() {
           }
         }
         if (token?.coinType) {
-          newTokenData[token.coinType] = { ...token, whitelisted: false, logoUrl: undefined }
+          newTokenData[token.coinType] = { ...token, whitelisted: false, logoUrl: undefined, type: 'legacy' }
         }
       }
 
