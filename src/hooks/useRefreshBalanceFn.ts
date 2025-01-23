@@ -52,7 +52,7 @@ export default function useRefreshBalanceFn() {
           const keyV2 =
             item.asset_type_v2 === '0x000000000000000000000000000000000000000000000000000000000000000a'
               ? '0xa'
-              : item.asset_type
+              : item.asset_type_v2
           const keyV1 = item.asset_type_v1
           if (item.amount_v2) accountFaData[keyV2] = item.amount_v2.toString()
           if (item.amount_v1) accountCoinsData[keyV1] = item.amount_v1.toString()

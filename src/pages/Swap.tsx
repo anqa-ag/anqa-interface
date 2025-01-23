@@ -197,7 +197,6 @@ export default function Swap() {
     [balanceTokenIn, tokenInDecimals],
   )
   const balanceTokenOut = useTokenBalance(tokenOutInfo)
-
   const fractionalBalanceTokenOut = useMemo(
     () =>
       balanceTokenOut && tokenOutDecimals !== undefined
