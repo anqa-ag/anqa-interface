@@ -51,18 +51,7 @@ interface GetRouteV2ResponseData {
     | {
         function: string
         typeArguments: string[]
-        functionArguments: {
-          receiver: string
-          amounts: string[]
-          routeData: string[]
-          faAddresses: any[]
-          configAddresses: any[]
-          feeReceiver: string
-          feeBps: string
-          isFeeIn: boolean
-          minAmountOut: string
-          extraData: string
-        }
+        functionArguments: any[]
       }
     | undefined
 }
@@ -207,7 +196,7 @@ export default function useQuote({
       if (data.tx) {
         swapData = {
           ...data.tx,
-          functionArguments: Object.values(data.tx.functionArguments),
+          functionArguments: data.tx.functionArguments,
         } as InputEntryFunctionData
       }
       const res: ParsedGetRouteResponseData = {
