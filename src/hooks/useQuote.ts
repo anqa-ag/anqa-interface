@@ -199,7 +199,6 @@ export default function useQuote({
           functionArguments: data.tx.functionArguments,
         } as InputEntryFunctionData
       }
-      console.log('swapData', swapData)
       const res: ParsedGetRouteResponseData = {
         srcAsset,
         dstAsset,
