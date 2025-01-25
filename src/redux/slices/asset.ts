@@ -8,6 +8,7 @@ export interface Asset {
   faAddress: string
   name: string
   symbol: string
+  displaySymbol?: string
   type?: 'legacy' // custom from fe
   decimals: number
   whitelisted: boolean
@@ -18,12 +19,11 @@ export const APTOS: Asset = {
   id: '0xa',
   faAddress: '0xa',
   coinType: '0x1::aptos_coin::AptosCoin',
-
-  symbol: 'MOVE',
-  name: 'Movement Coin',
+  symbol: 'APT',
+  name: 'Aptos Coin',
   decimals: 8,
   whitelisted: true,
-  logoUrl: 'https://raw.githubusercontent.com/razorlabsorg/chainlist/main/chain/aptos/asset/MOVE.png',
+  logoUrl: 'https://raw.githubusercontent.com/anqa-ag/aptos-coin-list/main/icons/APT.webp',
 }
 
 export interface TokenState {

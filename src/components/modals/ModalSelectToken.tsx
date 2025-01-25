@@ -93,7 +93,7 @@ function TokenItem({
     <motion.div
       animate={{ height }}
       className={
-        'hover:bg-baseBlack m-0 flex h-fit w-full min-w-fit cursor-pointer items-center gap-2 rounded-none p-0 px-4 font-normal' +
+        'm-0 flex h-fit w-full min-w-fit cursor-pointer items-center gap-2 rounded-none p-0 px-4 font-normal hover:bg-baseBlack' +
         ' ' +
         (token.isFollowing ? 'opacity-100' : 'opacity-50')
       }
@@ -289,11 +289,7 @@ function ModalSelectToken({
 
             <div className="flex flex-col gap-2">
               {BANNERS.map((item) => (
-                <Button
-                  key={item.symbol}
-                  onPress={() => setTokenAndClose(item)}
-                  className="relative rounded p-0"
-                >
+                <Button key={item.symbol} onPress={() => setTokenAndClose(item)} className="relative rounded p-0">
                   <Skeleton
                     className="absolute left-0 top-0 z-10 h-full w-full rounded"
                     classNames={{
@@ -309,7 +305,7 @@ function ModalSelectToken({
             <div className="grid grid-cols-4 gap-2">
               {stableCoinTokens.map((token) => (
                 <Chip
-                  key={`stable-coin-${token.symbol}`}
+                  key={`stable-coin-${token.displaySymbol ?? token.symbol}`}
                   classNames={{
                     base: 'bg-transparent hover:cursor-pointer border-small border-white/50 rounded-lg max-w-full',
                     content: 'pl-2',
@@ -319,7 +315,7 @@ function ModalSelectToken({
                   }}
                   avatar={<Avatar src={token.logoUrl} />}
                 >
-                  {token.symbol}
+                  {token.displaySymbol ?? token.symbol}
                 </Chip>
               ))}
             </div>

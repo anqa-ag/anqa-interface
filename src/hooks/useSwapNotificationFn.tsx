@@ -4,7 +4,7 @@ import { isDesktop } from 'react-device-detect'
 import { toast } from 'react-toastify'
 import { BodyB2, TitleT2, TitleT4 } from '../components/Texts'
 import { useAppDispatch, useAppSelector } from '../redux/hooks'
-import { ITransactionHistory, addTransactionHistory } from '../redux/slices/user'
+import { addTransactionHistory, ITransactionHistory } from '../redux/slices/user'
 import { divpowToFraction } from '../utils/number'
 import useRefreshBalanceFn from './useRefreshBalanceFn.ts'
 
@@ -29,8 +29,8 @@ export default function useSwapNotificationFn() {
           version,
           isSuccess,
           details,
-          tokenInSymbol: tokenInData.symbol,
-          tokenOutSymbol: tokenOutData.symbol,
+          tokenInSymbol: tokenInData.displaySymbol ?? tokenInData.symbol,
+          tokenOutSymbol: tokenOutData.displaySymbol ?? tokenOutData.symbol,
           readableAmountIn: divpowToFraction(amountIn, tokenInData.decimals).toSignificant(6),
           readableAmountOut: divpowToFraction(amountOut, tokenOutData.decimals).toSignificant(6),
           timestamp: Date.now(),
@@ -90,7 +90,6 @@ export default function useSwapNotificationFn() {
   return sendNotification
 }
 
-
 const mapError: Record<string, string> = {
   'submitResponse.status REJECTED': 'User rejected transaction',
 }
@@ -113,11 +112,11 @@ export const useShowToastWithExplorerLink = () => {
   const refreshBalance = useRefreshBalanceFn()
   return useCallback(
     ({
-       isSuccess,
-       txNumber,
-       msg,
-       error,
-     }: {
+      isSuccess,
+      txNumber,
+      msg,
+      error,
+    }: {
       isSuccess: boolean
       msg: string
       txNumber?: string | undefined
