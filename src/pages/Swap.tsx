@@ -839,7 +839,7 @@ export default function Swap() {
                   ) : (
                     <BodyB2>
                       {minimumReceived && tokenOutInfo
-                        ? `${numberWithCommas(minimumReceived.toSignificant(6))} ${tokenOutInfo?.displaySymbol ?? tokenOutInfo.symbol ?? '--'}`
+                        ? `${numberWithCommas(minimumReceived.toSignificant(6))} ${tokenOutInfo.displaySymbol ?? tokenOutInfo.symbol ?? '--'}`
                         : '--'}
                     </BodyB2>
                   )}
