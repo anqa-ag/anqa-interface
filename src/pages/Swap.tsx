@@ -577,7 +577,9 @@ export default function Swap() {
                       src={tokenInLogoSrc}
                       onError={() => setTokenInLogoSrc(NOT_FOUND_TOKEN_LOGO_URL)}
                     />
-                    <TitleT1 className="whitespace-nowrap">{tokenInInfo?.symbol ?? '--'}</TitleT1>
+                    <TitleT1 className="whitespace-nowrap">
+                      {tokenInInfo?.displaySymbol ?? tokenInInfo?.symbol ?? '--'}
+                    </TitleT1>
                     <ArrowFilledDownIcon size={20} />
                   </Button>
                 </div>
@@ -687,7 +689,9 @@ export default function Swap() {
                       src={tokenOutLogoSrc}
                       onError={() => setTokenOutLogoSrc(NOT_FOUND_TOKEN_LOGO_URL)}
                     />
-                    <TitleT1 className="whitespace-nowrap">{tokenOutInfo?.symbol ?? '--'}</TitleT1>
+                    <TitleT1 className="whitespace-nowrap">
+                      {tokenOutInfo?.displaySymbol ?? tokenOutInfo?.symbol ?? '--'}
+                    </TitleT1>
                     <ArrowFilledDownIcon size={20} />
                   </Button>
                 </div>
@@ -785,7 +789,7 @@ export default function Swap() {
                       >
                         <BodyB2 className="overflow-hidden text-ellipsis whitespace-nowrap">
                           {rate
-                            ? `1 ${tokenOutInfo?.symbol ?? '--'} = ${numberWithCommas(rate.invert().toSignificant(6))} ${tokenInInfo?.symbol ?? '--'}`
+                            ? `1 ${tokenOutInfo?.symbol ?? '--'} = ${numberWithCommas(rate.invert().toSignificant(6))} ${tokenInInfo?.displaySymbol ?? tokenInInfo?.symbol ?? '--'}`
                             : '--'}
                         </BodyB2>
                         <SwapIcon size={16} color="#FFFFFF" className="rotate-90" />
@@ -800,7 +804,7 @@ export default function Swap() {
                       >
                         <BodyB2 className="overflow-hidden text-ellipsis whitespace-nowrap">
                           {rate
-                            ? `1 ${tokenInInfo?.symbol ?? '--'} = ${numberWithCommas(rate.toSignificant(6))} ${tokenOutInfo?.symbol ?? '--'}`
+                            ? `1 ${tokenInInfo?.displaySymbol ?? tokenInInfo?.symbol ?? '--'} = ${numberWithCommas(rate.toSignificant(6))} ${tokenOutInfo?.displaySymbol ?? tokenOutInfo?.symbol ?? '--'}`
                             : '--'}
                         </BodyB2>
                         <SwapIcon size={16} color="#FFFFFF" className="rotate-90" />
@@ -835,7 +839,7 @@ export default function Swap() {
                   ) : (
                     <BodyB2>
                       {minimumReceived && tokenOutInfo
-                        ? `${numberWithCommas(minimumReceived.toSignificant(6))} ${tokenOutInfo.symbol ?? '--'}`
+                        ? `${numberWithCommas(minimumReceived.toSignificant(6))} ${tokenOutInfo?.displaySymbol ?? tokenOutInfo.symbol ?? '--'}`
                         : '--'}
                     </BodyB2>
                   )}

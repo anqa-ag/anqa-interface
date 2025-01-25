@@ -85,7 +85,7 @@ export default function BasicTokenInfo({
           <div className={`flex gap-1  ${!expand ? 'flex-col items-start' : 'items-end'}`}>
             <div className="flex items-center gap-1">
               <Subtitle3 className="select-none text-white" onClick={onClickExpand}>
-                {token?.displaySymbol ?? token.symbol}
+                {token.displaySymbol ?? token.symbol}
               </Subtitle3>
               {!expand && expandIcon}
             </div>
