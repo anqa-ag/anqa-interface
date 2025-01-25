@@ -172,7 +172,7 @@ function ModalSelectToken({
     const res = followingTokenDataWithBalanceList.filter((token) => {
       if (token.id === str) return true
       if (token.symbol.toLowerCase().includes(str.toLowerCase())) return true
-      return false
+      return !!token.displaySymbol?.toLowerCase()?.includes(str.toLowerCase());
     })
     return res
   }, [followingTokenDataWithBalanceList, searchValue])
@@ -187,7 +187,7 @@ function ModalSelectToken({
       .filter((token) => {
         if (token.id === str) return true
         if (token.symbol.toLowerCase().includes(str.toLowerCase())) return true
-        return false
+        return !!token.displaySymbol?.toLowerCase()?.includes(str.toLowerCase());
       })
       .filter((token) => !renderFollowingTokenList.map((token) => token.id).includes(token.id))
       .map((token) => ({
