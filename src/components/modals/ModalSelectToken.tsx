@@ -232,7 +232,6 @@ function ModalSelectToken({
       }).filter((item): item is Asset => !!item),
     [followingTokenData],
   )
-  console.log("xxxxx", stableCoinTokens)
 
   return (
     <>
