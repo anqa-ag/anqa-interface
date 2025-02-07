@@ -31,6 +31,16 @@ export const SUPPORTED_POOLS: PartialRecord<string, { name: string; shortName: s
     shortName: 'Thala',
     logoUrl: '/images/thalaswap.ico',
   },
+  thala_swap_v2_stable: {
+    name: 'ThalaSwap V2',
+    shortName: 'Thala V2',
+    logoUrl: '/images/thalaswap.ico',
+  },
+  thala_swap_v2_weighted: {
+    name: 'ThalaSwap V2',
+    shortName: 'Thala V2',
+    logoUrl: '/images/thalaswap.ico',
+  },
   // "bapt_swap_v1",
   // "bapt_swap_v2",
   // "bapt_swap_v2.1",
