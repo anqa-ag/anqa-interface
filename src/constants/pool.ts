@@ -84,4 +84,9 @@ export const SUPPORTED_POOLS: PartialRecord<string, { name: string; shortName: s
     shortName: 'Movepump',
     logoUrl: 'https://movepump.com/images/icons/movepump-logo.svg',
   },
+  thetis: {
+    name: 'Thetis',
+    shortName: 'thetis',
+    logoUrl: '/images/thetis.png',
+  },
 }
