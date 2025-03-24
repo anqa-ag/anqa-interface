@@ -6,7 +6,7 @@ import { OKXWallet } from '@okwallet/aptos-wallet-adapter'
 import { Wallet } from '@aptos-labs/wallet-adapter-react'
 import { NightlyWallet } from '@nightlylabs/aptos-wallet-adapter-plugin'
 
-export const ZUSDC = '0xf22bede237a07e121b56d91a491eb7bcdfd1f5907926a9e58338f964a01b17fa::asset::USDC'
+export const USDC = '0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b'
 
 export const NOT_FOUND_TOKEN_LOGO_URL =
   'https://png.pngtree.com/png-clipart/20190516/original/pngtree-question-mark-vector-icon-png-image_4236972.jpg'

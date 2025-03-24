@@ -80,7 +80,6 @@ export async function getRouteV2({
   includeSources?: string
 }): Promise<GetRouteV2ResponseData | undefined> {
   if (!srcAsset || !dstAsset || !srcAmount || parseFloat(srcAmount) === 0) return
-  const excludeSources = ['bapt_swap_v1', 'bapt_swap_v2', 'bapt_swap_v2.1']
   const response = await axios<GetRouteV2Response>(`${AGGREGATOR_URL}/v2/quote`, {
     params: {
       srcAsset: srcAsset,
@@ -93,7 +92,6 @@ export async function getRouteV2({
       includeSources,
       isFeeIn,
       feeInBps,
-      excludeSources: excludeSources.join(','),
     },
     headers: {
       'X-API-KEY': AGGREGATOR_API_KEY,

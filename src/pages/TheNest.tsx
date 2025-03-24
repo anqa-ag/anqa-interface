@@ -144,7 +144,7 @@ export default function TheNest() {
                   className="flex w-[65%] items-center justify-between rounded-none border-r-1 border-transparent bg-[#2667FE] px-6 py-2 data-[hover]:bg-[#2667FE] data-[hover]:opacity-90 sm:w-1/2"
                   disableAnimation
                   disableRipple
-                  onPress={() => navigate(`/swap/APT-zUSDC`, { replace: false })}
+                  onPress={() => navigate(`/swap/APT-USDC`, { replace: false })}
                 >
                   <TitleT1 className="font-clashDisplayBold">Swap Now</TitleT1>
                   <Icon icon="majesticons:arrow-right" width={24} />
