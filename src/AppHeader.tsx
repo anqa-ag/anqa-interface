@@ -1,7 +1,6 @@
 import { Button, Image } from '@nextui-org/react'
 import { AnqaWithTextIcon } from './components/Icons.tsx'
 import useModal, { MODAL_LIST } from './hooks/useModal.ts'
-import Menu from './components/Menu.tsx'
 import { TitleT2 } from './components/Texts.tsx'
 import useAnqaWallet from './hooks/useAnqaWallet.ts'
 import { Network } from '@aptos-labs/ts-sdk'
@@ -23,7 +22,6 @@ export default function AppHeader() {
       </div>
       {isSm ? (
         <>
-          <Menu />
           <div className="flex basis-2/12 justify-end">
             <ButtonConnectWallet
               onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}
@@ -34,7 +32,6 @@ export default function AppHeader() {
         </>
       ) : (
         <>
-          <Menu />
           <div className="flex basis-2/12 flex-row justify-end">
             <ButtonConnectWallet
               onOpenModalConnectWallet={() => onOpenModal(MODAL_LIST.CONNECT_WALLET)}

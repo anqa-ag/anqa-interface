@@ -16,7 +16,6 @@ import { MAINNET_WALLETS } from './constants'
 import './main.css'
 import './main.scss'
 import { persistor, store } from './redux/store'
-import TheNest from './pages/TheNest.tsx'
 import SwapContextProvider from './contexts/SwapContextProvider.tsx'
 import Updaters from './redux/updaters/Updaters.tsx'
 
@@ -32,10 +31,6 @@ export const router = createBrowserRouter([
   {
     path: '/swap/:pair',
     element: <Swap />,
-  },
-  {
-    path: '/the-nest',
-    element: <TheNest />,
   },
   {
     path: '*',
