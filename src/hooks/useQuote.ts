@@ -1,13 +1,13 @@
+import { InputEntryFunctionData } from '@aptos-labs/ts-sdk'
+import axios from 'axios'
 import { useMemo } from 'react'
 import useSWR from 'swr'
-import { AGGREGATOR_API_KEY, AGGREGATOR_URL } from '../constants'
-import { Asset } from '../redux/slices/asset.ts'
-import { InputEntryFunctionData } from '@aptos-labs/ts-sdk'
 import invariant from 'tiny-invariant'
-import { useAppSelector } from '../redux/hooks'
+import { AGGREGATOR_API_KEY, AGGREGATOR_URL } from '../constants'
 import { SUPPORTED_POOLS } from '../constants/pool.ts'
+import { Asset } from '../redux/slices/asset.ts'
 import { ValueOf } from '../types.ts'
-import axios from 'axios'
+import useFullTokens from './useFullTokens.ts'
 
 export interface Hop {
   srcAsset: Asset
@@ -164,7 +164,7 @@ export default function useQuote({
     }
   }, [data?.paths])
 
-  const followingTokenData = useAppSelector((state) => state.token.followingTokenData)
+  const { data: fullTokenData = {} } = useFullTokens()
   const parsedData = useMemo(() => {
     if (!data) return undefined
     try {
@@ -173,9 +173,9 @@ export default function useQuote({
         paths.push([])
         for (let j = 0; j < data.paths[i].length; j++) {
           const h: RawHop = data.paths[i][j]
-          const srcAsset = followingTokenData[h.srcAsset]
+          const srcAsset = fullTokenData[h.srcAsset]
           invariant(srcAsset, 'srcAsset undefined')
-          const dstAsset = followingTokenData[h.dstAsset]
+          const dstAsset = fullTokenData[h.dstAsset]
           invariant(dstAsset, 'dstAsset undefined')
           const pool = SUPPORTED_POOLS[Object.keys(SUPPORTED_POOLS).find((p) => p === h.source) || ''] || undefined
           invariant(pool, 'pool undefined')
@@ -188,9 +188,9 @@ export default function useQuote({
           })
         }
       }
-      const srcAsset = followingTokenData[data.srcAsset]
+      const srcAsset = fullTokenData[data.srcAsset]
       invariant(srcAsset, 'srcAsset undefined')
-      const dstAsset = followingTokenData[data.dstAsset]
+      const dstAsset = fullTokenData[data.dstAsset]
       invariant(dstAsset, 'dstAsset undefined')
       let swapData: InputEntryFunctionData | undefined
       if (data.tx) {
@@ -212,7 +212,7 @@ export default function useQuote({
       console.error(err)
       return undefined
     }
-  }, [data, followingTokenData])
+  }, [data, fullTokenData])
 
   return useMemo(
     () => ({
