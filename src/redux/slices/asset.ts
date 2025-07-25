@@ -13,6 +13,7 @@ export interface Asset {
   decimals: number
   whitelisted: boolean
   logoUrl?: string
+  paired_coin?: string
 }
 
 export const APTOS: Asset = {

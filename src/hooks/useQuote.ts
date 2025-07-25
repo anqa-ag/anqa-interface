@@ -81,7 +81,7 @@ export async function getRouteV2({
 }): Promise<GetRouteV2ResponseData | undefined> {
   if (!srcAsset || !dstAsset || !srcAmount || parseFloat(srcAmount) === 0) return
   const excludeSources = ['bapt_swap_v1', 'bapt_swap_v2', 'bapt_swap_v2.1']
-  const response = await axios<GetRouteV2Response>(`${AGGREGATOR_URL}/v2/quote`, {
+  const response = await axios<GetRouteV2Response>(`${AGGREGATOR_URL}/v1/quote`, {
     params: {
       srcAsset: srcAsset,
       dstAsset: dstAsset,

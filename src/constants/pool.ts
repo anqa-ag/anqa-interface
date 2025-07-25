@@ -94,4 +94,9 @@ export const SUPPORTED_POOLS: PartialRecord<string, { name: string; shortName: s
     shortName: 'thetis',
     logoUrl: '/images/thetis.png',
   },
+  hyperion: {
+    name: "Hyperion",
+    shortName: "hyperion",
+    logoUrl: "/images/hyperion.png",
+  }
 }
