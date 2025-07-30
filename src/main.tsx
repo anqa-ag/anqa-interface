@@ -26,7 +26,7 @@ ReactGA.initialize('G-B2297K89VL')
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <NavigateWithParams to="/swap/APT-zUSDC" />,
+    element: <NavigateWithParams to="/swap/APT-USDC" />,
   },
   {
     path: '/swap/:pair',
@@ -34,7 +34,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '*',
-    element: <NavigateWithParams to="/swap/APT-zUSDC" />,
+    element: <NavigateWithParams to="/swap/APT-USDC" />,
   },
 ])
 

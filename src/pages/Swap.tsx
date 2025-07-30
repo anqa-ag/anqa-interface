@@ -11,7 +11,7 @@ import { BodyB2, TitleT1, TitleT2, TitleT4 } from '../components/Texts.tsx'
 import ModalSelectToken from '../components/modals/ModalSelectToken.tsx'
 import ModalTradeRoute from '../components/modals/ModalTradeRoute.tsx'
 import ModalUserSetting from '../components/modals/ModalUserSetting.tsx'
-import { BIP_BASE, NOT_FOUND_TOKEN_LOGO_URL, petraWallet, ZUSDC } from '../constants'
+import { BIP_BASE, NOT_FOUND_TOKEN_LOGO_URL, petraWallet, USDC } from '../constants'
 import { SUPPORTED_POOLS } from '../constants/pool.ts'
 import { SwapContext } from '../contexts/SwapContext.ts'
 import useAnqaWallet from '../hooks/useAnqaWallet.ts'
@@ -103,7 +103,7 @@ export default function Swap() {
         } catch {
           return false
         }
-      })?.id || ZUSDC,
+      })?.id || USDC,
     [followingTokenData, location.pathname],
   )
   const tokenInInfo: Asset | undefined = useMemo(() => {
@@ -138,7 +138,7 @@ export default function Swap() {
       dispatch(addTokensToFollow([newTokenIn.id, newTokenOut.id]))
     } catch (err) {
       pair !== '/swap' && console.error(err)
-      navigate(`/swap/APT-zUSDC?${params.toString()}`, { replace: true })
+      navigate(`/swap/APT-USDC?${params.toString()}`, { replace: true })
     }
   }, [dispatch, followingTokenData, fullTokenData, location.pathname, navigate, params])
 
@@ -152,7 +152,7 @@ export default function Swap() {
         navigate(`/swap/${symbolOrAddress}-${tokenOutSymbolOrAddress}?${params.toString()}`, { replace: true })
       } catch (err) {
         pair !== '/swap' && console.error(err)
-        navigate(`/swap/APT-zUSDC?${params.toString()}`, {
+        navigate(`/swap/APT-USDC?${params.toString()}`, {
           replace: true,
         })
       }
@@ -169,7 +169,7 @@ export default function Swap() {
         navigate(`/swap/${tokenInSymbolOrAddress}-${symbolOrAddress}?${params.toString()}`, { replace: true })
       } catch (err) {
         pair !== '/swap' && console.error(err)
-        navigate(`/swap/APT-zUSDC?${params.toString()}`, {
+        navigate(`/swap/APT-USDC?${params.toString()}`, {
           replace: true,
         })
       }
@@ -347,7 +347,7 @@ export default function Swap() {
       navigate(`/swap/${tokenOutSymbolOrAddress}-${tokenInSymbolOrAddress}?${params.toString()}`, { replace: true })
     } catch (err) {
       pair !== '/swap' && console.error(err)
-      navigate(`/swap/APT-zUSDC?${params.toString()}`, { replace: true })
+      navigate(`/swap/APT-USDC?${params.toString()}`, { replace: true })
     }
     setTokenInInfo(_tokenOutInfo)
     setTokenOutInfo(_tokenInInfo)
