@@ -98,5 +98,20 @@ export const SUPPORTED_POOLS: PartialRecord<string, { name: string; shortName: s
     name: "Hyperion",
     shortName: "hyperion",
     logoUrl: "/images/hyperion.png",
-  }
+  },
+  tapp_amm: {
+    name: "Tapp",
+    shortName: "Tapp",
+    logoUrl: "/images/tapp.png",
+  },
+  tapp_stable: {
+    name: "Tapp",
+    shortName: "Tapp",
+    logoUrl: "/images/tapp.png",
+  },
+  tapp_clmm: {
+    name: "Tapp",
+    shortName: "Tapp",
+    logoUrl: "/images/tapp.png",
+  },
 }
