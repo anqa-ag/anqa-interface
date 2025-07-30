@@ -35,6 +35,7 @@ import AppLayout from '../AppLayout.tsx'
 import { ChargeFeeBy } from '@anqa-ag/ts-sdk'
 import { Helmet } from 'react-helmet'
 import { useTokenBalance } from '../hooks/useRefreshBalanceFn.ts'
+import ModalConnectWallet from '../components/modals/ModalConnectWallet.tsx'
 
 export default function Swap() {
   const dispatch = useAppDispatch()
@@ -949,7 +950,11 @@ export default function Swap() {
         onClose={onCloseModal}
         onSelectToken={setTokenIn}
       />
-
+      <ModalConnectWallet
+        isOpen={globalModal === MODAL_LIST.CONNECT_WALLET && isModalOpen}
+        onOpenChange={onOpenChangeModal}
+        onClose={onCloseModal}
+      />
       <ModalSelectToken
         isOpen={globalModal === MODAL_LIST.SELECT_TOKEN_OUT && isModalOpen}
         onOpenChange={onOpenChangeModal}
