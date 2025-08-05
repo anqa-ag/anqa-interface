@@ -43,7 +43,7 @@ export default function AppFooter() {
           <div className="flex items-center gap-5 md:gap-0">
             <Link
               isBlock
-              href="https://docs.anqa.ag"
+              href="https://dev.anqa.ag"
               color="primary"
               className="text-buttonSecondary"
               size="sm"
