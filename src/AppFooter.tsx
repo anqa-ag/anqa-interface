@@ -9,7 +9,7 @@ export default function AppFooter() {
     <footer className="flex w-full flex-1 items-end">
       <div className="flex h-[84px] w-full content-center items-center justify-between px-[60px] lg:px-[30px] md:static md:px-[16px] sm:justify-center">
         <div className="flex items-center gap-2">
-          <BodyB2 className="text-buttonSecondary">© Anqa 2024</BodyB2>
+          <BodyB2 className="text-buttonSecondary">© Anqa 2025</BodyB2>
 
           <div className="flex items-center">
             <Link
