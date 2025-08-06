@@ -173,7 +173,7 @@ function ModalSelectToken({
     const res = followingTokenDataWithBalanceList.filter((token) => {
       if (token.id === str) return true
       if (token.symbol.toLowerCase().includes(str.toLowerCase())) return true
-      return !!token.displaySymbol?.toLowerCase()?.includes(str.toLowerCase());
+      return !!token.displaySymbol?.toLowerCase()?.includes(str.toLowerCase())
     })
     return res
   }, [followingTokenDataWithBalanceList, searchValue])
@@ -188,7 +188,7 @@ function ModalSelectToken({
       .filter((token) => {
         if (token.id === str) return true
         if (token.symbol.toLowerCase().includes(str.toLowerCase())) return true
-        return !!token.displaySymbol?.toLowerCase()?.includes(str.toLowerCase());
+        return !!token.displaySymbol?.toLowerCase()?.includes(str.toLowerCase())
       })
       .filter((token) => !renderFollowingTokenList.map((token) => token.id).includes(token.id))
       .map((token) => ({
@@ -285,22 +285,6 @@ function ModalSelectToken({
               value={_searchValue}
               onChange={(e) => setSearchValue(e.currentTarget.value)}
             />
-
-            <Spacer y={4} />
-
-            <div className="flex flex-col gap-2">
-              {BANNERS.map((item) => (
-                <Button key={item.symbol} onPress={() => setTokenAndClose(item)} className="relative rounded p-0">
-                  <Skeleton
-                    className="absolute left-0 top-0 z-10 h-full w-full rounded"
-                    classNames={{
-                      base: '!bg-transparent after:!bg-transparent',
-                    }}
-                  />
-                  <Image src={item.logoUrl} className="z-0 w-full" />
-                </Button>
-              ))}
-            </div>
 
             <Spacer y={4} />
             <div className="grid grid-cols-4 gap-2">
