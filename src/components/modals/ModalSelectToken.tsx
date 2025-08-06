@@ -1,4 +1,4 @@
-import { Avatar, Button, Chip, Image, Input, Modal, ModalContent, Skeleton, Spacer } from '@nextui-org/react'
+import { Avatar, Button, Chip, Input, Modal, ModalContent, Spacer } from '@nextui-org/react'
 import { CSSProperties, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FixedSizeList } from 'react-window'
 import { useDebounceValue, useWindowSize } from 'usehooks-ts'
@@ -13,39 +13,6 @@ import { useIsSm } from '../../hooks/useMedia.ts'
 import { PartialRecord } from '../../types.ts'
 import { calcTotalTokenBalance, sortBalanceFn, useTokensHasBalance } from '../../hooks/useTokenBalance.ts'
 import { motion } from 'framer-motion'
-
-const BANNERS = [
-  {
-    id: '0x5915ae0eae3701833fa02e28bf530bc01ca96a5f010ac8deecb14c7a92661368',
-    faAddress: '0x5915ae0eae3701833fa02e28bf530bc01ca96a5f010ac8deecb14c7a92661368',
-    coinType: '0x4fbed3f8a3fd8a11081c8b6392152a8b0cb14d70d0414586f0c9b858fcd2d6a7::UPTOS::UPTOS',
-    symbol: 'UPTOS',
-    name: 'UPTOS',
-    decimals: 8,
-    whitelisted: false,
-    logoUrl: '/banners/UPTOS.jpg',
-  },
-  {
-    id: '0x7fa78d58cccc849363df4ed1acd373b1f09397d1c322450101e3b0a4a7a14d80',
-    faAddress: '0x7fa78d58cccc849363df4ed1acd373b1f09397d1c322450101e3b0a4a7a14d80',
-    coinType: '0x4ef6d6d174ae393cec4c8af0b75638082fe45c92e552b4df8bc679e3a0ddcb13::CAPTOS::CAPTOS',
-    symbol: 'CAPTOS',
-    name: 'captos',
-    decimals: 6,
-    whitelisted: false,
-    logoUrl: '/banners/CAPTOS.png',
-  },
-  {
-    id: '0x1ff8bf54987b665fd0aa8b317a22a60f5927675d35021473a85d720e254ed77e',
-    faAddress: '0x1ff8bf54987b665fd0aa8b317a22a60f5927675d35021473a85d720e254ed77e',
-    coinType: '0x5e975e7f36f2658d4cf146142899c659464a3e0d90f0f4d5f8b2447173c06ef6::EDOG::EDOG',
-    symbol: 'EDOG',
-    name: 'captos',
-    decimals: 6,
-    whitelisted: false,
-    logoUrl: '/banners/EDOG.png',
-  },
-]
 
 const STABLE_COIN_IDS = [
   '0x1::aptos_coin::AptosCoin',
