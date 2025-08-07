@@ -65,7 +65,7 @@ function useTokenInfo(tokens: string[]) {
 }
 
 interface RawCoinInfo {
-  coinType?: string
+  tokenAddress?: string
   faAddress: string
   decimals: number
   name: string
@@ -75,7 +75,7 @@ interface RawCoinInfo {
 
 function useWhitelistedTokens() {
   const fn = useCallback(async () => {
-    const url = 'https://raw.githubusercontent.com/anqa-ag/aptos-coin-list/main/anqaTokenList.json'
+    const url = 'https://raw.githubusercontent.com/PanoraExchange/Aptos-Tokens/refs/heads/main/token-list.json'
     const response = await axios<RawCoinInfo[]>(url)
     if (response.status === 200) {
       return response.data
@@ -88,7 +88,7 @@ function useWhitelistedTokens() {
     if (!data) return undefined
     const m: PartialRecord<string, Asset> = {}
     for (const token of data) {
-      const asset = { ...token, whitelisted: true, id: token.faAddress } as Asset
+      const asset = { ...token, whitelisted: true, id: token.faAddress, coinType: token.tokenAddress } as Asset
       m[token.faAddress] = asset
     }
     return m
