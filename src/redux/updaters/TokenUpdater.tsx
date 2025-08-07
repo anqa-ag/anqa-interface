@@ -88,7 +88,7 @@ function useWhitelistedTokens() {
     if (!data) return undefined
     const m: PartialRecord<string, Asset> = {}
     for (const token of data) {
-      const asset = { ...token, whitelisted: true, id: token.faAddress } as Asset
+      const asset = { ...token, whitelisted: true, id: token.faAddress, coinType: token.tokenAddress } as Asset
       m[token.faAddress] = asset
     }
     return m
@@ -104,6 +104,7 @@ function FollowingTokenUpdater() {
     if (whitelistedTokenMap) {
       dispatch(addTokensToFollow(Object.keys(whitelistedTokenMap)))
       const newTokenData: PartialRecord<string, Asset> = { ...whitelistedTokenMap }
+      console.log(newTokenData)
       Object.values(whitelistedTokenMap ?? {}).forEach((token) => {
         if (token?.coinType) newTokenData[token.coinType] = { ...token, type: 'legacy' }
       })
