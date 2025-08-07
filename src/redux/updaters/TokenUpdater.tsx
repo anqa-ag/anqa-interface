@@ -104,7 +104,6 @@ function FollowingTokenUpdater() {
     if (whitelistedTokenMap) {
       dispatch(addTokensToFollow(Object.keys(whitelistedTokenMap)))
       const newTokenData: PartialRecord<string, Asset> = { ...whitelistedTokenMap }
-      console.log(newTokenData)
       Object.values(whitelistedTokenMap ?? {}).forEach((token) => {
         if (token?.coinType) newTokenData[token.coinType] = { ...token, type: 'legacy' }
       })
