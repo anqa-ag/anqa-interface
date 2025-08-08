@@ -258,7 +258,7 @@ function ModalSelectToken({
             <div className="grid grid-cols-4 gap-2">
               {stableCoinTokens.map((token) => (
                 <Chip
-                  key={`stable-coin-${token.displaySymbol ?? token.symbol}`}
+                  key={`stable-coin-${token.id}`}
                   classNames={{
                     base: 'bg-transparent hover:cursor-pointer border-small border-white/50 rounded-lg max-w-full',
                     content: 'pl-2',

@@ -26,7 +26,32 @@ interface TokenPrice {
   updatedAt: number
 }
 
-const fn = async ({ tokens }: { key: string; tokens: string[] }) => {
+const fetchPricesFn = async ({ tokens }: { key: string; tokens: string[] }) => {
+  if (!tokens || tokens.length === 0) return
+
+  const batchSize = 20
+  const batches: string[][] = []
+
+  for (let i = 0; i < tokens.length; i += batchSize) {
+    batches.push(tokens.slice(i, i + batchSize))
+  }
+
+  const responses = await Promise.all(batches.map((batch) => getTokenPrice(batch)))
+
+  let priceById: GetTokenPriceResponseData['priceById'] = {}
+
+  responses.forEach((response) => {
+    if (response?.data?.priceById) {
+      priceById = {
+        ...priceById,
+        ...response.data.priceById,
+      }
+    }
+  })
+  return { priceById }
+}
+
+const getTokenPrice = async (tokens: string[]) => {
   if (!tokens) return
   const url = `${AGGREGATOR_URL}/v1/prices?` + tokens.map((t) => `ids[]=${t}`).join('&')
   const response = await axios<GetTokenPriceResponse>(url, {
@@ -45,7 +70,7 @@ function useTokenPrice(tokens: string[]) {
     data: response,
     error,
     isValidating,
-  } = useSWR({ key: 'useTokenPrice', tokens }, fn, {
+  } = useSWR({ key: 'useTokenPrice', tokens }, fetchPricesFn, {
     refreshInterval: 60_000,
   })
 
@@ -53,9 +78,9 @@ function useTokenPrice(tokens: string[]) {
     () => ({
       isValidating,
       error,
-      tokenPriceMap: response?.data.priceById,
+      tokenPriceMap: response?.priceById,
     }),
-    [error, isValidating, response?.data.priceById],
+    [error, isValidating, response?.priceById],
   )
 
   return res
