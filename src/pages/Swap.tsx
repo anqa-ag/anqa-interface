@@ -367,11 +367,12 @@ export default function Swap() {
   const setTokenIn = useCallback(
     (token: Asset) => {
       setTokenInInfo(token)
-      const symbolOrAddress = token.whitelisted ? token.symbol : token.id
-      if (tokenOut === symbolOrAddress || (tokenOutInfo && tokenOutInfo.symbol === symbolOrAddress)) {
+      console.log({ tokenOutInfo })
+      const tokenId = token.id
+      if (tokenOut === tokenId || (tokenOutInfo && tokenOutInfo.id === tokenId)) {
         switchToken()
       } else {
-        _setTokenIn(symbolOrAddress)
+        _setTokenIn(tokenId)
       }
       onCloseModal()
     },
@@ -380,11 +381,11 @@ export default function Swap() {
   const setTokenOut = useCallback(
     (token: Asset) => {
       setTokenOutInfo(token)
-      const symbolOrAddress = token.whitelisted ? token.symbol : token.id
-      if (tokenIn === symbolOrAddress || (tokenInInfo && tokenInInfo.symbol === symbolOrAddress)) {
+      const tokenId = token.id
+      if (tokenIn === tokenId || (tokenInInfo && tokenInInfo.id === tokenId)) {
         switchToken()
       } else {
-        _setTokenOut(symbolOrAddress)
+        _setTokenOut(tokenId)
       }
       onCloseModal()
     },
