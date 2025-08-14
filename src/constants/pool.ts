@@ -114,4 +114,9 @@ export const SUPPORTED_POOLS: PartialRecord<string, { name: string; shortName: s
     shortName: "Tapp",
     logoUrl: "/images/tapp.png",
   },
+  earnium: {
+    name: "Earnium",
+    shortName: "Earnium",
+    logoUrl: "/images/earnium.png",
+  },
 }
