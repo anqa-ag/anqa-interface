@@ -25,7 +25,7 @@ export default function AppFooter() {
             </Link>
             <Link
               isBlock
-              href="https://discord.gg/UR7fasRR"
+              href="https://discord.com/invite/Q7KPxxDW5w"
               color="primary"
               className="text-buttonSecondary"
               disableAnimation
